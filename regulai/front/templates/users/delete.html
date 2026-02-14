@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete User{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+            <iconify-icon icon="solar:user-cross-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+          </div>
+          <h4 class="fw-semibold">Delete User</h4>
+          <p class="text-muted">Are you sure you want to delete this user?</p>
+        </div>
+
+        <div class="card bg-light border-0 mb-4">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <iconify-icon icon="solar:user-bold" class="text-primary fs-5"></iconify-icon>
+              </div>
+              <div>
+                <h6 class="fw-semibold mb-0">{{ delete_user.username }}</h6>
+                <span class="text-muted fs-2">{{ delete_user.email|default:"No email" }}</span>
+                <div class="mt-1">
+                  {% if profile.role %}
+                  <span class="badge bg-primary-subtle text-primary">{{ profile.role.name }}</span>
+                  {% endif %}
+                  {% if delete_user.is_staff %}
+                  <span class="badge bg-success-subtle text-success">Staff</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+          <strong>Warning:</strong> This action cannot be undone. All data associated with this user will be permanently deleted, including:
+          <ul class="mb-0 mt-2">
+            <li>User profile and settings</li>
+            <li>Chat conversations and messages</li>
+            <li>Prompts history</li>
+          </ul>
+        </div>
+
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger flex-grow-1">
+            <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+            Yes, Delete User
+          </button>
+          <a href="{% url 'front:users_list' %}" class="btn btn-outline-secondary flex-grow-1">
+            Cancel
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

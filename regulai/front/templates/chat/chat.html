@@ -1,0 +1,1344 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chat{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Custom dropdown styles */
+  .custom-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .custom-dropdown-btn {
+    cursor: pointer;
+    user-select: none;
+  }
+  .custom-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 220px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    display: none;
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .custom-dropdown-menu.show {
+    display: block;
+  }
+  .custom-dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    color: #212529;
+    transition: background-color 0.15s;
+  }
+  .custom-dropdown-item:hover {
+    background-color: #f8f9fa;
+  }
+  .custom-dropdown-item.active {
+    background-color: #e7f1ff;
+  }
+
+  .chat-layout {
+    display: flex;
+    height: calc(100vh - 140px);
+    gap: 1rem;
+  }
+
+  .conversations-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .conversations-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+  }
+
+  .conversation-item {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .conversation-item:hover {
+    background-color: #f6f9fc;
+  }
+
+  .conversation-item.active {
+    background-color: #e8f4ff;
+    border-left: 3px solid #5d87ff;
+  }
+
+  .conversation-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .conversation-date {
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .chat-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+  }
+
+  .chat-bubble {
+    max-width: 80%;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  .chat-bubble.user {
+    margin-left: auto;
+    background-color: #5d87ff;
+    color: white;
+    border-radius: 1rem 1rem 0 1rem;
+  }
+
+  .chat-bubble.assistant {
+    margin-right: auto;
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 1rem 1rem 1rem 0;
+  }
+
+  .chat-bubble.system {
+    margin: 0 auto;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 0.5rem;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  .chat-bubble.blocked {
+    margin-right: auto;
+    background-color: #fdf0f0;
+    border: 1px solid #dc3545;
+    border-radius: 1rem 1rem 1rem 0;
+  }
+
+  .chat-input-area {
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+    margin-top: 1rem;
+  }
+
+  .message-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .message-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .empty-chat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+  }
+
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .conversation-item:hover .delete-btn {
+    opacity: 1;
+  }
+
+  .loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    max-width: 200px;
+  }
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e9ecef;
+    border-top: 3px solid #5d87ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+
+  .chat-input-area.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .file-attachment {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255,255,255,0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .chat-bubble.user .file-attachment {
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  .chat-bubble.assistant .file-attachment {
+    background-color: #f0f0f0;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+  <!-- Conversations Sidebar -->
+  <div class="conversations-sidebar">
+    <div class="card h-100">
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:chat-round-dots-bold" class="text-primary me-2"></iconify-icon>
+            Conversations
+          </h6>
+          <a href="{% url 'front:chat' %}" class="btn btn-primary btn-sm">
+            <iconify-icon icon="solar:add-circle-bold"></iconify-icon>
+            New
+          </a>
+        </div>
+
+        <div class="conversations-list">
+          {% if conversations %}
+            {% for conv in conversations %}
+            <a href="{% url 'front:chat_conversation' conv.id %}"
+               class="conversation-item {% if conversation and conversation.id == conv.id %}active{% endif %}">
+              <div class="d-flex flex-column flex-grow-1" style="min-width: 0;">
+                <span class="conversation-title">{{ conv.get_title }}</span>
+                <span class="conversation-date">{{ conv.updated_at|date:"M d, H:i" }}</span>
+              </div>
+              <a href="{% url 'front:chat_delete' conv.id %}"
+                 class="delete-btn btn btn-sm btn-outline-danger p-1"
+                 onclick="event.stopPropagation();"
+                 title="Delete">
+                <iconify-icon icon="solar:trash-bin-trash-bold" style="font-size: 14px;"></iconify-icon>
+              </a>
+            </a>
+            {% endfor %}
+          {% else %}
+            <div class="text-center text-muted py-4">
+              <iconify-icon icon="solar:chat-round-dots-line-duotone" style="font-size: 2rem;"></iconify-icon>
+              <p class="mt-2 mb-0 small">No conversations yet</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Main Area -->
+  <div class="chat-main">
+    <div class="card h-100">
+      <div class="card-body d-flex flex-column">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="card-title fw-semibold mb-0">
+            {% if conversation %}
+              <iconify-icon icon="solar:chat-round-dots-bold" class="text-primary me-2"></iconify-icon>
+              {{ conversation.get_title|truncatewords:5 }}
+            {% else %}
+              <iconify-icon icon="solar:chat-round-dots-bold" class="text-primary me-2"></iconify-icon>
+              New Conversation
+            {% endif %}
+          </h5>
+          <div class="d-flex align-items-center gap-2">
+            {% if available_engines %}
+            <!-- Engine Selector -->
+            <div class="custom-dropdown" id="engineDropdownContainer">
+              <button class="btn btn-outline-primary btn-sm custom-dropdown-btn" type="button" onclick="toggleDropdown('engineDropdownMenu')">
+                <iconify-icon icon="solar:cpu-bolt-bold" class="me-1"></iconify-icon>
+                <span id="currentEngineName">{% if current_engine %}{{ current_engine.display_name }}{% else %}Select Engine{% endif %}</span>
+                <iconify-icon icon="solar:alt-arrow-down-linear" class="ms-1"></iconify-icon>
+              </button>
+              <div class="custom-dropdown-menu" id="engineDropdownMenu">
+                {% for ce in available_engines %}
+                <div class="custom-dropdown-item {% if current_engine and current_engine.id == ce.id %}active{% endif %}"
+                     data-engine-id="{{ ce.id }}"
+                     data-connector-type="{{ ce.engine.connector_type }}"
+                     onclick="selectEngine({{ ce.id }}, '{{ ce.display_name }}', '{{ ce.engine.provider|default:"" }}', '{{ ce.engine.connector_type }}')">
+                  <div class="d-flex align-items-center">
+                    {% if ce.engine.connector_type == 'anthropic' %}
+                    <iconify-icon icon="simple-icons:anthropic" class="me-2 text-warning"></iconify-icon>
+                    {% else %}
+                    <iconify-icon icon="simple-icons:openai" class="me-2 text-success"></iconify-icon>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                      <div class="fw-medium">{{ ce.display_name }}</div>
+                      <small class="text-muted">
+                        {% if ce.engine.provider %}{{ ce.engine.provider }} - {% endif %}
+                        {{ ce.engine.get_connector_type_display }}
+                      </small>
+                    </div>
+                    {% if current_engine and current_engine.id == ce.id %}
+                    <iconify-icon icon="solar:check-circle-bold" class="ms-auto text-success"></iconify-icon>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Model Selector -->
+            <div class="custom-dropdown" id="modelDropdownContainer" {% if not available_models %}style="display:none"{% endif %}>
+              <button class="btn btn-outline-secondary btn-sm custom-dropdown-btn" type="button" onclick="toggleDropdown('modelDropdownMenu')">
+                <iconify-icon icon="solar:atom-bold" class="me-1"></iconify-icon>
+                <span id="currentModelName">{% if current_model %}{{ current_model.name }}{% else %}Select Model{% endif %}</span>
+                <iconify-icon icon="solar:alt-arrow-down-linear" class="ms-1"></iconify-icon>
+              </button>
+              <div class="custom-dropdown-menu" id="modelDropdownMenu">
+                {% for model in available_models %}
+                <div class="custom-dropdown-item {% if current_model and current_model.id == model.id %}active{% endif %}"
+                     data-model-id="{{ model.id }}"
+                     onclick="selectModel({{ model.id }}, '{{ model.name }}', '{{ model.model_id }}', {{ model.supports_vision|yesno:'true,false' }})">
+                  <div class="d-flex align-items-center">
+                    <iconify-icon icon="solar:atom-bold" class="me-2 text-secondary"></iconify-icon>
+                    <div class="flex-grow-1">
+                      <div class="fw-medium">{{ model.name }}</div>
+                      <small class="text-muted">{{ model.model_id }}</small>
+                    </div>
+                    {% if model.supports_vision %}
+                    <span class="badge bg-info-subtle text-info ms-2" title="Supports images">
+                      <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                    </span>
+                    {% endif %}
+                    {% if current_model and current_model.id == model.id %}
+                    <iconify-icon icon="solar:check-circle-bold" class="ms-2 text-success"></iconify-icon>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <span class="badge bg-success-subtle text-success">
+              <iconify-icon icon="solar:plug-circle-bold" class="me-1"></iconify-icon>
+              Connected
+            </span>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="chat-container" id="chatContainer">
+          {% if messages %}
+            {% for msg in messages %}
+              {% if msg.role == 'user' %}
+                <div class="chat-bubble user {% if msg.blocked %}blocked{% endif %}">
+                  <div class="message-role">
+                    <iconify-icon icon="solar:user-bold"></iconify-icon>
+                    You
+                    {% if msg.blocked %}
+                      <span class="badge bg-danger ms-2">Blocked</span>
+                    {% endif %}
+                  </div>
+                  <div class="message-content">
+                  </div>
+                  {% if msg.file_name %}
+                  <div class="file-attachment">
+                    <iconify-icon icon="solar:file-bold"></iconify-icon>
+                    <span>{{ msg.file_name }}</span>
+                    {% if msg.file_size %}
+                    <span class="opacity-75">({{ msg.file_size|filesizeformat }})</span>
+                    {% endif %}
+                  </div>
+                  {% endif %}
+                </div>
+              {% elif msg.role == 'assistant' %}
+                <div class="chat-bubble assistant">
+                  <div class="message-role text-primary">
+                    <iconify-icon icon="solar:atom-bold"></iconify-icon>
+                    AI Assistant
+                  </div>
+                  <div class="message-content">{{ msg.content }}</div>
+                </div>
+              {% elif msg.role == 'system' %}
+                <div class="chat-bubble system">
+                  <div class="message-role text-warning">
+                    <iconify-icon icon="solar:info-circle-bold"></iconify-icon>
+                    System
+                  </div>
+                  <div class="message-content">{{ msg.content }}</div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <div class="empty-chat">
+              <iconify-icon icon="solar:chat-round-dots-line-duotone" style="font-size: 4rem;"></iconify-icon>
+              <h5 class="mt-3">Start a new conversation</h5>
+              <p class="text-muted">Send a message to begin chatting with the AI assistant.</p>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Chat Input Form -->
+        <form method="post" enctype="multipart/form-data" class="chat-input-area" id="chatForm">
+          {% csrf_token %}
+
+          <!-- File Preview Area -->
+          <div id="filePreview" class="mb-2 d-none">
+            <div class="d-inline-flex align-items-center gap-2 bg-light rounded-pill px-3 py-2">
+              <iconify-icon icon="solar:file-bold" class="text-primary"></iconify-icon>
+              <span id="fileName" class="small fw-medium"></span>
+              <span id="fileSize" class="small text-muted"></span>
+              <button type="button" class="btn btn-link btn-sm p-0 text-danger" onclick="removeFile()">
+                <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col">
+              <div class="input-group">
+                <!-- File Upload Button -->
+                <label class="btn btn-outline-secondary" for="fileInput" title="Attach file" id="fileLabel">
+                  <iconify-icon icon="solar:paperclip-bold" style="font-size: 1.25rem;"></iconify-icon>
+                </label>
+                <input type="file" name="file" id="fileInput" class="d-none"
+                       accept=".txt,.pdf,.doc,.docx,.csv,.json,.xml,.py,.js,.html,.css,.md,.log,.xlsx,.xls,.png,.jpg,.jpeg,.gif,.webp"
+                       onchange="handleFileSelect(this)">
+
+                <textarea name="prompt" id="prompt" class="form-control" rows="2"
+                  placeholder="Type your message here... You can also attach a file or image."></textarea>
+                <button type="submit" class="btn btn-primary px-4" id="sendButton">
+                  <iconify-icon icon="solar:plain-bold" style="font-size: 1.25rem;" id="sendIcon"></iconify-icon>
+                  <span class="spinner-border spinner-border-sm d-none" id="sendSpinner" role="status"></span>
+                </button>
+              </div>
+              <div class="form-text mt-1 d-flex justify-content-between">
+                <small>Press Enter to send, Shift+Enter for new line</small>
+                <small class="text-muted">Supported: txt, pdf, docx, xlsx, csv, json, py, js, md, images</small>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Blocked Rules Modal -->
+{% if blocked and blocked_rules %}
+<div class="modal fade" id="blockedRulesModal" tabindex="-1" aria-labelledby="blockedRulesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="blockedRulesModalLabel">
+          <iconify-icon icon="solar:shield-warning-bold" class="me-2"></iconify-icon>
+          Prompt Blocked by Security Rules
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning mb-4">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+          <strong>Attention:</strong> Your prompt was blocked because it matched the following security rules.
+        </div>
+
+        {% for rule in blocked_rules %}
+        <div class="card mb-3 border-{% if rule.severity == 'critical' %}danger{% elif rule.severity == 'high' %}warning{% elif rule.severity == 'medium' %}info{% else %}secondary{% endif %}">
+          <div class="card-header d-flex align-items-center justify-content-between bg-{% if rule.severity == 'critical' %}danger{% elif rule.severity == 'high' %}warning{% elif rule.severity == 'medium' %}info{% else %}secondary{% endif %}-subtle">
+            <div class="d-flex align-items-center">
+              <iconify-icon icon="solar:shield-check-bold" class="me-2 fs-5"></iconify-icon>
+              <strong>{{ rule.name }}</strong>
+            </div>
+            <span class="badge bg-{% if rule.severity == 'critical' %}danger{% elif rule.severity == 'high' %}warning{% elif rule.severity == 'medium' %}info{% else %}secondary{% endif %}">
+              {{ rule.severity|title }}
+            </span>
+          </div>
+          <div class="card-body">
+            {% if rule.description %}
+            <p class="mb-0">{{ rule.description }}</p>
+            {% else %}
+            <p class="mb-0 text-muted fst-italic">No description available.</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'front:alerts_list' %}?status=unresolved" class="btn btn-outline-primary">
+          <iconify-icon icon="solar:bell-bing-bold" class="me-1"></iconify-icon>
+          View All Alerts
+        </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let currentConversationId = {{ conversation.id|default:"null" }};
+  let isLoading = false;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.custom-dropdown')) {
+        document.querySelectorAll('.custom-dropdown-menu').forEach(menu => {
+          menu.classList.remove('show');
+        });
+      }
+    });
+
+    // Scroll to bottom of chat container
+    const chatContainer = document.getElementById('chatContainer');
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Auto-show modal if blocked
+    {% if blocked and blocked_rules %}
+    const blockedModal = new bootstrap.Modal(document.getElementById('blockedRulesModal'));
+    blockedModal.show();
+    {% endif %}
+
+    // Handle obfuscation modal close (cancel)
+        // If modal was closed without confirming, remove the user bubble
+          showToast('Message not sent', 'info');
+        }
+      });
+    }
+
+    // Auto-resize textarea
+    const textarea = document.getElementById('prompt');
+    if (textarea) {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+      });
+
+      // Handle Enter key for sending
+      textarea.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+
+    // Handle form submission
+    const chatForm = document.getElementById('chatForm');
+    if (chatForm) {
+      chatForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        sendMessage();
+      });
+    }
+  });
+
+  async function sendMessage() {
+    if (isLoading) return;
+
+    const prompt = document.getElementById('prompt').value.trim();
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    if (!prompt && !file) {
+      return;
+    }
+
+    isLoading = true;
+    setLoadingState(true);
+
+    // Add user message to chat immediately
+    const chatContainer = document.getElementById('chatContainer');
+
+    // Remove empty chat message if present
+    const emptyChat = chatContainer.querySelector('.empty-chat');
+    if (emptyChat) {
+      emptyChat.remove();
+    }
+
+    // Add user bubble
+    const userBubble = createUserBubble(prompt, file);
+    chatContainer.appendChild(userBubble);
+
+    // Add loading indicator
+    const loadingIndicator = createLoadingIndicator();
+    chatContainer.appendChild(loadingIndicator);
+
+    // Scroll to bottom
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Clear form
+    document.getElementById('prompt').value = '';
+    document.getElementById('prompt').style.height = 'auto';
+    removeFile();
+
+    // Build form data
+    const formData = new FormData();
+    formData.append('prompt', prompt);
+    if (file) {
+      formData.append('file', file);
+    }
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    // Determine URL
+    let url = currentConversationId
+      ? `/chat/${currentConversationId}/send/`
+      : '/chat/send/';
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData
+      });
+
+      // Remove loading indicator
+      loadingIndicator.remove();
+
+      // Check if response is OK
+      if (!response.ok) {
+        const errorBubble = createSystemBubble(`Error: Server returned ${response.status}`);
+        chatContainer.appendChild(errorBubble);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        isLoading = false;
+        setLoadingState(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      // Check for API key errors - show modal
+      if (data.error_type === 'no_api_key' || data.error_type === 'invalid_api_key') {
+        showApiKeyModal(data.error_type, data.engine_name);
+        if (data.error_message) {
+          const errorBubble = createSystemBubble(data.error_message.content);
+          chatContainer.appendChild(errorBubble);
+        } else {
+          const errorBubble = createSystemBubble(data.error || 'API key not configured');
+          chatContainer.appendChild(errorBubble);
+        }
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        isLoading = false;
+        setLoadingState(false);
+        return;
+      }
+
+      if (data.success) {
+        // Update conversation ID if new
+        if (!currentConversationId && data.conversation_id) {
+          currentConversationId = data.conversation_id;
+          // Update URL without reload
+          window.history.pushState({}, '', `/chat/${data.conversation_id}/`);
+        }
+
+        // NUEVO: Handle obfuscation confirmation required
+          // Add obfuscated badge to message role
+          const roleDiv = userBubble.querySelector('.message-role');
+            const containerId = 'obf-' + Date.now();
+            const badgeHtml = `
+              <span
+                class="badge bg-warning text-dark ms-2"
+                style="cursor: pointer;"
+                id="${containerId}-badge"
+                title="Click to show/hide original content">
+                <iconify-icon icon="solar:eye-closed-bold" class="me-1"></iconify-icon>
+              </span>
+            `;
+            roleDiv.innerHTML += badgeHtml;
+
+            // Update bubble content with obfuscated version
+            const contentDiv = userBubble.querySelector('.message-content');
+            if (contentDiv) {
+              contentDiv.innerHTML = `
+                  <div id="${containerId}" class="obfuscated-content" style="display: block;">
+                  </div>
+                  <div id="${containerId}-original" class="original-content" style="display: none;">
+                    ${escapeHtml(data.user_message.content)}
+                  </div>
+                </div>
+              `;
+            }
+          }
+
+          // Store data for confirmation (including original content)
+            user_message_id: data.user_message.id,
+            conversation_id: data.conversation_id,
+            original_content: data.user_message.content,
+            userBubble: userBubble
+          };
+
+          // Show obfuscation modal
+          return; // Don't continue with normal flow
+        }
+
+        // Handle blocked message
+        if (data.blocked) {
+          userBubble.classList.add('blocked');
+          const roleDiv = userBubble.querySelector('.message-role');
+          if (roleDiv) {
+            roleDiv.innerHTML += '<span class="badge bg-danger ms-2">Blocked</span>';
+          }
+
+          // Show blocked rules modal if rules exist
+          if (data.blocked_rules && data.blocked_rules.length > 0) {
+            showBlockedModal(data.blocked_rules);
+          }
+        }
+
+        // Add assistant response
+        if (data.assistant_message) {
+          const assistantBubble = createAssistantBubble(data.assistant_message.content);
+          chatContainer.appendChild(assistantBubble);
+        }
+
+        // Add error message if any
+        if (data.error_message) {
+          const errorBubble = createSystemBubble(data.error_message.content);
+          chatContainer.appendChild(errorBubble);
+        }
+
+        // Scroll to bottom
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Reload sidebar to show new conversation (if new)
+        if (!currentConversationId || data.conversation_id !== currentConversationId) {
+          // Could refresh sidebar via AJAX, for now just update
+        }
+      } else {
+        // Show error
+        const errorBubble = createSystemBubble(data.error || 'An error occurred');
+        chatContainer.appendChild(errorBubble);
+      }
+
+    } catch (error) {
+      // Safe remove - might already be removed
+      if (loadingIndicator.parentNode) {
+        loadingIndicator.remove();
+      }
+      console.error('Chat error:', error);
+      const errorBubble = createSystemBubble(`Error: ${error.message || 'Could not connect to the server'}`);
+      chatContainer.appendChild(errorBubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    isLoading = false;
+    setLoadingState(false);
+  }
+
+  function setLoadingState(loading) {
+    const sendButton = document.getElementById('sendButton');
+    const sendIcon = document.getElementById('sendIcon');
+    const sendSpinner = document.getElementById('sendSpinner');
+    const chatForm = document.getElementById('chatForm');
+    const prompt = document.getElementById('prompt');
+
+    if (loading) {
+      sendButton.disabled = true;
+      sendIcon.classList.add('d-none');
+      sendSpinner.classList.remove('d-none');
+      prompt.disabled = true;
+    } else {
+      sendButton.disabled = false;
+      sendIcon.classList.remove('d-none');
+      sendSpinner.classList.add('d-none');
+      prompt.disabled = false;
+      prompt.focus();
+    }
+  }
+
+  function createUserBubble(content, file) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble user';
+
+    let html = `
+      <div class="message-role">
+        <iconify-icon icon="solar:user-bold"></iconify-icon>
+        You
+      </div>
+      <div class="message-content">${escapeHtml(content)}</div>
+    `;
+
+    if (file) {
+      html += `
+        <div class="file-attachment">
+          <iconify-icon icon="solar:file-bold"></iconify-icon>
+          <span>${escapeHtml(file.name)}</span>
+          <span class="opacity-75">(${formatFileSize(file.size)})</span>
+        </div>
+      `;
+    }
+
+    bubble.innerHTML = html;
+    return bubble;
+  }
+
+  function createAssistantBubble(content) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble assistant';
+    bubble.innerHTML = `
+      <div class="message-role text-primary">
+        <iconify-icon icon="solar:atom-bold"></iconify-icon>
+        AI Assistant
+      </div>
+      <div class="message-content">${escapeHtml(content)}</div>
+    `;
+    return bubble;
+  }
+
+  function createSystemBubble(content) {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble system';
+    bubble.innerHTML = `
+      <div class="message-role text-warning">
+        <iconify-icon icon="solar:info-circle-bold"></iconify-icon>
+        System
+      </div>
+      <div class="message-content">${escapeHtml(content)}</div>
+    `;
+    return bubble;
+  }
+
+  function createLoadingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'loading-indicator';
+    indicator.id = 'loadingIndicator';
+    indicator.innerHTML = `
+      <div class="loading-spinner"></div>
+      <span class="loading-text">AI is thinking...</span>
+    `;
+    return indicator;
+  }
+
+  /**
+   * Toggle between obfuscated and original content for a message
+   */
+    const obfuscatedDiv = document.getElementById(containerId);
+    const originalDiv = document.getElementById(containerId + '-original');
+    const btn = document.getElementById(containerId + '-btn');
+    const badge = document.getElementById(containerId + '-badge');
+
+    if (!obfuscatedDiv || !originalDiv) return;
+
+    if (obfuscatedDiv.style.display === 'none') {
+      obfuscatedDiv.style.display = 'block';
+      originalDiv.style.display = 'none';
+
+      // Update button if exists
+      if (btn) {
+        btn.innerHTML = '<iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon> Show Original';
+        btn.classList.remove('btn-info');
+        btn.classList.add('btn-outline-warning');
+      }
+
+      // Update badge if exists
+      if (badge) {
+        badge.classList.remove('bg-info');
+        badge.classList.add('bg-warning');
+        badge.title = 'Click to show original content';
+      }
+    } else {
+      // Show original, hide obfuscated
+      obfuscatedDiv.style.display = 'none';
+      originalDiv.style.display = 'block';
+
+      // Update button if exists
+      if (btn) {
+        btn.classList.remove('btn-outline-warning');
+        btn.classList.add('btn-info');
+      }
+
+      // Update badge if exists
+      if (badge) {
+        badge.innerHTML = '<iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon> Original';
+        badge.classList.remove('bg-warning');
+        badge.classList.add('bg-info');
+        badge.title = 'Click to hide original content';
+      }
+    }
+  };
+
+    // Check if Bootstrap is available
+    if (typeof bootstrap === 'undefined') {
+      console.error('Bootstrap not loaded, showing alert instead');
+      alert('Sensitive content detected. Rules: ' + rules.map(r => r.name).join(', '));
+      return;
+    }
+
+    if (!modal) {
+      console.error('Obfuscation modal not found');
+      return;
+    }
+
+    // Populate rules
+    const rulesContent = document.getElementById('obfuscationRulesContent');
+    rulesContent.innerHTML = rules.map(rule => `
+      <div class="card mb-3 border-${getSeverityClass(rule.severity)}">
+        <div class="card-header d-flex align-items-center justify-content-between bg-${getSeverityClass(rule.severity)}-subtle">
+          <div class="d-flex align-items-center">
+            <iconify-icon icon="solar:shield-check-bold" class="me-2 fs-5"></iconify-icon>
+            <strong>${escapeHtml(rule.name)}</strong>
+          </div>
+          <span class="badge bg-${getSeverityClass(rule.severity)}">${rule.severity}</span>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">${rule.description ? escapeHtml(rule.description) : '<em class="text-muted">Sin descripción.</em>'}</p>
+        </div>
+      </div>
+    `).join('');
+
+    // Show modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  }
+
+
+  function showBlockedModal(rules) {
+    // Check if Bootstrap is available
+    if (typeof bootstrap === 'undefined') {
+      console.error('Bootstrap not loaded, showing alert instead');
+      alert('Your prompt was blocked by security rules: ' + rules.map(r => r.name).join(', '));
+      return;
+    }
+
+    // Create modal dynamically if it doesn't exist
+    let modal = document.getElementById('blockedRulesModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.id = 'blockedRulesModal';
+      modal.tabIndex = -1;
+      modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title">
+                <iconify-icon icon="solar:shield-warning-bold" class="me-2"></iconify-icon>
+                Prompt Blocked by Security Rules
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-warning mb-4">
+                <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+                <strong>Attention:</strong> Your prompt was blocked because it matched security rules.
+              </div>
+              <div id="blockedRulesContent"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // Populate rules
+    const rulesContent = document.getElementById('blockedRulesContent');
+    rulesContent.innerHTML = rules.map(rule => `
+      <div class="card mb-3 border-${getSeverityClass(rule.severity)}">
+        <div class="card-header d-flex align-items-center justify-content-between bg-${getSeverityClass(rule.severity)}-subtle">
+          <div class="d-flex align-items-center">
+            <iconify-icon icon="solar:shield-check-bold" class="me-2 fs-5"></iconify-icon>
+            <strong>${escapeHtml(rule.name)}</strong>
+          </div>
+          <span class="badge bg-${getSeverityClass(rule.severity)}">${rule.severity}</span>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">${rule.description ? escapeHtml(rule.description) : '<em class="text-muted">No description available.</em>'}</p>
+        </div>
+      </div>
+    `).join('');
+
+    // Show modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  }
+
+  function getSeverityClass(severity) {
+    const classes = {
+      'critical': 'danger',
+      'high': 'warning',
+      'medium': 'info',
+      'low': 'secondary'
+    };
+    return classes[severity] || 'secondary';
+  }
+
+  function showApiKeyModal(errorType, engineName) {
+    if (typeof bootstrap === 'undefined') {
+      alert('No valid API key configured. Go to Settings > AI Engines to configure it.');
+      return;
+    }
+
+    let modal = document.getElementById('apiKeyErrorModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.id = 'apiKeyErrorModal';
+      modal.tabIndex = -1;
+      modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title">
+                <iconify-icon icon="solar:key-minimalistic-bold" class="me-2"></iconify-icon>
+                API Key Configuration Required
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div id="apiKeyModalContent"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <a href="{% url 'front:engines_list' %}" class="btn btn-primary">
+                <iconify-icon icon="solar:cpu-bolt-line-duotone" class="me-1"></iconify-icon>
+                Go to AI Engines
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    const content = document.getElementById('apiKeyModalContent');
+    const isNoKey = errorType === 'no_api_key';
+
+    content.innerHTML = `
+      <div class="alert ${isNoKey ? 'alert-warning' : 'alert-danger'} mb-4">
+        <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+        <strong>${isNoKey ? 'No API key configured' : 'Invalid API key'}</strong> for engine <strong>${escapeHtml(engineName || 'Unknown')}</strong>.
+      </div>
+      <p>To use the chat, you need a valid API key from your AI provider. Here's how to get one:</p>
+      <div class="list-group mb-3">
+        <div class="list-group-item">
+          <div class="d-flex align-items-center mb-1">
+            <strong>OpenAI</strong>
+          </div>
+          <small class="text-muted">Go to <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a> and create a new key.</small>
+        </div>
+        <div class="list-group-item">
+          <div class="d-flex align-items-center mb-1">
+            <strong>Anthropic</strong>
+          </div>
+          <small class="text-muted">Go to <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> and create a new key.</small>
+        </div>
+        <div class="list-group-item">
+          <div class="d-flex align-items-center mb-1">
+            <strong>DeepSeek</strong>
+          </div>
+          <small class="text-muted">Go to <a href="https://platform.deepseek.com/api_keys" target="_blank">platform.deepseek.com/api_keys</a> and create a new key.</small>
+        </div>
+      </div>
+      <p class="mb-0 text-muted">
+        <iconify-icon icon="solar:info-circle-line-duotone" class="me-1"></iconify-icon>
+        Once you have your key, go to <strong>Settings &gt; AI Engines</strong> and paste it in the engine configuration.
+      </p>
+    `;
+
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // File handling functions
+  function handleFileSelect(input) {
+    const file = input.files[0];
+    if (file) {
+      const filePreview = document.getElementById('filePreview');
+      const fileName = document.getElementById('fileName');
+      const fileSize = document.getElementById('fileSize');
+
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      filePreview.classList.remove('d-none');
+    }
+  }
+
+  function removeFile() {
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+
+    fileInput.value = '';
+    filePreview.classList.add('d-none');
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // Toggle custom dropdown
+  function toggleDropdown(menuId) {
+    const menu = document.getElementById(menuId);
+    const isOpen = menu.classList.contains('show');
+
+    // Close all dropdowns first
+    document.querySelectorAll('.custom-dropdown-menu').forEach(m => {
+      m.classList.remove('show');
+    });
+
+    // Toggle the clicked one
+    if (!isOpen) {
+      menu.classList.add('show');
+    }
+  }
+
+  // Engine selection
+  async function selectEngine(engineId, engineName, engineProvider, connectorType) {
+    // Close dropdown
+    document.getElementById('engineDropdownMenu').classList.remove('show');
+
+    const formData = new FormData();
+    formData.append('engine_id', engineId);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    try {
+      const response = await fetch('{% url "front:chat_select_engine" %}', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the dropdown button text
+        document.getElementById('currentEngineName').textContent = engineName;
+
+        // Update active state in dropdown
+        document.querySelectorAll('#engineDropdownMenu .custom-dropdown-item').forEach(item => {
+          item.classList.remove('active');
+          const checkIcon = item.querySelector('.text-success');
+          if (checkIcon) checkIcon.remove();
+        });
+
+        // Find and mark the selected item as active
+        const selectedItem = document.querySelector(`#engineDropdownMenu .custom-dropdown-item[data-engine-id="${engineId}"]`);
+        if (selectedItem) {
+          selectedItem.classList.add('active');
+          const checkIcon = document.createElement('iconify-icon');
+          checkIcon.setAttribute('icon', 'solar:check-circle-bold');
+          checkIcon.className = 'ms-auto text-success';
+          selectedItem.querySelector('.d-flex').appendChild(checkIcon);
+        }
+
+        // Update model dropdown with new models
+        updateModelDropdown(data.available_models);
+
+        // Show success toast/notification
+        const connectorLabel = connectorType === 'anthropic' ? 'Anthropic' : 'OpenAI';
+        showToast('Engine changed to ' + engineName + ' (' + connectorLabel + ')', 'success');
+      } else {
+        showToast('Failed to change engine: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } catch (error) {
+      console.error('Error selecting engine:', error);
+      showToast('Failed to change engine', 'error');
+    }
+  }
+
+  // Update model dropdown when engine changes
+  function updateModelDropdown(models) {
+    const modelDropdownMenu = document.getElementById('modelDropdownMenu');
+    const currentModelName = document.getElementById('currentModelName');
+    const modelContainer = document.getElementById('modelDropdownContainer');
+
+    if (!models || models.length === 0) {
+      // Hide model dropdown if no models
+      if (modelContainer) {
+        modelContainer.style.display = 'none';
+      }
+      return;
+    }
+
+    // Show model dropdown
+    if (modelContainer) {
+      modelContainer.style.display = 'inline-block';
+    }
+
+    // Update button text to first model
+    if (currentModelName && models.length > 0) {
+      currentModelName.textContent = models[0].name;
+    }
+
+    // Rebuild dropdown menu
+    if (modelDropdownMenu) {
+      modelDropdownMenu.innerHTML = models.map((model, index) => `
+        <div class="custom-dropdown-item ${index === 0 ? 'active' : ''}"
+             data-model-id="${model.id}"
+             onclick="selectModel(${model.id}, '${escapeHtml(model.name)}', '${escapeHtml(model.model_id)}', ${model.supports_vision})">
+          <div class="d-flex align-items-center">
+            <iconify-icon icon="solar:atom-bold" class="me-2 text-secondary"></iconify-icon>
+            <div class="flex-grow-1">
+              <div class="fw-medium">${escapeHtml(model.name)}</div>
+              <small class="text-muted">${escapeHtml(model.model_id)}</small>
+            </div>
+            ${model.supports_vision ? '<span class="badge bg-info-subtle text-info ms-2" title="Supports images"><iconify-icon icon="solar:eye-bold"></iconify-icon></span>' : ''}
+            ${index === 0 ? '<iconify-icon icon="solar:check-circle-bold" class="ms-2 text-success"></iconify-icon>' : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Model selection
+  async function selectModel(modelId, modelName, modelApiId, supportsVision) {
+    // Close dropdown
+    document.getElementById('modelDropdownMenu').classList.remove('show');
+
+    const formData = new FormData();
+    formData.append('model_id', modelId);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    try {
+      const response = await fetch('{% url "front:chat_select_model" %}', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update the dropdown button text
+        document.getElementById('currentModelName').textContent = modelName;
+
+        // Update active state in dropdown
+        document.querySelectorAll('#modelDropdownMenu .custom-dropdown-item').forEach(item => {
+          item.classList.remove('active');
+          const checkIcon = item.querySelector('.text-success');
+          if (checkIcon) checkIcon.remove();
+        });
+
+        // Find and mark the selected item as active
+        const selectedItem = document.querySelector(`#modelDropdownMenu .custom-dropdown-item[data-model-id="${modelId}"]`);
+        if (selectedItem) {
+          selectedItem.classList.add('active');
+          const checkIcon = document.createElement('iconify-icon');
+          checkIcon.setAttribute('icon', 'solar:check-circle-bold');
+          checkIcon.className = 'ms-2 text-success';
+          selectedItem.querySelector('.d-flex').appendChild(checkIcon);
+        }
+
+        // Show success toast/notification
+        showToast('Model changed to ' + modelName, 'success');
+      } else {
+        showToast('Failed to change model: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } catch (error) {
+      console.error('Error selecting model:', error);
+      showToast('Failed to change model', 'error');
+    }
+  }
+
+  function showToast(message, type) {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toastContainer';
+      toastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+      toastContainer.style.zIndex = '1100';
+      document.body.appendChild(toastContainer);
+    }
+
+    const toastId = 'toast-' + Date.now();
+    const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+    const iconName = type === 'success' ? 'solar:check-circle-bold' : 'solar:danger-triangle-bold';
+
+    const toastHtml = `
+      <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
+        <div class="d-flex">
+          <div class="toast-body d-flex align-items-center gap-2">
+            <iconify-icon icon="${iconName}"></iconify-icon>
+            ${escapeHtml(message)}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    `;
+
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 3000 });
+    toast.show();
+
+    // Remove from DOM after hiding
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Conversation{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body text-center p-5">
+        <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+          <iconify-icon icon="solar:trash-bin-trash-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+        </div>
+
+        <h4 class="fw-semibold mb-3">Delete Conversation?</h4>
+
+        <p class="text-muted mb-4">
+          Are you sure you want to delete this conversation?
+          <br>
+          <strong class="text-dark">"{{ conversation.get_title|truncatewords:10 }}"</strong>
+        </p>
+
+        <div class="alert alert-warning text-start">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+          <strong>Warning:</strong> This action cannot be undone. All messages in this conversation will be permanently deleted.
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center mt-4">
+          <a href="{% url 'front:chat_conversation' conversation.id %}" class="btn btn-outline-secondary px-4">
+            <iconify-icon icon="solar:arrow-left-linear" class="me-1"></iconify-icon>
+            Cancel
+          </a>
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger px-4">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Delete Conversation
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

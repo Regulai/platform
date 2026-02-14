@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Rule{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:rules_list' %}">Rules</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'front:rule_detail' rule.pk %}">{{ rule.name }}</a></li>
+        <li class="breadcrumb-item active">Delete</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+          <iconify-icon icon="solar:trash-bin-trash-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+        </div>
+
+        <h4 class="fw-semibold mb-2">Delete Rule</h4>
+        <p class="text-muted mb-4">
+          Are you sure you want to delete the rule <strong>"{{ rule.name }}"</strong>?
+          <br>This action cannot be undone.
+        </p>
+
+        <div class="card bg-light mb-4 text-start">
+          <div class="card-body">
+            <ul class="list-unstyled mb-0 small">
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Name:</span>
+                <span class="fw-semibold">{{ rule.name }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Group:</span>
+                <span class="fw-semibold">{{ rule.rules_group.name|default:"None" }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Status:</span>
+                <span class="fw-semibold {% if rule.active %}text-success{% else %}text-warning{% endif %}">
+                  {% if rule.active %}Active{% else %}Inactive{% endif %}
+                </span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Created:</span>
+                <span class="fw-semibold">{{ rule.created_at|date:"M d, Y" }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <div class="d-flex gap-2 justify-content-center">
+            <a href="{% url 'front:rule_detail' rule.pk %}" class="btn btn-outline-secondary">
+              <iconify-icon icon="solar:arrow-left-bold" class="me-1"></iconify-icon>
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Yes, Delete Rule
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

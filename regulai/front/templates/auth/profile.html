@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:user-circle-bold" class="text-primary me-2"></iconify-icon>
+          Edit Profile
+        </h5>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Avatar Upload Section -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Profile Photo</label>
+            <div class="d-flex align-items-center gap-3">
+              <div class="position-relative">
+                {% if profile and profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" id="avatarPreview">
+                {% else %}
+                <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;" id="avatarPlaceholder">
+                  <iconify-icon icon="solar:user-circle-bold" class="text-primary" style="font-size: 2.5rem;"></iconify-icon>
+                </div>
+                <img src="" alt="Avatar" class="rounded-circle d-none" style="width: 80px; height: 80px; object-fit: cover;" id="avatarPreview">
+                {% endif %}
+              </div>
+              <div>
+                <input type="file" class="form-control form-control-sm" id="avatar" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewAvatar(this)">
+                <div class="form-text">JPEG, PNG, GIF or WebP. Max 2MB.</div>
+                {% if profile and profile.avatar %}
+                <div class="mt-2">
+                  <label class="form-check-label small">
+                    <input type="checkbox" name="remove_avatar" value="true" class="form-check-input">
+                    Remove current photo
+                  </label>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="username" class="form-label fw-semibold">Username</label>
+              <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+              <div class="form-text">Username cannot be changed.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label fw-semibold">Email</label>
+              <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" placeholder="your@email.com">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="first_name" class="form-label fw-semibold">First Name</label>
+              <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" placeholder="John">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="last_name" class="form-label fw-semibold">Last Name</label>
+              <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" placeholder="Doe">
+            </div>
+          </div>
+
+          {% if profile %}
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="company" class="form-label fw-semibold">Company</label>
+              <input type="text" class="form-control" id="company" value="{{ profile.company.name }}" disabled>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="department" class="form-label fw-semibold">Department</label>
+              <select class="form-select" id="department" name="department">
+                <option value="">-- Select Department --</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if profile.department and profile.department.id == dept.id %}selected{% endif %}>
+                  {{ dept.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <h6 class="fw-semibold mb-3">
+            <iconify-icon icon="solar:cpu-bolt-bold" class="text-info me-2"></iconify-icon>
+            Chat Preferences
+          </h6>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="default_engine" class="form-label fw-semibold">Default AI Engine</label>
+              <select class="form-select" id="default_engine" name="default_engine">
+                <option value="">-- No default (select each time) --</option>
+                {% for ce in available_engines %}
+                <option value="{{ ce.id }}" {% if profile.default_engine and profile.default_engine.id == ce.id %}selected{% endif %}>
+                  {{ ce.engine.name }} {% if ce.engine.provider %}({{ ce.engine.provider }}){% endif %}
+                </option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Select your preferred AI engine for chat. You can still change it per conversation.</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <hr class="my-4">
+
+          <h6 class="fw-semibold mb-3">
+            <iconify-icon icon="solar:lock-password-bold" class="text-warning me-2"></iconify-icon>
+            Change Password
+          </h6>
+          <p class="text-muted small mb-3">Leave blank if you don't want to change the password.</p>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="new_password" class="form-label fw-semibold">New Password</label>
+              <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Enter new password">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+              <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="solar:diskette-bold" class="me-1"></iconify-icon>
+              Save Changes
+            </button>
+            <a href="{% url 'front:dashboard' %}" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Info Sidebar -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body text-center">
+        {% if profile and profile.avatar %}
+        <img src="{{ profile.avatar.url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+        {% else %}
+        <div class="rounded-circle bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+          <iconify-icon icon="solar:user-circle-bold" class="text-primary" style="font-size: 3rem;"></iconify-icon>
+        </div>
+        {% endif %}
+        <h5 class="fw-semibold mb-1">{{ user.get_full_name|default:user.username }}</h5>
+        <p class="text-muted mb-3">{{ user.email|default:"No email" }}</p>
+
+        {% if profile %}
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+          {% if profile.role %}
+          <span class="badge bg-primary-subtle text-primary">
+            <iconify-icon icon="solar:shield-user-bold" class="me-1"></iconify-icon>
+            {{ profile.role.name }}
+          </span>
+          {% endif %}
+          {% if profile.company %}
+          <span class="badge bg-info-subtle text-info">
+            <iconify-icon icon="solar:buildings-bold" class="me-1"></iconify-icon>
+            {{ profile.company.name }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <hr>
+
+        <div class="text-start">
+          <p class="mb-2">
+            <iconify-icon icon="solar:calendar-bold" class="text-muted me-2"></iconify-icon>
+            <span class="text-muted">Joined:</span>
+            <span class="fw-semibold">{{ user.date_joined|date:"M d, Y" }}</span>
+          </p>
+          <p class="mb-2">
+            <iconify-icon icon="solar:login-3-bold" class="text-muted me-2"></iconify-icon>
+            <span class="text-muted">Last login:</span>
+            <span class="fw-semibold">{{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+          </p>
+          {% if user.is_staff %}
+          <p class="mb-0">
+            <iconify-icon icon="solar:shield-star-bold" class="text-warning me-2"></iconify-icon>
+            <span class="badge bg-warning text-dark">Staff Member</span>
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="card mt-3">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:chart-2-bold" class="text-primary me-2"></iconify-icon>
+          Your Activity
+        </h6>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Prompts sent</span>
+          <span class="fw-semibold">{{ user.prompt_set.count }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Alerts triggered</span>
+          <span class="fw-semibold">{{ user.alert_set.count }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById('avatarPreview');
+      const placeholder = document.getElementById('avatarPlaceholder');
+
+      preview.src = e.target.result;
+      preview.classList.remove('d-none');
+
+      if (placeholder) {
+        placeholder.classList.add('d-none');
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

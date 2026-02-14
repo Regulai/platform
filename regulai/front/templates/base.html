@@ -1,0 +1,303 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}regulAI{% endblock %} | AI Security Auditing</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/logos/favicon.png' %}" />
+  <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
+  <style>
+    /* Fix header and sidebar alignment to top */
+    .app-header {
+      top: 0 !important;
+    }
+    .left-sidebar {
+      top: 0 !important;
+    }
+    #main-wrapper[data-layout="vertical"][data-header-position="fixed"] .app-header {
+      top: 0 !important;
+    }
+    #main-wrapper[data-layout="vertical"][data-sidebar-position="fixed"] .left-sidebar {
+      top: 0 !important;
+    }
+    /* Ensure body-wrapper starts below the fixed header */
+    .body-wrapper {
+      padding-top: 72px;
+    }
+    /* Remove any extra top spacing */
+    @media (min-width: 1200px) {
+      #main-wrapper[data-layout="vertical"][data-header-position="fixed"] .app-header {
+        top: 0 !important;
+      }
+    }
+    /* Minimal side margins for container-fluid */
+    .container-fluid {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <!-- Sidebar scroll-->
+      <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="{% url 'front:home' %}" class="text-nowrap logo-img d-flex align-items-center">
+            <img src="{% static 'images/logos/logo.png' %}" alt="regulAI" style="height: 35px; width: auto;" />
+            <span style="font-family: Inter, system-ui, sans-serif; font-size: 26px; font-weight: 600; color: #1E293B; margin-left: 8px; line-height: 35px;">regul<span style="color: #635BFF; font-weight: 700;">AI</span></span>
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
+        </div>
+        <!-- Sidebar navigation-->
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+          <ul id="sidebarnav">
+            <!-- HOME SECTION - Visible for all users -->
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Home</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'front:home' %}" aria-expanded="false">
+                <iconify-icon icon="solar:home-2-line-duotone"></iconify-icon>
+                <span class="hide-menu">Home</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'chat' or request.resolver_match.url_name == 'chat_conversation' or request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'front:chat' %}" aria-expanded="false">
+                <iconify-icon icon="solar:chat-round-dots-line-duotone"></iconify-icon>
+                <span class="hide-menu">Chat</span>
+              </a>
+            </li>
+
+            <!-- SECURITY SECTION - Visible for Admin and Superuser -->
+            {% if user.is_superuser or user.is_staff %}
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Security</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'front:dashboard' %}" aria-expanded="false">
+                <iconify-icon icon="solar:chart-2-line-duotone"></iconify-icon>
+                <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'prompt' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:prompts_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:document-text-line-duotone"></iconify-icon>
+                <span class="hide-menu">Prompts</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'rulesgroup' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:rulesgroups_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:folder-with-files-line-duotone"></iconify-icon>
+                <span class="hide-menu">Rules Groups</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'rule' in request.resolver_match.url_name and 'rulesgroup' not in request.resolver_match.url_name and 'community' not in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:rules_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:shield-check-line-duotone"></iconify-icon>
+                <span class="hide-menu">Rules</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'community' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:rules_community_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:users-group-rounded-line-duotone"></iconify-icon>
+                <span class="hide-menu">Rules Community</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'alert' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:alerts_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:bell-bing-line-duotone"></iconify-icon>
+                <span class="hide-menu">Alerts</span>
+              </a>
+            </li>
+            {% endif %}
+
+            <!-- SETTINGS SECTION - Visible only for Admin (is_superuser) -->
+            {% if user.is_superuser %}
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Settings</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'users_list' or request.resolver_match.url_name == 'user_create' or request.resolver_match.url_name == 'user_edit' or request.resolver_match.url_name == 'user_delete' %}active{% endif %}" href="{% url 'front:users_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:users-group-rounded-line-duotone"></iconify-icon>
+                <span class="hide-menu">Users</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'departments_list' or request.resolver_match.url_name == 'department_create' or request.resolver_match.url_name == 'department_edit' or request.resolver_match.url_name == 'department_delete' %}active{% endif %}" href="{% url 'front:departments_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:buildings-line-duotone"></iconify-icon>
+                <span class="hide-menu">Departments</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'engines_list' or request.resolver_match.url_name == 'engine_create' or request.resolver_match.url_name == 'engine_edit' or request.resolver_match.url_name == 'engine_delete' %}active{% endif %}" href="{% url 'front:engines_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:cpu-bolt-line-duotone"></iconify-icon>
+                <span class="hide-menu">AI Engines</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'auditlog' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:auditlogs_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:clipboard-list-line-duotone"></iconify-icon>
+                <span class="hide-menu">Audit Log</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{% url 'admin:index' %}" aria-expanded="false">
+                <iconify-icon icon="solar:settings-line-duotone"></iconify-icon>
+                <span class="hide-menu">Admin Panel</span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        <!-- End Sidebar navigation -->
+      </div>
+      <!-- End Sidebar scroll-->
+    </aside>
+    <!--  Sidebar End -->
+
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <!--  Header Start -->
+      <header class="app-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <ul class="navbar-nav">
+            <li class="nav-item d-block d-xl-none">
+              <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
+                <i class="ti ti-menu-2"></i>
+              </a>
+            </li>
+            <!-- Notifications Bell -->
+            <li class="nav-item dropdown">
+              <a class="nav-link nav-icon-hover" href=/alerts/ id="dropNotifications" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="ti ti-bell-ringing"></i>
+                {% if unresolved_alerts_count > 0 %}
+                <div class="notification bg-danger rounded-circle"></div>
+                {% endif %}
+              </a>
+              <div class="dropdown-menu dropdown-menu-animate-up" aria-labelledby="dropNotifications" style="min-width: 320px;">
+                <div class="message-body">
+                  <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold">Notifications</h6>
+                    {% if unresolved_alerts_count > 0 %}
+                    <span class="badge bg-danger">{{ unresolved_alerts_count }} unresolved</span>
+                    {% endif %}
+                  </div>
+                  {% if recent_unresolved_alerts %}
+                  {% for alert in recent_unresolved_alerts %}
+                  <a href="{% url 'front:alert_detail' alert.pk %}" class="dropdown-item py-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center
+                        {% if alert.severity == 'critical' %}bg-danger-subtle{% elif alert.severity == 'high' %}bg-warning-subtle{% elif alert.severity == 'medium' %}bg-info-subtle{% else %}bg-secondary-subtle{% endif %}"
+                        style="width: 32px; height: 32px; min-width: 32px;">
+                        <iconify-icon icon="solar:bell-bing-bold" class="{% if alert.severity == 'critical' %}text-danger{% elif alert.severity == 'high' %}text-warning{% elif alert.severity == 'medium' %}text-info{% else %}text-secondary{% endif %}"></iconify-icon>
+                      </div>
+                      <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="mb-0 fs-3 fw-semibold text-truncate">{{ alert.rule.name|default:"Alert" }}</p>
+                        <p class="mb-0 fs-2 text-muted text-truncate">{{ alert.description|truncatewords:8 }}</p>
+                      </div>
+                      <span class="badge
+                        {% if alert.severity == 'critical' %}bg-danger{% elif alert.severity == 'high' %}bg-warning{% elif alert.severity == 'medium' %}bg-info{% else %}bg-secondary{% endif %}">
+                        {{ alert.severity|title }}
+                      </span>
+                    </div>
+                  </a>
+                  {% endfor %}
+                  <div class="px-3 py-2">
+                    <a href="{% url 'front:alerts_list' %}?status=unresolved" class="btn btn-primary btn-sm w-100">
+                      View All Alerts
+                    </a>
+                  </div>
+                  {% else %}
+                  <div class="px-3 py-4 text-center">
+                    <iconify-icon icon="solar:bell-off-line-duotone" class="text-muted" style="font-size: 2rem;"></iconify-icon>
+                    <p class="mb-0 mt-2 text-muted">No unresolved alerts</p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </li>
+          </ul>
+          <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+            <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+              <!-- User & Company Info -->
+              <li class="nav-item d-none d-sm-block me-3">
+                <div class="text-end">
+                  <span class="d-block fs-3 fw-semibold text-dark">{{ user.username }}</span>
+                  <span class="d-block fs-2 text-muted">{{ user.profile.company.name|default:"No company" }}</span>
+                </div>
+              </li>
+              <!-- User Profile Dropdown -->
+              <li class="nav-item dropdown">
+                <a class="nav-link nav-icon-hover" href="/profile/" id="drop2" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  {% if user.profile.avatar %}
+                  <img src="{{ user.profile.avatar.url }}" alt="" width="35" height="35" class="rounded-circle" style="object-fit: cover;">
+                  {% else %}
+                  <img src="{% static 'images/profile/user-1.jpg' %}" alt="" width="35" height="35" class="rounded-circle">
+                  {% endif %}
+                </a>
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                  <div class="px-3 py-2 border-bottom">
+                    <span class="d-block fs-3 fw-semibold">{{ user.username }}</span>
+                    <span class="d-block fs-2 text-muted">{{ user.email|default:"No email" }}</span>
+                  </div>
+                  <a href="{% url 'front:profile' %}" class="dropdown-item py-2">
+                    <i class="ti ti-user fs-6 me-2"></i>
+                    My Profile
+                  </a>
+                  {% if user.is_superuser %}
+                  <a href="{% url 'admin:index' %}" class="dropdown-item py-2">
+                    <i class="ti ti-settings fs-6 me-2"></i>
+                    Admin Panel
+                  </a>
+                  {% endif %}
+                  <div class="px-3 py-2">
+                    <a href="{% url 'front:logout' %}" class="btn btn-outline-danger w-100">
+                      <i class="ti ti-logout fs-6 me-1"></i>
+                      Logout
+                    </a>
+                  </div>
+                </div>
+              </li>
+              <!-- Logout Icon -->
+              <li class="nav-item ms-2">
+                <a class="nav-link nav-icon-hover" href="{% url 'front:logout' %}" title="Logout">
+                  <i class="ti ti-logout fs-6 text-danger"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!--  Header End -->
+
+      <div class="container-fluid">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'libs/jquery/dist/jquery.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/sidebarmenu.js' %}"></script>
+  <script src="{% static 'js/app.min.js' %}"></script>
+  <!-- Iconify icons -->
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

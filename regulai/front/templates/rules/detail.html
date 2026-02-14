@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ rule.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .yara-code {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:rules_list' %}">Rules</a></li>
+        <li class="breadcrumb-item active">{{ rule.name }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Rule Header -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+              <iconify-icon icon="solar:shield-check-bold" class="text-primary fs-7"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="fw-semibold mb-1">{{ rule.name }}</h4>
+              <div class="d-flex align-items-center gap-2">
+                {% if rule.active %}
+                <span class="badge bg-success-subtle text-success rounded-3 fw-semibold">Active</span>
+                {% else %}
+                <span class="badge bg-warning-subtle text-warning rounded-3 fw-semibold">Inactive</span>
+                {% endif %}
+                <span class="text-muted">|</span>
+                <span class="text-muted fs-3">
+                  <iconify-icon icon="solar:folder-bold" class="me-1"></iconify-icon>
+                  {{ rule.rules_group.name|default:"No group" }}
+                </span>
+                <span class="text-muted">|</span>
+                <span class="text-muted fs-3">
+                  <iconify-icon icon="solar:calendar-bold" class="me-1"></iconify-icon>
+                  Created {{ rule.created_at|date:"M d, Y" }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'front:rule_toggle' rule.pk %}?next={% url 'front:rule_detail' rule.pk %}"
+               class="btn {% if rule.active %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+              <iconify-icon icon="{% if rule.active %}solar:power-bold{% else %}solar:play-bold{% endif %}" class="me-1"></iconify-icon>
+              {% if rule.active %}Deactivate{% else %}Activate{% endif %}
+            </a>
+            <a href="{% url 'front:rule_edit' rule.pk %}" class="btn btn-primary">
+              <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
+              Edit
+            </a>
+            <a href="{% url 'front:rule_delete' rule.pk %}" class="btn btn-outline-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Delete
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="row">
+  <div class="col-12">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <!-- Rule Details -->
+  <div class="col-lg-8">
+    <!-- Description -->
+    {% if rule.description %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:document-text-bold" class="text-primary me-2"></iconify-icon>
+          Description
+        </h5>
+        <p class="mb-0">{{ rule.description }}</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- YARA Rule Code -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:code-bold" class="text-primary me-2"></iconify-icon>
+            YARA Rule
+          </h5>
+          <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard()" title="Copy to clipboard">
+            <iconify-icon icon="solar:copy-bold" class="me-1"></iconify-icon>
+            Copy
+          </button>
+        </div>
+        <pre class="yara-code mb-0" id="yaraCode">{{ rule.yara_rule }}</pre>
+      </div>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:bell-bing-bold" class="text-danger me-2"></iconify-icon>
+            Recent Alerts ({{ alerts_count }})
+          </h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0"><h6 class="fw-semibold mb-0">User</h6></th>
+                <th class="border-bottom-0"><h6 class="fw-semibold mb-0">Severity</h6></th>
+                <th class="border-bottom-0"><h6 class="fw-semibold mb-0">Date</h6></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for alert in alerts %}
+              <tr>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:user-circle-bold" class="fs-6 text-muted"></iconify-icon>
+                    <span>{{ alert.user.username }}</span>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  {% if alert.severity == 'critical' %}
+                  <span class="badge bg-danger rounded-3 fw-semibold">Critical</span>
+                  {% elif alert.severity == 'high' %}
+                  <span class="badge bg-warning rounded-3 fw-semibold">High</span>
+                  {% elif alert.severity == 'medium' %}
+                  <span class="badge bg-info rounded-3 fw-semibold">Medium</span>
+                  {% else %}
+                  <span class="badge bg-secondary rounded-3 fw-semibold">Low</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ alert.created_at|date:"M d, Y H:i" }}</span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted py-4">
+                  <iconify-icon icon="solar:shield-check-line-duotone" style="font-size: 2rem;"></iconify-icon>
+                  <p class="mt-2 mb-0">No alerts triggered by this rule yet.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:info-circle-bold" class="text-primary me-2"></iconify-icon>
+          Information
+        </h5>
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">ID</span>
+            <span class="fw-semibold">#{{ rule.id }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Status</span>
+            {% if rule.active %}
+            <span class="text-success fw-semibold">Active</span>
+            {% else %}
+            <span class="text-warning fw-semibold">Inactive</span>
+            {% endif %}
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Applies To</span>
+            <span class="fw-semibold">
+              {% if rule.applies_to == 'prompts' %}
+              <span class="badge bg-info-subtle text-info">Prompts</span>
+              {% elif rule.applies_to == 'files' %}
+              <span class="badge bg-warning-subtle text-warning">Files</span>
+              {% else %}
+              <span class="badge bg-primary-subtle text-primary">Both</span>
+              {% endif %}
+            </span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Group</span>
+            <span class="fw-semibold">{{ rule.rules_group.name|default:"None" }}</span>
+          </li>
+          {% if rule.rules_group.company %}
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Company</span>
+            <span class="fw-semibold">{{ rule.rules_group.company.name }}</span>
+          </li>
+          {% endif %}
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Created</span>
+            <span class="fw-semibold">{{ rule.created_at|date:"M d, Y" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2">
+            <span class="text-muted">Alerts triggered</span>
+            <span class="fw-semibold">{{ alerts_count }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard() {
+  const code = document.getElementById('yaraCode').textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    // Show toast or feedback
+    alert('YARA rule copied to clipboard!');
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Engine{% else %}Add Engine{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:cpu-bolt-line-duotone" class="text-primary me-2"></iconify-icon>
+          {% if is_edit %}Edit Engine Configuration{% else %}Add New Engine{% endif %}
+        </h5>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          {% if not is_edit %}
+          <div class="mb-3">
+            <label for="engine" class="form-label fw-semibold">Engine <span class="text-danger">*</span></label>
+            <select class="form-select" id="engine" name="engine" required onchange="updateDefaultName()">
+              <option value="">-- Select an Engine --</option>
+              {% for engine in available_engines %}
+              <option value="{{ engine.id }}" data-name="{{ engine.name }}" {% if form_data.engine == engine.id|stringformat:"s" %}selected{% endif %}>
+                {{ engine.name }} {% if engine.provider %}({{ engine.provider }}){% endif %}
+              </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Select the AI engine you want to configure.</div>
+          </div>
+          {% else %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Engine</label>
+            <input type="text" class="form-control" value="{{ company_engine.engine.name }} ({{ company_engine.engine.provider }})" disabled>
+            <div class="form-text">Engine cannot be changed. Remove and add a new one if needed.</div>
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="name" class="form-label fw-semibold">Display Name</label>
+            <input type="text" class="form-control" id="name" name="name"
+                   value="{% if is_edit %}{{ company_engine.name }}{% else %}{{ form_data.name }}{% endif %}"
+                   placeholder="Custom name for this engine...">
+            <div class="form-text">Optional custom name. Leave empty to use the default engine name.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="api_key" class="form-label fw-semibold">API Key <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="api_key" name="api_key"
+                     value="{% if is_edit %}{{ company_engine.api_key }}{% else %}{{ form_data.api_key }}{% endif %}"
+                     placeholder="sk-..." required>
+              <button class="btn btn-outline-secondary" type="button" onclick="toggleApiKeyVisibility()">
+                <iconify-icon icon="solar:eye-bold" id="eyeIcon"></iconify-icon>
+              </button>
+            </div>
+            <div class="form-text">Your API key will be stored securely and used for API calls.</div>
+          </div>
+
+          <div class="mb-4">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="active" name="active"
+                     {% if is_edit %}{% if company_engine.active %}checked{% endif %}{% else %}checked{% endif %}>
+              <label class="form-check-label" for="active">Active</label>
+            </div>
+            <div class="form-text">Only active engines can be used for chat.</div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="solar:diskette-bold" class="me-1"></iconify-icon>
+              {% if is_edit %}Update Engine{% else %}Add Engine{% endif %}
+            </button>
+            <a href="{% url 'front:engines_list' %}" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Sidebar -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:info-circle-bold" class="text-info me-2"></iconify-icon>
+          About AI Engines
+        </h6>
+        <p class="text-muted small mb-3">
+          AI Engines are the language models that power the chat functionality. Each engine requires an API key from the provider.
+        </p>
+        <hr>
+        <h6 class="fw-semibold mb-2">Supported Providers:</h6>
+        <ul class="list-unstyled small text-muted">
+          <li class="mb-1">
+            <iconify-icon icon="solar:check-circle-bold" class="text-success me-1"></iconify-icon>
+            OpenAI (GPT-4, GPT-3.5)
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:check-circle-bold" class="text-success me-1"></iconify-icon>
+            Anthropic (Claude)
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:check-circle-bold" class="text-success me-1"></iconify-icon>
+            DeepSeek
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:check-circle-bold" class="text-success me-1"></iconify-icon>
+            And more...
+          </li>
+        </ul>
+        <hr>
+        <p class="text-muted small mb-0">
+          <iconify-icon icon="solar:shield-check-bold" class="text-primary me-1"></iconify-icon>
+          API keys are stored securely and never exposed in logs.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleApiKeyVisibility() {
+  const input = document.getElementById('api_key');
+  const icon = document.getElementById('eyeIcon');
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.setAttribute('icon', 'solar:eye-closed-bold');
+  } else {
+    input.type = 'password';
+    icon.setAttribute('icon', 'solar:eye-bold');
+  }
+}
+
+function updateDefaultName() {
+  const engineSelect = document.getElementById('engine');
+  const nameInput = document.getElementById('name');
+
+  if (engineSelect && nameInput) {
+    const selectedOption = engineSelect.options[engineSelect.selectedIndex];
+    if (selectedOption && selectedOption.dataset.name) {
+      // Only update if name field is empty
+      if (!nameInput.value.trim()) {
+        nameInput.placeholder = selectedOption.dataset.name;
+      }
+    }
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', updateDefaultName);
+</script>
+{% endblock %}

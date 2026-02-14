@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Alerts{% endblock %}
+
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Alerts</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_alerts }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:bell-bing-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Unresolved</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ unresolved_alerts }}</h4>
+          </div>
+          <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:danger-triangle-bold" class="text-warning fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Critical</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ critical_alerts }}</h4>
+          </div>
+          <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:shield-warning-bold" class="text-danger fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">High Priority</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ high_alerts }}</h4>
+          </div>
+          <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:alarm-bold" class="text-info fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Alerts by Severity -->
+  <div class="col-lg-4 d-flex align-items-stretch">
+    <div class="card w-100">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:chart-2-line-duotone" class="text-primary me-2"></iconify-icon>
+          Unresolved by Severity
+        </h5>
+
+        <!-- Critical -->
+        <a href="{% url 'front:alerts_list' %}?severity=critical&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-danger-subtle text-decoration-none {% if current_severity == 'critical' and current_status == 'unresolved' %}border border-danger{% endif %}">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+              <iconify-icon icon="solar:shield-warning-bold" class="text-white"></iconify-icon>
+            </div>
+            <div>
+              <h6 class="mb-0 text-danger fw-semibold">Critical</h6>
+              <small class="text-muted">Immediate action required</small>
+            </div>
+          </div>
+          <span class="badge bg-danger fs-5">{{ critical_alerts }}</span>
+        </a>
+
+        <!-- High -->
+        <a href="{% url 'front:alerts_list' %}?severity=high&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-warning-subtle text-decoration-none {% if current_severity == 'high' and current_status == 'unresolved' %}border border-warning{% endif %}">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+              <iconify-icon icon="solar:danger-triangle-bold" class="text-dark"></iconify-icon>
+            </div>
+            <div>
+              <h6 class="mb-0 text-warning fw-semibold">High</h6>
+              <small class="text-muted">Needs attention soon</small>
+            </div>
+          </div>
+          <span class="badge bg-warning text-dark fs-5">{{ high_alerts }}</span>
+        </a>
+
+        <!-- Medium -->
+        <a href="{% url 'front:alerts_list' %}?severity=medium&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-info-subtle text-decoration-none {% if current_severity == 'medium' and current_status == 'unresolved' %}border border-info{% endif %}">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-info d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+              <iconify-icon icon="solar:info-circle-bold" class="text-white"></iconify-icon>
+            </div>
+            <div>
+              <h6 class="mb-0 text-info fw-semibold">Medium</h6>
+              <small class="text-muted">Review when possible</small>
+            </div>
+          </div>
+          <span class="badge bg-info fs-5">{{ medium_alerts }}</span>
+        </a>
+
+        <!-- Low -->
+        <a href="{% url 'front:alerts_list' %}?severity=low&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-secondary-subtle text-decoration-none {% if current_severity == 'low' and current_status == 'unresolved' %}border border-secondary{% endif %}">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+              <iconify-icon icon="solar:info-square-bold" class="text-white"></iconify-icon>
+            </div>
+            <div>
+              <h6 class="mb-0 text-secondary fw-semibold">Low</h6>
+              <small class="text-muted">Informational only</small>
+            </div>
+          </div>
+          <span class="badge bg-secondary fs-5">{{ low_alerts }}</span>
+        </a>
+
+        <!-- Total Unresolved -->
+        <div class="mt-3 pt-3 border-top">
+          <a href="{% url 'front:alerts_list' %}?status=unresolved" class="d-flex align-items-center justify-content-between text-decoration-none">
+            <span class="fw-semibold text-dark">Total Unresolved</span>
+            <span class="badge bg-dark fs-5">{{ unresolved_alerts }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts List -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <!-- Header with filters -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:bell-bing-line-duotone" class="fs-6 text-primary me-2"></iconify-icon>
+            Security Alerts
+          </h5>
+          {% if unresolved_alerts > 0 %}
+          <form method="post" action="{% url 'front:alerts_resolve_all' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Mark all alerts as resolved?')">
+              <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+              Resolve All
+            </button>
+          </form>
+          {% endif %}
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <form method="get" class="d-flex gap-2">
+              {% if current_status %}<input type="hidden" name="status" value="{{ current_status }}">{% endif %}
+              {% if current_severity %}<input type="hidden" name="severity" value="{{ current_severity }}">{% endif %}
+              {% if current_rule %}<input type="hidden" name="rule" value="{{ current_rule }}">{% endif %}
+              {% if current_department %}<input type="hidden" name="department" value="{{ current_department }}">{% endif %}
+              <input type="text" name="search" class="form-control" placeholder="Search alerts..." value="{{ search }}">
+              <button type="submit" class="btn btn-outline-primary">
+                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <!-- Status Filter -->
+              <a href="{% url 'front:alerts_list' %}{% if current_severity or current_rule or current_department or search %}?{% endif %}{% if current_severity %}severity={{ current_severity }}{% endif %}{% if current_rule %}{% if current_severity %}&{% endif %}rule={{ current_rule }}{% endif %}{% if current_department %}{% if current_severity or current_rule %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_severity or current_rule or current_department %}&{% endif %}search={{ search }}{% endif %}" class="btn {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">
+                All
+              </a>
+              <a href="{% url 'front:alerts_list' %}?status=unresolved{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn {% if current_status == 'unresolved' %}btn-warning{% else %}btn-outline-warning{% endif %} btn-sm">
+                Unresolved
+              </a>
+              <a href="{% url 'front:alerts_list' %}?status=resolved{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn {% if current_status == 'resolved' %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                Resolved
+              </a>
+
+              <!-- Severity Filter -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if current_severity %}{{ current_severity|title }}{% else %}Severity{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_rule or current_department or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_rule %}{% if current_status %}&{% endif %}rule={{ current_rule }}{% endif %}{% if current_department %}{% if current_status or current_rule %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_status or current_rule or current_department %}&{% endif %}search={{ search }}{% endif %}">All Severities</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="{% url 'front:alerts_list' %}?severity=critical{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Critical</a></li>
+                  <li><a class="dropdown-item text-warning" href="{% url 'front:alerts_list' %}?severity=high{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">High</a></li>
+                  <li><a class="dropdown-item text-info" href="{% url 'front:alerts_list' %}?severity=medium{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Medium</a></li>
+                  <li><a class="dropdown-item text-secondary" href="{% url 'front:alerts_list' %}?severity=low{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Low</a></li>
+                </ul>
+              </div>
+
+              <!-- Rule Filter -->
+              {% if rules %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if current_rule %}Rule{% else %}Filter by Rule{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_severity or current_department or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_severity %}{% if current_status %}&{% endif %}severity={{ current_severity }}{% endif %}{% if current_department %}{% if current_status or current_severity %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_status or current_severity or current_department %}&{% endif %}search={{ search }}{% endif %}">All Rules</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for rule in rules %}
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?rule={{ rule.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ rule.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              <!-- Department Filter -->
+              {% if departments %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if current_department %}Department{% else %}All Departments{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_severity or current_rule or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_severity %}{% if current_status %}&{% endif %}severity={{ current_severity }}{% endif %}{% if current_rule %}{% if current_status or current_severity %}&{% endif %}rule={{ current_rule }}{% endif %}{% if search %}{% if current_status or current_severity or current_rule %}&{% endif %}search={{ search }}{% endif %}">All Departments</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for dept in departments %}
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?department={{ dept.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ dept.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Alerts Table -->
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Alert</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Rule</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">User</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Department</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Severity</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Date</h6>
+                </th>
+                <th class="border-bottom-0 text-end">
+                  <h6 class="fw-semibold mb-0">Actions</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for alert in alerts %}
+              <tr class="{% if alert.resolved %}opacity-50{% endif %}">
+                <td class="border-bottom-0">
+                  <a href="{% url 'front:alert_detail' alert.pk %}" class="text-decoration-none">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center
+                        {% if alert.severity == 'critical' %}bg-danger-subtle{% elif alert.severity == 'high' %}bg-warning-subtle{% elif alert.severity == 'medium' %}bg-info-subtle{% else %}bg-secondary-subtle{% endif %}"
+                        style="width: 40px; height: 40px;">
+                        <iconify-icon icon="solar:bell-bing-bold"
+                          class="{% if alert.severity == 'critical' %}text-danger{% elif alert.severity == 'high' %}text-warning{% elif alert.severity == 'medium' %}text-info{% else %}text-secondary{% endif %}"></iconify-icon>
+                      </div>
+                      <div>
+                        <h6 class="fw-semibold mb-0">#{{ alert.id }}</h6>
+                        <span class="text-muted fs-2" style="max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis;">
+                          {{ alert.description|truncatewords:6 }}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </td>
+                <td class="border-bottom-0">
+                  {% if alert.rule %}
+                  <a href="{% url 'front:alerts_list' %}?rule={{ alert.rule.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}" class="badge bg-primary-subtle text-primary text-decoration-none" title="Filter by this rule">
+                    {{ alert.rule.name|truncatewords:3 }}
+                  </a>
+                  {% else %}
+                  <span class="text-muted">N/A</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:user-circle-bold" class="fs-6 text-muted"></iconify-icon>
+                    <span>{{ alert.user.username|default:"Unknown" }}</span>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  {% if alert.user.profile.department %}
+                  <a href="{% url 'front:alerts_list' %}?department={{ alert.user.profile.department.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}" class="badge bg-info-subtle text-info rounded-3 text-decoration-none" title="Filter by this department">
+                    {{ alert.user.profile.department.name }}
+                  </a>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  {% if alert.severity == 'critical' %}
+                  <span class="badge bg-danger rounded-3 fw-semibold">Critical</span>
+                  {% elif alert.severity == 'high' %}
+                  <span class="badge bg-warning rounded-3 fw-semibold">High</span>
+                  {% elif alert.severity == 'medium' %}
+                  <span class="badge bg-info rounded-3 fw-semibold">Medium</span>
+                  {% else %}
+                  <span class="badge bg-secondary rounded-3 fw-semibold">Low</span>
+                  {% endif %}
+                  {% if alert.resolved %}
+                  <span class="badge bg-success-subtle text-success rounded-3 ms-1">Resolved</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ alert.created_at|date:"M d, H:i" }}</span>
+                </td>
+                <td class="border-bottom-0 text-end">
+                  <div class="d-flex gap-2 justify-content-end">
+                    {% if alert.resolved %}
+                    <a href="{% url 'front:alert_unresolve' alert.pk %}?next={{ request.get_full_path|urlencode }}"
+                       class="btn btn-sm btn-outline-warning" title="Mark as unresolved">
+                      <iconify-icon icon="solar:restart-bold"></iconify-icon>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'front:alert_resolve' alert.pk %}?next={{ request.get_full_path|urlencode }}"
+                       class="btn btn-sm btn-outline-success" title="Mark as resolved">
+                      <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'front:alert_detail' alert.pk %}" class="btn btn-sm btn-outline-primary" title="View details">
+                      <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                    </a>
+                    <a href="{% url 'front:alert_delete' alert.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-5">
+                  <iconify-icon icon="solar:shield-check-line-duotone" style="font-size: 3rem;"></iconify-icon>
+                  <p class="mt-3 mb-0">No alerts found. The system is running smoothly!</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

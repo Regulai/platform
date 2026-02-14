@@ -1,0 +1,177 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign Up | regulAI</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/logos/favicon.png' %}" />
+  <link rel="stylesheet" href="{% static 'css/styles.min.css' %}" />
+  <style>
+    .signup-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem 0;
+    }
+    .signup-card {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    .signup-header {
+      text-align: center;
+      padding: 2rem 2rem 1rem;
+    }
+    .signup-body {
+      padding: 1rem 2rem 2rem;
+    }
+    .brand-logo {
+      width: 180px;
+      margin-bottom: 1rem;
+    }
+    .form-control:focus {
+      border-color: #635BFF;
+      box-shadow: 0 0 0 0.25rem rgba(99, 91, 255, 0.25);
+    }
+    .btn-signup {
+      background: linear-gradient(135deg, #635BFF 0%, #764ba2 100%);
+      border: none;
+      padding: 0.75rem;
+      font-weight: 600;
+    }
+    .btn-signup:hover {
+      background: linear-gradient(135deg, #5248e0 0%, #653d8c 100%);
+    }
+    .form-section {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .form-section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #635BFF;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="signup-wrapper">
+    <div class="card signup-card">
+      <div class="signup-header">
+        <img src="{% static 'images/logos/logo.png' %}" alt="regulAI" class="brand-logo">
+        <h4 class="mb-1">Create Your Account</h4>
+        <p class="text-muted mb-0">Join regulAI to secure your AI interactions</p>
+      </div>
+
+      <div class="signup-body">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'front:signup' %}">
+          {% csrf_token %}
+
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <iconify-icon icon="solar:user-bold" class="me-1"></iconify-icon>
+              Personal Information
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="first_name" name="first_name"
+                       placeholder="John" value="{{ form_data.first_name }}">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name"
+                       placeholder="Doe" value="{{ form_data.last_name }}">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" name="email"
+                     placeholder="john.doe@company.com" required value="{{ form_data.email }}">
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="username" name="username"
+                     placeholder="johndoe" required value="{{ form_data.username }}">
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="password" name="password"
+                       placeholder="Min. 8 characters" required>
+                <small class="text-muted">Minimum 8 characters</small>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="password_confirm" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+                       placeholder="Re-enter password" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Company Information Section -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <iconify-icon icon="solar:buildings-bold" class="me-1"></iconify-icon>
+              Company Information
+            </div>
+
+            <div class="mb-3">
+              <label for="company_name" class="form-label">Company Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="company_name" name="company_name"
+                     placeholder="Acme Corporation" required value="{{ form_data.company_name }}">
+              <small class="text-muted">This will create a new company account</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="company_domain" class="form-label">Company Domain (Optional)</label>
+              <input type="text" class="form-control" id="company_domain" name="company_domain"
+                     placeholder="acme.com" value="{{ form_data.company_domain }}">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-signup w-100 mb-3">
+            <iconify-icon icon="solar:user-plus-bold" class="me-1"></iconify-icon>
+            Create Account
+          </button>
+
+          <div class="text-center">
+            <small class="text-muted">
+              Already have an account?
+              <a href="{% url 'front:login' %}" class="text-primary fw-semibold">Sign In</a>
+            </small>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+</body>
+
+</html>

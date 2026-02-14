@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rules Community{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1"><i class="ti ti-world me-2 text-primary"></i>Rules Community</h4>
+                    <p class="text-muted mb-0">Browse and configure community-maintained YARA rules for your organization</p>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if user.is_superuser %}
+                    <button type="button" class="btn btn-success" id="syncBtn">
+                        <i class="ti ti-refresh me-1"></i> Sync from GitHub
+                    </button>
+                    {% endif %}
+                    <a href="{% url 'front:rules_list' %}" class="btn btn-outline-primary">
+                        <i class="ti ti-shield-check me-1"></i> My Rules
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-world text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ total_community_rules }}</h3>
+                            <span class="text-muted">Community Rules</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-check text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ configured_count }}</h3>
+                            <span class="text-muted">Configured</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-clock text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ total_community_rules|add:"-"|add:configured_count|default:total_community_rules }}</h3>
+                            <span class="text-muted">Available</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Search by name or description..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Severity</label>
+                    <select name="severity" class="form-select">
+                        <option value="">All</option>
+                        <option value="critical" {% if severity_filter == 'critical' %}selected{% endif %}>Critical</option>
+                        <option value="high" {% if severity_filter == 'high' %}selected{% endif %}>High</option>
+                        <option value="medium" {% if severity_filter == 'medium' %}selected{% endif %}>Medium</option>
+                        <option value="low" {% if severity_filter == 'low' %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Applies To</label>
+                    <select name="applies_to" class="form-select">
+                        <option value="">All</option>
+                        <option value="prompts" {% if applies_to_filter == 'prompts' %}selected{% endif %}>Prompts</option>
+                        <option value="files" {% if applies_to_filter == 'files' %}selected{% endif %}>Files</option>
+                        <option value="both" {% if applies_to_filter == 'both' %}selected{% endif %}>Both</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="configured" {% if status_filter == 'configured' %}selected{% endif %}>Configured</option>
+                        <option value="not_configured" {% if status_filter == 'not_configured' %}selected{% endif %}>Not Configured</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rules by Group -->
+    {% if groups_dict %}
+        {% for group_name, group_data in groups_dict.items %}
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <div class="d-flex align-items-center">
+                    <i class="ti ti-folder text-primary me-2 fs-5"></i>
+                    <h5 class="mb-0">{{ group_name }}</h5>
+                    <span class="badge bg-secondary ms-2">{{ group_data.rules|length }} rules</span>
+                </div>
+                {% if group_data.group.description %}
+                <small class="text-muted">{{ group_data.group.description }}</small>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rule Name</th>
+                                <th>Description</th>
+                                <th class="text-center">Severity</th>
+                                <th class="text-center">Applies To</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in group_data.rules %}
+                            <tr>
+                                <td>
+                                    <strong>{{ rule.name }}</strong>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ rule.description|default:"No description"|truncatewords:20 }}</small>
+                                </td>
+                                <td class="text-center">
+                                    {% if rule.severity == 'critical' %}
+                                        <span class="badge bg-danger">Critical</span>
+                                    {% elif rule.severity == 'high' %}
+                                        <span class="badge bg-warning text-dark">High</span>
+                                    {% elif rule.severity == 'medium' %}
+                                        <span class="badge bg-info">Medium</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if rule.applies_to == 'prompts' %}
+                                        <span class="badge bg-primary">Prompts</span>
+                                    {% elif rule.applies_to == 'files' %}
+                                        <span class="badge bg-success">Files</span>
+                                    {% else %}
+                                        <span class="badge bg-dark">Both</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if rule.is_configured %}
+                                        <span class="badge bg-success"><i class="ti ti-check me-1"></i>Configured</span>
+                                    {% else %}
+                                        <span class="badge bg-outline-secondary text-secondary border"><i class="ti ti-clock me-1"></i>Available</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if rule.is_configured %}
+                                        <a href="{% url 'front:rules_list' %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="ti ti-eye me-1"></i> View
+                                        </a>
+                                    {% else %}
+                                        <button type="button" class="btn btn-sm btn-primary btn-configure"
+                                                data-rule-id="{{ rule.id }}"
+                                                data-rule-name="{{ rule.name }}"
+                                                data-rule-description="{{ rule.description|default:'No description' }}">
+                                            <i class="ti ti-settings me-1"></i> Configure
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="ti ti-world text-muted" style="font-size: 4rem;"></i>
+                <h5 class="mt-3">No Community Rules Available</h5>
+                <p class="text-muted">There are no community rules available at this time.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Configure Modal -->
+<div class="modal fade" id="configureModal" tabindex="-1" aria-labelledby="configureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="configureModalLabel">
+                    <i class="ti ti-settings me-2"></i>Configure Rule
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="configureModalBody">
+                <!-- Content will be set dynamically -->
+            </div>
+            <div class="modal-footer" id="configureModalFooter">
+                <!-- Buttons will be set dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const configureModal = new bootstrap.Modal(document.getElementById('configureModal'));
+    const modalBody = document.getElementById('configureModalBody');
+    const modalFooter = document.getElementById('configureModalFooter');
+    const modalTitle = document.getElementById('configureModalLabel');
+
+    // Configure button click
+    document.querySelectorAll('.btn-configure').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ruleId = this.dataset.ruleId;
+            const ruleName = this.dataset.ruleName;
+            const ruleDescription = this.dataset.ruleDescription;
+
+            // Show confirmation modal
+            modalTitle.innerHTML = '<i class="ti ti-settings me-2"></i>Configure Rule';
+            modalBody.innerHTML = `
+                <div class="text-center mb-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-4 d-inline-block">
+                        <i class="ti ti-shield-check text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+                <h5 class="text-center mb-3">${ruleName}</h5>
+                <p class="text-muted text-center">${ruleDescription}</p>
+                <div class="alert alert-info mb-0">
+                    <i class="ti ti-info-circle me-2"></i>
+                    <strong>What happens next?</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>This rule will be added to your company's "Community Rules" group</li>
+                        <li>The rule will be <strong>inactive</strong> by default</li>
+                        <li>You can activate it immediately or later from the Rules section</li>
+                    </ul>
+                </div>
+            `;
+            modalFooter.innerHTML = `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmConfigureBtn" data-rule-id="${ruleId}">
+                    <i class="ti ti-check me-1"></i> Configure for My Company
+                </button>
+            `;
+
+            configureModal.show();
+
+            // Handle configure confirmation
+            document.getElementById('confirmConfigureBtn').addEventListener('click', function() {
+                const ruleId = this.dataset.ruleId;
+                configureRule(ruleId);
+            });
+        });
+    });
+
+    function configureRule(ruleId) {
+        fetch(`{% url 'front:rule_community_configure' 0 %}`.replace('0', ruleId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success with activation option
+                modalTitle.innerHTML = '<i class="ti ti-check text-success me-2"></i>Rule Configured!';
+                modalBody.innerHTML = `
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-4 d-inline-block">
+                            <i class="ti ti-check text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-center text-success mb-3">Successfully Configured!</h5>
+                    <p class="text-center text-muted">
+                        The rule <strong>"${data.rule_name}"</strong> has been added to your company's
+                        <strong>"${data.group_name}"</strong> group.
+                    </p>
+                    <div class="alert alert-warning mb-0">
+                        <i class="ti ti-alert-triangle me-2"></i>
+                        The rule is currently <strong>inactive</strong>. Would you like to activate it now?
+                    </div>
+                `;
+                modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" onclick="location.reload()">Later</button>
+                    <button type="button" class="btn btn-success" id="activateBtn" data-rule-id="${data.rule_id}">
+                        <i class="ti ti-player-play me-1"></i> Activate Now
+                    </button>
+                `;
+
+                // Handle activation
+                document.getElementById('activateBtn').addEventListener('click', function() {
+                    activateRule(this.dataset.ruleId);
+                });
+            } else if (data.error === 'already_configured') {
+                // Already configured
+                modalTitle.innerHTML = '<i class="ti ti-info-circle text-info me-2"></i>Already Configured';
+                modalBody.innerHTML = `
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-4 d-inline-block">
+                            <i class="ti ti-info-circle text-info" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <p class="text-center">${data.message}</p>
+                `;
+                modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="{% url 'front:rules_list' %}" class="btn btn-primary">
+                        <i class="ti ti-eye me-1"></i> View My Rules
+                    </a>
+                `;
+            } else {
+                // Error
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="ti ti-alert-circle me-2"></i>
+                        ${data.message || 'An error occurred. Please try again.'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            modalBody.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="ti ti-alert-circle me-2"></i>
+                    An error occurred. Please try again.
+                </div>
+            `;
+        });
+    }
+
+    function activateRule(ruleId) {
+        fetch(`{% url 'front:rule_community_activate' 0 %}`.replace('0', ruleId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                modalTitle.innerHTML = '<i class="ti ti-shield-check text-success me-2"></i>Rule Activated!';
+                modalBody.innerHTML = `
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-4 d-inline-block">
+                            <i class="ti ti-shield-check text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-center text-success mb-3">Rule is Now Active!</h5>
+                    <p class="text-center text-muted">
+                        ${data.message}<br>
+                        The rule will now protect your organization's AI interactions.
+                    </p>
+                `;
+                modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" onclick="location.reload()">Close</button>
+                    <a href="{% url 'front:rules_list' %}" class="btn btn-success">
+                        <i class="ti ti-shield-check me-1"></i> View My Rules
+                    </a>
+                `;
+            }
+        });
+    }
+
+    // Sync button handler
+    {% if user.is_superuser %}
+    const syncBtn = document.getElementById('syncBtn');
+    if (syncBtn) {
+        syncBtn.addEventListener('click', function() {
+            // Show syncing state
+            modalTitle.innerHTML = '<i class="ti ti-refresh me-2 text-primary"></i>Sync Community Rules';
+            modalBody.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5>Syncing rules from GitHub...</h5>
+                    <p class="text-muted mb-0">Connecting to <strong>Regulai/regulai-rules</strong> repository</p>
+                </div>
+            `;
+            modalFooter.innerHTML = '';
+            configureModal.show();
+
+            // Make sync request
+            fetch('{% url "front:rules_community_sync" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modalTitle.innerHTML = '<i class="ti ti-check text-success me-2"></i>Sync Complete!';
+                    modalBody.innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="rounded-circle bg-success bg-opacity-10 p-4 d-inline-block">
+                                <i class="ti ti-check text-success" style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="text-center text-success mb-3">Successfully Synced!</h5>
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="border rounded p-2">
+                                    <h4 class="mb-0 text-success">${data.rules_added}</h4>
+                                    <small class="text-muted">Added</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border rounded p-2">
+                                    <h4 class="mb-0 text-info">${data.rules_updated}</h4>
+                                    <small class="text-muted">Updated</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="border rounded p-2">
+                                    <h4 class="mb-0 text-secondary">${data.rules_skipped}</h4>
+                                    <small class="text-muted">Unchanged</small>
+                                </div>
+                            </div>
+                        </div>
+                        ${data.errors && data.errors.length > 0 ? `
+                            <div class="alert alert-warning mb-0">
+                                <i class="ti ti-alert-triangle me-2"></i>
+                                <strong>Some warnings:</strong>
+                                <ul class="mb-0 mt-2">
+                                    ${data.errors.map(e => `<li>${e}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    `;
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-success" onclick="location.reload()">
+                            <i class="ti ti-refresh me-1"></i> Refresh Page
+                        </button>
+                    `;
+                } else {
+                    modalTitle.innerHTML = '<i class="ti ti-alert-circle text-danger me-2"></i>Sync Failed';
+                    modalBody.innerHTML = `
+                        <div class="text-center mb-3">
+                            <div class="rounded-circle bg-danger bg-opacity-10 p-4 d-inline-block">
+                                <i class="ti ti-alert-circle text-danger" style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="alert alert-danger mb-0">
+                            <i class="ti ti-alert-circle me-2"></i>
+                            ${data.message || 'An error occurred during sync.'}
+                        </div>
+                    `;
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    `;
+                }
+            })
+            .catch(error => {
+                modalTitle.innerHTML = '<i class="ti ti-alert-circle text-danger me-2"></i>Sync Failed';
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="ti ti-alert-circle me-2"></i>
+                        Network error. Please check your connection and try again.
+                    </div>
+                `;
+                modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                `;
+            });
+        });
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ group.name }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:rulesgroups_list' %}">Rules Groups</a></li>
+        <li class="breadcrumb-item active">{{ group.name }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Group Header -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+              <iconify-icon icon="solar:folder-with-files-bold" class="text-primary fs-5"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="fw-semibold mb-1">{{ group.name }}</h4>
+              {% if group.description %}
+              <p class="text-muted mb-2">{{ group.description }}</p>
+              {% endif %}
+              <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-primary-subtle text-primary">
+                  <iconify-icon icon="solar:shield-check-bold" class="me-1"></iconify-icon>
+                  {{ group.rules_count }} rules
+                </span>
+                <span class="badge bg-success-subtle text-success">
+                  <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+                  {{ group.active_rules_count }} active
+                </span>
+                {% if group.company %}
+                <span class="badge bg-info-subtle text-info">
+                  <iconify-icon icon="solar:buildings-bold" class="me-1"></iconify-icon>
+                  {{ group.company.name }}
+                </span>
+                {% elif group.user %}
+                <span class="badge bg-secondary-subtle text-secondary">
+                  <iconify-icon icon="solar:user-circle-bold" class="me-1"></iconify-icon>
+                  {{ group.user.username }}
+                </span>
+                {% else %}
+                <span class="badge bg-dark-subtle text-dark">
+                  <iconify-icon icon="solar:globe-bold" class="me-1"></iconify-icon>
+                  Global
+                </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'front:rule_create' %}" class="btn btn-primary">
+              <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+              Add Rule
+            </a>
+            {% if group.rules_count > 0 %}
+            <form method="post" action="{% url 'front:rulesgroup_activate_all' group.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success" onclick="return confirm('Activate all rules in this group?')">
+                <iconify-icon icon="solar:play-bold" class="me-1"></iconify-icon>
+                Activate All
+              </button>
+            </form>
+            <form method="post" action="{% url 'front:rulesgroup_deactivate_all' group.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-warning" onclick="return confirm('Deactivate all rules in this group?')">
+                <iconify-icon icon="solar:pause-bold" class="me-1"></iconify-icon>
+                Deactivate All
+              </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'front:rulesgroup_edit' group.pk %}" class="btn btn-outline-primary">
+              <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
+              Edit Group
+            </a>
+            <a href="{% url 'front:rulesgroup_delete' group.pk %}" class="btn btn-outline-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Delete
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="row mb-4">
+  <div class="col-12">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Rules List -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:shield-check-line-duotone" class="text-primary me-2"></iconify-icon>
+          Rules in this Group
+        </h5>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Rule Name</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rule in rules %}
+              <tr>
+                <td>
+                  <a href="{% url 'front:rule_detail' rule.pk %}" class="text-decoration-none fw-semibold">
+                    {{ rule.name }}
+                  </a>
+                  {% if rule.description %}
+                  <br><small class="text-muted">{{ rule.description|truncatechars:50 }}</small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if rule.severity == 'critical' %}
+                  <span class="badge bg-danger">Critical</span>
+                  {% elif rule.severity == 'high' %}
+                  <span class="badge bg-warning text-dark">High</span>
+                  {% elif rule.severity == 'medium' %}
+                  <span class="badge bg-info">Medium</span>
+                  {% else %}
+                  <span class="badge bg-secondary">Low</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if rule.active %}
+                  <span class="badge bg-success-subtle text-success">
+                    <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+                    Active
+                  </span>
+                  {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary">
+                    <iconify-icon icon="solar:close-circle-bold" class="me-1"></iconify-icon>
+                    Inactive
+                  </span>
+                  {% endif %}
+                </td>
+                <td>
+                  <small class="text-muted">{{ rule.created_at|date:"M d, Y" }}</small>
+                </td>
+                <td class="text-end">
+                  <div class="d-flex gap-1 justify-content-end">
+                    <a href="{% url 'front:rule_toggle' rule.pk %}?next={% url 'front:rulesgroup_detail' group.pk %}"
+                       class="btn btn-sm {% if rule.active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                       title="{% if rule.active %}Deactivate{% else %}Activate{% endif %}">
+                      <iconify-icon icon="{% if rule.active %}solar:pause-bold{% else %}solar:play-bold{% endif %}"></iconify-icon>
+                    </a>
+                    <a href="{% url 'front:rule_edit' rule.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                      <iconify-icon icon="solar:pen-bold"></iconify-icon>
+                    </a>
+                    <a href="{% url 'front:rule_delete' rule.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <iconify-icon icon="solar:shield-check-line-duotone" style="font-size: 2rem;"></iconify-icon>
+                  <p class="mt-2 mb-0">No rules in this group yet.</p>
+                  <a href="{% url 'front:rule_create' %}" class="btn btn-primary btn-sm mt-3">
+                    <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+                    Add First Rule
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Group Info -->
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:info-circle-bold" class="text-primary me-2"></iconify-icon>
+          Group Information
+        </h6>
+        <table class="table table-borderless table-sm mb-0">
+          <tr>
+            <td class="text-muted" style="width: 120px;">Created</td>
+            <td>{{ group.created_at|date:"F d, Y H:i" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Scope</td>
+            <td>
+              {% if group.company %}
+              Company: {{ group.company.name }}
+              {% elif group.user %}
+              User: {{ group.user.username }}
+              {% else %}
+              Global
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="text-muted">Total Rules</td>
+            <td>{{ group.rules_count }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Active Rules</td>
+            <td>{{ group.active_rules_count }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

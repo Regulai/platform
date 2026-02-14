@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if group %}Edit Group{% else %}New Group{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:rulesgroups_list' %}">Rules Groups</a></li>
+        {% if group %}
+        <li class="breadcrumb-item"><a href="{% url 'front:rulesgroup_detail' group.pk %}">{{ group.name }}</a></li>
+        <li class="breadcrumb-item active">Edit</li>
+        {% else %}
+        <li class="breadcrumb-item active">New Group</li>
+        {% endif %}
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="{% if group %}solar:pen-bold{% else %}solar:add-folder-bold{% endif %}" class="text-primary me-2"></iconify-icon>
+          {% if group %}Edit Rules Group{% else %}Create New Rules Group{% endif %}
+        </h5>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label for="name" class="form-label fw-semibold">Group Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" name="name"
+                   value="{% if group %}{{ group.name }}{% endif %}"
+                   placeholder="e.g., Security Rules, PII Detection" required>
+            <div class="form-text">A descriptive name for this rules group.</div>
+          </div>
+
+          <div class="mb-4">
+            <label for="description" class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"
+                      placeholder="Describe the purpose of this rules group...">{% if group %}{{ group.description }}{% endif %}</textarea>
+            <div class="form-text">Describe the purpose of this rules group.</div>
+          </div>
+
+          <div class="alert alert-info">
+            <iconify-icon icon="solar:info-circle-bold" class="me-2"></iconify-icon>
+            <strong>Note:</strong> This rules group will be automatically assigned to your company (<strong>{{ request.user.profile.company.name }}</strong>) and will be available to all users in the company.
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="solar:diskette-bold" class="me-1"></iconify-icon>
+              {% if group %}Save Changes{% else %}Create Group{% endif %}
+            </button>
+            <a href="{% if group %}{% url 'front:rulesgroup_detail' group.pk %}{% else %}{% url 'front:rulesgroups_list' %}{% endif %}" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Help -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:question-circle-bold" class="text-primary me-2"></iconify-icon>
+          About Rules Groups
+        </h5>
+        <p class="text-muted small">
+          Rules Groups help you organize YARA rules logically. Each group can contain multiple rules that share a common purpose.
+        </p>
+        <h6 class="fw-semibold mt-3">Examples</h6>
+        <ul class="small text-muted mb-0">
+          <li><strong>PII Detection:</strong> Rules to detect personal information</li>
+          <li><strong>Security Policies:</strong> Rules for security compliance</li>
+          <li><strong>Content Filtering:</strong> Rules for inappropriate content</li>
+          <li><strong>API Key Detection:</strong> Rules to find leaked credentials</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

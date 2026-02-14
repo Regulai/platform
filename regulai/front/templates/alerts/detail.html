@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Alert #{{ alert.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .prompt-content {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:alerts_list' %}">Alerts</a></li>
+        <li class="breadcrumb-item active">Alert #{{ alert.id }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Alert Header -->
+<div class="row">
+  <div class="col-12">
+    <div class="card {% if alert.severity == 'critical' %}border-danger{% elif alert.severity == 'high' %}border-warning{% endif %}">
+      <div class="card-body">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center
+              {% if alert.severity == 'critical' %}bg-danger{% elif alert.severity == 'high' %}bg-warning{% elif alert.severity == 'medium' %}bg-info{% else %}bg-secondary{% endif %}"
+              style="width: 64px; height: 64px;">
+              <iconify-icon icon="solar:bell-bing-bold" class="text-white fs-7"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="fw-semibold mb-1">Alert #{{ alert.id }}</h4>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                {% if alert.severity == 'critical' %}
+                <span class="badge bg-danger rounded-3 fw-semibold">Critical</span>
+                {% elif alert.severity == 'high' %}
+                <span class="badge bg-warning rounded-3 fw-semibold">High</span>
+                {% elif alert.severity == 'medium' %}
+                <span class="badge bg-info rounded-3 fw-semibold">Medium</span>
+                {% else %}
+                <span class="badge bg-secondary rounded-3 fw-semibold">Low</span>
+                {% endif %}
+
+                {% if alert.resolved %}
+                <span class="badge bg-success-subtle text-success rounded-3">Resolved</span>
+                {% else %}
+                <span class="badge bg-warning-subtle text-warning rounded-3">Unresolved</span>
+                {% endif %}
+
+                <span class="text-muted">|</span>
+                <span class="text-muted fs-3">
+                  <iconify-icon icon="solar:calendar-bold" class="me-1"></iconify-icon>
+                  {{ alert.created_at|date:"M d, Y H:i" }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            {% if alert.resolved %}
+            <a href="{% url 'front:alert_unresolve' alert.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="btn btn-outline-warning">
+              <iconify-icon icon="solar:restart-bold" class="me-1"></iconify-icon>
+              Mark Unresolved
+            </a>
+            {% else %}
+            <a href="{% url 'front:alert_resolve' alert.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="btn btn-success">
+              <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+              Mark Resolved
+            </a>
+            {% endif %}
+            <a href="{% url 'front:alert_delete' alert.pk %}" class="btn btn-outline-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Delete
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="row">
+  <div class="col-12">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <!-- Alert Details -->
+  <div class="col-lg-8">
+    <!-- Description -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:document-text-bold" class="text-primary me-2"></iconify-icon>
+          Alert Description
+        </h5>
+        <p class="mb-0">{{ alert.description }}</p>
+      </div>
+    </div>
+
+    <!-- Triggered Prompt -->
+    {% if alert.prompt %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:chat-round-dots-bold" class="text-danger me-2"></iconify-icon>
+          Triggering Prompt
+        </h5>
+        <div class="prompt-content bg-danger-subtle">{{ alert.prompt.content }}</div>
+        {% if alert.prompt.file_name %}
+        <div class="mt-2 p-2 bg-warning-subtle rounded">
+          <div class="d-flex align-items-center gap-2">
+            <iconify-icon icon="solar:file-bold" class="text-warning fs-5"></iconify-icon>
+            <div class="flex-grow-1">
+              <strong>{{ alert.prompt.file_name }}</strong>
+              {% if alert.prompt.file_size %}
+              <span class="text-muted small ms-2">({{ alert.prompt.file_size|filesizeformat }})</span>
+              {% endif %}
+            </div>
+          </div>
+          {% if alert.prompt.file_md5 %}
+          <div class="mt-2 small">
+            <div><strong>MD5:</strong> <code>{{ alert.prompt.file_md5 }}</code></div>
+            {% if alert.prompt.file_sha1 %}
+            <div><strong>SHA1:</strong> <code>{{ alert.prompt.file_sha1 }}</code></div>
+            {% endif %}
+            {% if alert.prompt.file_sha256 %}
+            <div><strong>SHA256:</strong> <code>{{ alert.prompt.file_sha256 }}</code></div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div class="mt-2 text-muted small">
+          <iconify-icon icon="solar:calendar-linear" class="me-1"></iconify-icon>
+          Sent on {{ alert.prompt.created_at|date:"M d, Y H:i" }}
+          <span class="mx-2">|</span>
+          <iconify-icon icon="solar:cpu-linear" class="me-1"></iconify-icon>
+          Model: {{ alert.prompt.model_used }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Response (if exists) -->
+    {% if response %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:robot-bold" class="text-info me-2"></iconify-icon>
+          AI Response
+        </h5>
+        <div class="prompt-content bg-info-subtle">{{ response.content }}</div>
+        <div class="mt-2 text-muted small">
+          <iconify-icon icon="solar:tag-linear" class="me-1"></iconify-icon>
+          Tokens used: {{ response.tokens_used }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Rule that triggered -->
+    {% if alert.rule %}
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:shield-check-bold" class="text-warning me-2"></iconify-icon>
+          Triggered Rule
+        </h5>
+        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <iconify-icon icon="solar:shield-check-bold" class="text-primary"></iconify-icon>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="fw-semibold mb-0">{{ alert.rule.name }}</h6>
+            <p class="text-muted mb-0 small">{{ alert.rule.description|truncatewords:15|default:"No description" }}</p>
+          </div>
+          <a href="{% url 'front:rule_detail' alert.rule.pk %}" class="btn btn-outline-primary btn-sm">
+            <iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon>
+            View Rule
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:info-circle-bold" class="text-primary me-2"></iconify-icon>
+          Alert Information
+        </h5>
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Alert ID</span>
+            <span class="fw-semibold">#{{ alert.id }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Status</span>
+            {% if alert.resolved %}
+            <span class="text-success fw-semibold">Resolved</span>
+            {% else %}
+            <span class="text-warning fw-semibold">Unresolved</span>
+            {% endif %}
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Severity</span>
+            <span class="fw-semibold
+              {% if alert.severity == 'critical' %}text-danger{% elif alert.severity == 'high' %}text-warning{% elif alert.severity == 'medium' %}text-info{% else %}text-secondary{% endif %}">
+              {{ alert.severity|title }}
+            </span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">User</span>
+            <span class="fw-semibold">{{ alert.user.username|default:"Unknown" }}</span>
+          </li>
+          {% if alert.company %}
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Company</span>
+            <span class="fw-semibold">{{ alert.company.name }}</span>
+          </li>
+          {% endif %}
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Rule</span>
+            <span class="fw-semibold">{{ alert.rule.name|default:"N/A" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Created</span>
+            <span class="fw-semibold">{{ alert.created_at|date:"M d, Y" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2">
+            <span class="text-muted">Time</span>
+            <span class="fw-semibold">{{ alert.created_at|date:"H:i:s" }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:bolt-bold" class="text-warning me-2"></iconify-icon>
+          Quick Actions
+        </h5>
+        <div class="d-grid gap-2">
+          {% if alert.rule %}
+          <a href="{% url 'front:rule_detail' alert.rule.pk %}" class="btn btn-outline-primary">
+            <iconify-icon icon="solar:shield-check-bold" class="me-2"></iconify-icon>
+            View Triggering Rule
+          </a>
+          <a href="{% url 'front:rule_toggle' alert.rule.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="btn btn-outline-warning">
+            <iconify-icon icon="solar:power-bold" class="me-2"></iconify-icon>
+            {% if alert.rule.active %}Disable{% else %}Enable{% endif %} Rule
+          </a>
+          {% endif %}
+          <a href="{% url 'front:alerts_list' %}?severity={{ alert.severity }}" class="btn btn-outline-secondary">
+            <iconify-icon icon="solar:filter-bold" class="me-2"></iconify-icon>
+            View Similar Alerts
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

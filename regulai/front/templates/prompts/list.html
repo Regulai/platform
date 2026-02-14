@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prompts{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Prompts</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_prompts }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:chat-round-dots-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Today</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ today_prompts }}</h4>
+          </div>
+          <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:calendar-bold" class="text-success fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Detected</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ filtered_prompts }}</h4>
+          </div>
+          <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:danger-triangle-bold" class="text-danger fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Users</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ users|length }}</h4>
+          </div>
+          <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:users-group-rounded-bold" class="text-info fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Prompts List -->
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Header with filters -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:chat-round-dots-line-duotone" class="fs-6 text-primary me-2"></iconify-icon>
+            Executed Prompts
+          </h5>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <form method="get" class="d-flex gap-2">
+              <input type="text" name="search" class="form-control" placeholder="Search prompts..." value="{{ search }}">
+              <button type="submit" class="btn btn-outline-primary">
+                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <!-- Status Filter -->
+              <a href="{% url 'front:prompts_list' %}" class="btn {% if not current_filtered %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">
+                All
+              </a>
+              <a href="{% url 'front:prompts_list' %}?filtered=yes" class="btn {% if current_filtered == 'yes' %}btn-danger{% else %}btn-outline-danger{% endif %} btn-sm">
+                Detected
+              </a>
+              <a href="{% url 'front:prompts_list' %}?filtered=no" class="btn {% if current_filtered == 'no' %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                Clean
+              </a>
+
+              <!-- User Filter -->
+              {% if users %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_user %}User{% else %}Filter by User{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:prompts_list' %}">All Users</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for u in users %}
+                  <li><a class="dropdown-item" href="{% url 'front:prompts_list' %}?user={{ u.id }}">{{ u.username }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              <!-- Model Filter -->
+              {% if models %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_model %}{{ current_model }}{% else %}Filter by Model{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:prompts_list' %}">All Models</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for m in models %}
+                  <li><a class="dropdown-item" href="{% url 'front:prompts_list' %}?model={{ m }}">{{ m }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              <!-- Department Filter -->
+              {% if departments %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_department %}Department{% else %}All Departments{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:prompts_list' %}">All Departments</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for dept in departments %}
+                  <li><a class="dropdown-item" href="{% url 'front:prompts_list' %}?department={{ dept.id }}">{{ dept.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              <!-- Date Filter -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if date_from or date_to %}Date Range{% else %}Filter by Date{% endif %}
+                </button>
+                <div class="dropdown-menu p-3" style="min-width: 280px;">
+                  <form method="get">
+                    <div class="mb-2">
+                      <label class="form-label small">From:</label>
+                      <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from|default:'' }}">
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label small">To:</label>
+                      <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to|default:'' }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Prompts Table -->
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">ID</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Prompt Content</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">User</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Department</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Model</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Status</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Date</h6>
+                </th>
+                <th class="border-bottom-0 text-end">
+                  <h6 class="fw-semibold mb-0">Actions</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for prompt in prompts %}
+              <tr>
+                <td class="border-bottom-0">
+                  <span class="fw-semibold">#{{ prompt.id }}</span>
+                </td>
+                <td class="border-bottom-0">
+                  <a href="{% url 'front:prompt_detail' prompt.pk %}" class="text-decoration-none">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center {% if prompt.filtered %}bg-danger-subtle{% else %}bg-primary-subtle{% endif %}" style="width: 40px; height: 40px;">
+                        <iconify-icon icon="{% if prompt.filtered %}solar:danger-triangle-bold{% else %}solar:chat-round-dots-bold{% endif %}" class="{% if prompt.filtered %}text-danger{% else %}text-primary{% endif %}"></iconify-icon>
+                      </div>
+                      <div>
+                        <span class="text-dark" style="max-width: 350px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          {{ prompt.content|truncatewords:12 }}
+                        </span>
+                        {% if prompt.file_name %}
+                        <div class="mt-1">
+                          <iconify-icon icon="solar:file-bold" class="text-primary"></iconify-icon>
+                          <small class="text-muted">{{ prompt.file_name }}</small>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </a>
+                </td>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:user-circle-bold" class="fs-6 text-muted"></iconify-icon>
+                    <span>{{ prompt.user.username }}</span>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  {% if prompt.user.profile.department %}
+                  <span class="badge bg-info-subtle text-info rounded-3">{{ prompt.user.profile.department.name }}</span>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="badge bg-primary-subtle text-primary rounded-3">{{ prompt.model_used }}</span>
+                </td>
+                <td class="border-bottom-0">
+                  {% if prompt.filtered %}
+                  <span class="badge bg-danger rounded-3 fw-semibold">Detected</span>
+                  {% else %}
+                  <span class="badge bg-success rounded-3 fw-semibold">Clean</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ prompt.created_at|date:"M d, H:i" }}</span>
+                </td>
+                <td class="border-bottom-0 text-end">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <a href="{% url 'front:prompt_detail' prompt.pk %}" class="btn btn-sm btn-outline-primary" title="View details">
+                      <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-5">
+                  <iconify-icon icon="solar:chat-round-dots-line-duotone" style="font-size: 3rem;"></iconify-icon>
+                  <p class="mt-3 mb-0">No prompts found. Start a conversation in the Chat!</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

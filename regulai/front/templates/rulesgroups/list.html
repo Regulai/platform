@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rules Groups{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-4">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Groups</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_groups }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:folder-with-files-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-4">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Rules</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_rules }}</h4>
+          </div>
+          <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-4">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <a href="{% url 'front:rulesgroup_create' %}" class="btn btn-primary">
+              <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+              New Group
+            </a>
+          </div>
+          <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:add-folder-bold" class="text-info fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Header with filters -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:folder-with-files-line-duotone" class="fs-6 text-primary me-2"></iconify-icon>
+            Rules Groups
+          </h5>
+          <a href="{% url 'front:rules_list' %}" class="btn btn-outline-primary btn-sm">
+            <iconify-icon icon="solar:shield-check-bold" class="me-1"></iconify-icon>
+            View All Rules
+          </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <form method="get" class="d-flex gap-2">
+              <input type="text" name="search" class="form-control" placeholder="Search groups..." value="{{ search }}">
+              <button type="submit" class="btn btn-outline-primary">
+                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <!-- Company Filter -->
+              {% if companies %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_company %}Company{% else %}Filter by Company{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:rulesgroups_list' %}">All Companies</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for company in companies %}
+                  <li><a class="dropdown-item" href="{% url 'front:rulesgroups_list' %}?company={{ company.id }}">{{ company.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Groups Grid -->
+        <div class="row">
+          {% for group in groups %}
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 border">
+              <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                  <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <iconify-icon icon="solar:folder-with-files-bold" class="text-primary fs-6"></iconify-icon>
+                  </div>
+                  <div class="dropdown">
+                    <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                      <iconify-icon icon="solar:menu-dots-bold" class="fs-5"></iconify-icon>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="{% url 'front:rulesgroup_detail' group.pk %}">
+                        <iconify-icon icon="solar:eye-bold" class="me-2"></iconify-icon>View Details
+                      </a></li>
+                      <li><a class="dropdown-item" href="{% url 'front:rulesgroup_edit' group.pk %}">
+                        <iconify-icon icon="solar:pen-bold" class="me-2"></iconify-icon>Edit
+                      </a></li>
+                      {% if group.rules_count > 0 %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <form method="post" action="{% url 'front:rulesgroup_activate_all' group.pk %}?next={% url 'front:rulesgroups_list' %}" class="d-inline w-100">
+                          {% csrf_token %}
+                          <button type="submit" class="dropdown-item text-success" onclick="return confirm('Activate all rules in this group?')">
+                            <iconify-icon icon="solar:play-bold" class="me-2"></iconify-icon>Activate All Rules
+                          </button>
+                        </form>
+                      </li>
+                      <li>
+                        <form method="post" action="{% url 'front:rulesgroup_deactivate_all' group.pk %}?next={% url 'front:rulesgroups_list' %}" class="d-inline w-100">
+                          {% csrf_token %}
+                          <button type="submit" class="dropdown-item text-warning" onclick="return confirm('Deactivate all rules in this group?')">
+                            <iconify-icon icon="solar:pause-bold" class="me-2"></iconify-icon>Deactivate All Rules
+                          </button>
+                        </form>
+                      </li>
+                      {% endif %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item text-danger" href="{% url 'front:rulesgroup_delete' group.pk %}">
+                        <iconify-icon icon="solar:trash-bin-trash-bold" class="me-2"></iconify-icon>Delete
+                      </a></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <h5 class="fw-semibold mb-1">
+                  <a href="{% url 'front:rulesgroup_detail' group.pk %}" class="text-decoration-none text-dark">
+                    {{ group.name }}
+                  </a>
+                </h5>
+
+                {% if group.description %}
+                <p class="text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                  {{ group.description }}
+                </p>
+                {% else %}
+                <p class="text-muted small mb-3 fst-italic">No description</p>
+                {% endif %}
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                  <span class="badge bg-primary-subtle text-primary">
+                    <iconify-icon icon="solar:shield-check-bold" class="me-1"></iconify-icon>
+                    {{ group.rules_count }} rules
+                  </span>
+                  <span class="badge bg-success-subtle text-success">
+                    <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+                    {{ group.active_rules_count }} active
+                  </span>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between text-muted small">
+                  <span>
+                    {% if group.company %}
+                    <iconify-icon icon="solar:buildings-bold" class="me-1"></iconify-icon>
+                    {{ group.company.name }}
+                    {% elif group.user %}
+                    <iconify-icon icon="solar:user-circle-bold" class="me-1"></iconify-icon>
+                    {{ group.user.username }}
+                    {% else %}
+                    <iconify-icon icon="solar:globe-bold" class="me-1"></iconify-icon>
+                    Global
+                    {% endif %}
+                  </span>
+                  <span>{{ group.created_at|date:"M d, Y" }}</span>
+                </div>
+              </div>
+              <div class="card-footer bg-transparent border-top">
+                <a href="{% url 'front:rulesgroup_detail' group.pk %}" class="btn btn-sm btn-outline-primary w-100">
+                  <iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon>
+                  View Rules
+                </a>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12">
+            <div class="text-center text-muted py-5">
+              <iconify-icon icon="solar:folder-with-files-line-duotone" style="font-size: 3rem;"></iconify-icon>
+              <p class="mt-3 mb-0">No rules groups found.</p>
+              <a href="{% url 'front:rulesgroup_create' %}" class="btn btn-primary mt-3">
+                <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+                Create First Group
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

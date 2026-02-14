@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Users Management{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Users</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_users }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:users-group-rounded-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Staff Members</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ profiles|length }}</h4>
+          </div>
+          <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:shield-user-bold" class="text-success fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Roles</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ roles|length }}</h4>
+          </div>
+          <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:user-id-bold" class="text-info fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Company</span>
+            <h4 class="fw-semibold fs-7 mt-1" style="font-size: 1rem;">{{ request.user.profile.company.name }}</h4>
+          </div>
+          <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:buildings-bold" class="text-warning fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Users List -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Header -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:users-group-rounded-line-duotone" class="fs-6 text-primary me-2"></iconify-icon>
+            Users
+          </h5>
+          <a href="{% url 'front:user_create' %}" class="btn btn-primary">
+            <iconify-icon icon="solar:user-plus-bold" class="me-1"></iconify-icon>
+            New User
+          </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <form method="get" class="d-flex gap-2">
+              <input type="text" name="search" class="form-control form-control-sm" placeholder="Search users..." value="{{ search }}">
+              <button type="submit" class="btn btn-outline-primary btn-sm">
+                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <!-- Role Filter -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_role %}Role{% else %}All Roles{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:users_list' %}">All Roles</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for role in roles %}
+                  <li><a class="dropdown-item" href="{% url 'front:users_list' %}?role={{ role.id }}">{{ role.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <!-- Department Filter -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_department %}Department{% else %}All Departments{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:users_list' %}">All Departments</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for dept in departments %}
+                  <li><a class="dropdown-item" href="{% url 'front:users_list' %}?department={{ dept.id }}">{{ dept.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Users Table -->
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">User</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Email</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Role</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Department</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Status</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Last Login</h6>
+                </th>
+                <th class="border-bottom-0 text-end">
+                  <h6 class="fw-semibold mb-0">Actions</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for profile in profiles %}
+              <tr>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                      <iconify-icon icon="solar:user-bold" class="text-primary"></iconify-icon>
+                    </div>
+                    <div>
+                      <span class="fw-semibold">{{ profile.user.username }}</span>
+                      {% if profile.user == request.user %}
+                      <span class="badge bg-info-subtle text-info ms-1">You</span>
+                      {% endif %}
+                      <br>
+                      <span class="text-muted fs-2">{{ profile.user.first_name }} {{ profile.user.last_name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ profile.user.email|default:"-" }}</span>
+                </td>
+                <td class="border-bottom-0">
+                  {% if profile.role %}
+                  <span class="badge bg-primary-subtle text-primary rounded-3">{{ profile.role.name }}</span>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  {% if profile.department %}
+                  <span class="badge bg-info-subtle text-info rounded-3">{{ profile.department.name }}</span>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  {% if profile.user.is_staff %}
+                  <span class="badge bg-success-subtle text-success rounded-3">Staff</span>
+                  {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary rounded-3">User</span>
+                  {% endif %}
+                  {% if profile.user.is_superuser %}
+                  <span class="badge bg-warning-subtle text-warning rounded-3">Admin</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ profile.user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+                </td>
+                <td class="border-bottom-0 text-end">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <a href="{% url 'front:user_edit' profile.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                      <iconify-icon icon="solar:pen-bold"></iconify-icon>
+                    </a>
+                    {% if profile.user != request.user %}
+                    <a href="{% url 'front:user_delete' profile.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                    </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-5">
+                  <iconify-icon icon="solar:users-group-rounded-line-duotone" style="font-size: 3rem;"></iconify-icon>
+                  <p class="mt-3 mb-0">No users found.</p>
+                  <a href="{% url 'front:user_create' %}" class="btn btn-primary mt-3">
+                    <iconify-icon icon="solar:user-plus-bold" class="me-1"></iconify-icon>
+                    Create First User
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

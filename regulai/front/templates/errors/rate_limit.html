@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Too Many Requests{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body text-center p-5">
+          <!-- Icon -->
+          <div class="rounded-circle bg-warning-subtle d-inline-flex align-items-center justify-content-center mb-4"
+               style="width: 100px; height: 100px;">
+            <iconify-icon icon="solar:shield-warning-bold" class="text-warning" style="font-size: 3.5rem;"></iconify-icon>
+          </div>
+
+          <!-- Title -->
+          <h2 class="fw-bold mb-3">Too Many Requests</h2>
+
+          <!-- Message -->
+          <p class="text-muted mb-4">
+            {{ message|default:"You have made too many requests. Please wait before trying again." }}
+          </p>
+
+          <!-- Rate Limit Info -->
+          {% if limit and window %}
+          <div class="alert alert-warning mb-4">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+              <iconify-icon icon="solar:clock-circle-bold" class="text-warning"></iconify-icon>
+              <strong>Rate Limit</strong>
+            </div>
+            <p class="mb-1 small">
+              Maximum {{ limit }} request{{ limit|pluralize }} per
+              {% if window >= 3600 %}
+                {{ window|floatformat:0|add:"0"|divisibleby:"3600" }} hour{{ window|floatformat:0|add:"0"|divisibleby:"3600"|pluralize }}
+              {% elif window >= 60 %}
+                {{ window|floatformat:0|add:"0"|divisibleby:"60" }} minute{{ window|floatformat:0|add:"0"|divisibleby:"60"|pluralize }}
+              {% else %}
+                {{ window }} second{{ window|pluralize }}
+              {% endif %}
+            </p>
+          </div>
+          {% endif %}
+
+          <!-- Retry Timer -->
+          {% if retry_after %}
+          <div class="mb-4">
+            <p class="mb-2"><strong>Please wait:</strong></p>
+            <div class="display-6 text-primary fw-bold" id="countdown">
+              {{ retry_after }}s
+            </div>
+          </div>
+
+          <script>
+            let timeLeft = {{ retry_after }};
+            const countdownEl = document.getElementById('countdown');
+
+            const timer = setInterval(() => {
+              timeLeft--;
+              if (timeLeft <= 0) {
+                clearInterval(timer);
+                countdownEl.textContent = 'Ready!';
+                countdownEl.classList.remove('text-primary');
+                countdownEl.classList.add('text-success');
+
+                // Show retry button
+                document.getElementById('retrySection').classList.remove('d-none');
+              } else {
+                countdownEl.textContent = timeLeft + 's';
+              }
+            }, 1000);
+          </script>
+          {% endif %}
+
+          <!-- Actions -->
+          <div id="retrySection" class="{% if retry_after %}d-none{% endif %}">
+            <button onclick="window.location.reload()" class="btn btn-primary px-4">
+              <iconify-icon icon="solar:refresh-bold" class="me-1"></iconify-icon>
+              Try Again
+            </button>
+          </div>
+
+          <div class="mt-4">
+            <a href="{% url 'front:home' %}" class="btn btn-outline-secondary">
+              <iconify-icon icon="solar:home-bold" class="me-1"></iconify-icon>
+              Go Home
+            </a>
+          </div>
+
+          <!-- Help Text -->
+          <div class="mt-5 pt-4 border-top">
+            <p class="text-muted small mb-0">
+              <iconify-icon icon="solar:info-circle-bold" class="me-1"></iconify-icon>
+              Rate limits help protect our service from abuse and ensure fair usage for all users.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

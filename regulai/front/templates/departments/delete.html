@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Department{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+            <iconify-icon icon="solar:buildings-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+          </div>
+          <h4 class="fw-semibold">Delete Department</h4>
+          <p class="text-muted">Are you sure you want to delete this department?</p>
+        </div>
+
+        <div class="card bg-light border-0 mb-4">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                <iconify-icon icon="solar:buildings-bold" class="text-info fs-5"></iconify-icon>
+              </div>
+              <div>
+                <h6 class="fw-semibold mb-0">{{ department.name }}</h6>
+                <span class="text-muted fs-2">{{ department.description|default:"No description"|truncatewords:10 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+          <strong>Warning:</strong> Users currently assigned to this department will have their department field cleared.
+        </div>
+
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger flex-grow-1">
+            <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+            Yes, Delete Department
+          </button>
+          <a href="{% url 'front:departments_list' %}" class="btn btn-outline-secondary flex-grow-1">
+            Cancel
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

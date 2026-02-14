@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Group{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:rulesgroups_list' %}">Rules Groups</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'front:rulesgroup_detail' group.pk %}">{{ group.name }}</a></li>
+        <li class="breadcrumb-item active">Delete</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card border-danger">
+      <div class="card-body text-center p-5">
+        <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+          <iconify-icon icon="solar:trash-bin-trash-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+        </div>
+
+        <h4 class="fw-semibold mb-3">Delete Rules Group?</h4>
+
+        <p class="text-muted mb-4">
+          You are about to delete the group <strong>"{{ group.name }}"</strong>.
+        </p>
+
+        {% if rules_count > 0 %}
+        <div class="alert alert-danger">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+          <strong>Warning:</strong> This group contains <strong>{{ rules_count }} rule{{ rules_count|pluralize }}</strong> that will also be deleted!
+        </div>
+        {% endif %}
+
+        <p class="text-danger small mb-4">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-1"></iconify-icon>
+          This action cannot be undone.
+        </p>
+
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+            Yes, Delete Group
+          </button>
+          <a href="{% url 'front:rulesgroup_detail' group.pk %}" class="btn btn-outline-secondary ms-2">
+            Cancel
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

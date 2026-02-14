@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Alert{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:alerts_list' %}">Alerts</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'front:alert_detail' alert.pk %}">Alert #{{ alert.id }}</a></li>
+        <li class="breadcrumb-item active">Delete</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+          <iconify-icon icon="solar:trash-bin-trash-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+        </div>
+
+        <h4 class="fw-semibold mb-2">Delete Alert</h4>
+        <p class="text-muted mb-4">
+          Are you sure you want to delete <strong>Alert #{{ alert.id }}</strong>?
+          <br>This action cannot be undone.
+        </p>
+
+        <div class="card bg-light mb-4 text-start">
+          <div class="card-body">
+            <ul class="list-unstyled mb-0 small">
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Alert ID:</span>
+                <span class="fw-semibold">#{{ alert.id }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Severity:</span>
+                <span class="fw-semibold
+                  {% if alert.severity == 'critical' %}text-danger{% elif alert.severity == 'high' %}text-warning{% elif alert.severity == 'medium' %}text-info{% else %}text-secondary{% endif %}">
+                  {{ alert.severity|title }}
+                </span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Rule:</span>
+                <span class="fw-semibold">{{ alert.rule.name|default:"N/A" }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">User:</span>
+                <span class="fw-semibold">{{ alert.user.username|default:"Unknown" }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Created:</span>
+                <span class="fw-semibold">{{ alert.created_at|date:"M d, Y H:i" }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-1">
+                <span class="text-muted">Status:</span>
+                <span class="fw-semibold {% if alert.resolved %}text-success{% else %}text-warning{% endif %}">
+                  {% if alert.resolved %}Resolved{% else %}Unresolved{% endif %}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <div class="d-flex gap-2 justify-content-center">
+            <a href="{% url 'front:alert_detail' alert.pk %}" class="btn btn-outline-secondary">
+              <iconify-icon icon="solar:arrow-left-bold" class="me-1"></iconify-icon>
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Yes, Delete Alert
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

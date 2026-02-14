@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rules{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-4">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Rules</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_rules }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:shield-check-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-4">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Active Rules</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ active_rules }}</h4>
+          </div>
+          <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:check-circle-bold" class="text-success fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-4">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Inactive Rules</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ inactive_rules }}</h4>
+          </div>
+          <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:close-circle-bold" class="text-warning fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rules List -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Header with filters -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:shield-check-line-duotone" class="fs-6 text-primary me-2"></iconify-icon>
+            YARA Rules
+          </h5>
+          <div class="d-flex gap-2">
+            <a href="{% url 'front:rules_community_list' %}" class="btn btn-outline-success">
+              <iconify-icon icon="solar:users-group-rounded-bold" class="me-1"></iconify-icon>
+              Community Rules
+            </a>
+            <a href="{% url 'front:rule_create' %}" class="btn btn-primary">
+              <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+              New Rule
+            </a>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <form method="get" class="d-flex gap-2">
+              <input type="text" name="search" class="form-control" placeholder="Search rules..." value="{{ search }}">
+              <button type="submit" class="btn btn-outline-primary">
+                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <a href="{% url 'front:rules_list' %}" class="btn {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                All
+              </a>
+              <a href="{% url 'front:rules_list' %}?status=active" class="btn {% if current_status == 'active' %}btn-success{% else %}btn-outline-success{% endif %}">
+                Active
+              </a>
+              <a href="{% url 'front:rules_list' %}?status=inactive" class="btn {% if current_status == 'inactive' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+                Inactive
+              </a>
+              {% if rules_groups %}
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_group %}Group: {{ current_group }}{% else %}Filter by Group{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:rules_list' %}">All Groups</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for group in rules_groups %}
+                  <li><a class="dropdown-item" href="{% url 'front:rules_list' %}?group={{ group.id }}">{{ group.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Rules Table -->
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Name</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Group</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Applies To</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Status</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Created</h6>
+                </th>
+                <th class="border-bottom-0 text-end">
+                  <h6 class="fw-semibold mb-0">Actions</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rule in rules %}
+              <tr>
+                <td class="border-bottom-0">
+                  <a href="{% url 'front:rule_detail' rule.pk %}" class="text-decoration-none">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <iconify-icon icon="solar:shield-check-bold" class="text-primary"></iconify-icon>
+                      </div>
+                      <div>
+                        <h6 class="fw-semibold mb-0">{{ rule.name }}</h6>
+                        <span class="text-muted fs-2">{{ rule.description|truncatewords:8|default:"No description" }}</span>
+                      </div>
+                    </div>
+                  </a>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="badge bg-light text-dark">{{ rule.rules_group.name|default:"No group" }}</span>
+                </td>
+                <td class="border-bottom-0">
+                  {% if rule.applies_to == 'prompts' %}
+                  <span class="badge bg-info-subtle text-info rounded-3 fw-semibold">Prompts</span>
+                  {% elif rule.applies_to == 'files' %}
+                  <span class="badge bg-warning-subtle text-warning rounded-3 fw-semibold">Files</span>
+                  {% else %}
+                  <span class="badge bg-primary-subtle text-primary rounded-3 fw-semibold">Both</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  {% if rule.active %}
+                  <span class="badge bg-success-subtle text-success rounded-3 fw-semibold">Active</span>
+                  {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary rounded-3 fw-semibold">Inactive</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ rule.created_at|date:"M d, Y" }}</span>
+                </td>
+                <td class="border-bottom-0 text-end">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <a href="{% url 'front:rule_toggle' rule.pk %}?next={{ request.get_full_path|urlencode }}"
+                       class="btn btn-sm {% if rule.active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                       title="{% if rule.active %}Deactivate{% else %}Activate{% endif %}">
+                      <iconify-icon icon="{% if rule.active %}solar:power-bold{% else %}solar:play-bold{% endif %}"></iconify-icon>
+                    </a>
+                    <a href="{% url 'front:rule_edit' rule.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                      <iconify-icon icon="solar:pen-bold"></iconify-icon>
+                    </a>
+                    <a href="{% url 'front:rule_delete' rule.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-5">
+                  <iconify-icon icon="solar:shield-warning-line-duotone" style="font-size: 3rem;"></iconify-icon>
+                  <p class="mt-3 mb-0">No rules found.</p>
+                  <a href="{% url 'front:rule_create' %}" class="btn btn-primary mt-3">
+                    <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+                    Create your first rule
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

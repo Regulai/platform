@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit User{% else %}Create User{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="{% if is_edit %}solar:user-pen-bold{% else %}solar:user-plus-bold{% endif %}" class="text-primary me-2"></iconify-icon>
+            {% if is_edit %}Edit User: {{ edit_user.username }}{% else %}Create New User{% endif %}
+          </h5>
+          <a href="{% url 'front:users_list' %}" class="btn btn-outline-secondary btn-sm">
+            <iconify-icon icon="solar:arrow-left-bold" class="me-1"></iconify-icon>
+            Back to Users
+          </a>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row">
+            <!-- Account Information -->
+            <div class="col-12">
+              <h6 class="fw-semibold text-muted mb-3">
+                <iconify-icon icon="solar:user-id-bold" class="me-1"></iconify-icon>
+                Account Information
+              </h6>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="username" name="username"
+                     value="{% if is_edit %}{{ edit_user.username }}{% else %}{{ form_data.username|default:'' }}{% endif %}"
+                     {% if is_edit %}readonly{% endif %}
+                     {% if not is_edit %}required{% endif %}>
+              {% if is_edit %}
+              <div class="form-text">Username cannot be changed.</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" name="email"
+                     value="{% if is_edit %}{{ edit_user.email }}{% else %}{{ form_data.email|default:'' }}{% endif %}"
+                     required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="password" class="form-label">
+                Password {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              <input type="password" class="form-control" id="password" name="password"
+                     {% if not is_edit %}required{% endif %}>
+              {% if is_edit %}
+              <div class="form-text">Leave empty to keep current password.</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="confirm_password" class="form-label">
+                Confirm Password {% if not is_edit %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                     {% if not is_edit %}required{% endif %}>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="col-12 mt-3">
+              <h6 class="fw-semibold text-muted mb-3">
+                <iconify-icon icon="solar:user-bold" class="me-1"></iconify-icon>
+                Personal Information
+              </h6>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="first_name" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="first_name" name="first_name"
+                     value="{% if is_edit %}{{ edit_user.first_name }}{% else %}{{ form_data.first_name|default:'' }}{% endif %}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="last_name" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="last_name" name="last_name"
+                     value="{% if is_edit %}{{ edit_user.last_name }}{% else %}{{ form_data.last_name|default:'' }}{% endif %}">
+            </div>
+
+            <!-- Role & Permissions -->
+            <div class="col-12 mt-3">
+              <h6 class="fw-semibold text-muted mb-3">
+                <iconify-icon icon="solar:shield-user-bold" class="me-1"></iconify-icon>
+                Role & Permissions
+              </h6>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="role" class="form-label">Role</label>
+              <select class="form-select" id="role" name="role">
+                <option value="">-- No Role --</option>
+                {% for role in roles %}
+                <option value="{{ role.id }}"
+                        {% if is_edit and profile.role and profile.role.id == role.id %}selected{% endif %}
+                        {% if form_data.role == role.id|stringformat:"s" %}selected{% endif %}>
+                  {{ role.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="department" class="form-label">Department</label>
+              <select class="form-select" id="department" name="department">
+                <option value="">-- No Department --</option>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}"
+                        {% if is_edit and profile.department and profile.department.id == dept.id %}selected{% endif %}
+                        {% if form_data.department == dept.id|stringformat:"s" %}selected{% endif %}>
+                  {{ dept.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12 mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff"
+                       {% if is_edit and edit_user.is_staff %}checked{% endif %}
+                       {% if form_data.is_staff == 'on' %}checked{% endif %}>
+                <label class="form-check-label" for="is_staff">
+                  <strong>Staff Member</strong>
+                  <span class="text-muted d-block fs-2">Grant access to Dashboard, Rules, Alerts, and Audit Logs sections.</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Company Info (Read-only) -->
+            <div class="col-12 mt-3">
+              <h6 class="fw-semibold text-muted mb-3">
+                <iconify-icon icon="solar:buildings-bold" class="me-1"></iconify-icon>
+                Company
+              </h6>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="company" class="form-label">Company</label>
+              <input type="text" class="form-control" id="company" value="{{ request.user.profile.company.name }}" disabled>
+              <div class="form-text">User will be assigned to your company.</div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="{% if is_edit %}solar:check-circle-bold{% else %}solar:user-plus-bold{% endif %}" class="me-1"></iconify-icon>
+              {% if is_edit %}Save Changes{% else %}Create User{% endif %}
+            </button>
+            <a href="{% url 'front:users_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Sidebar -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:info-circle-bold" class="text-info me-1"></iconify-icon>
+          Help
+        </h6>
+        <div class="mb-3">
+          <strong>Staff Members</strong>
+          <p class="text-muted fs-2 mb-0">
+            Staff members have access to security features: Dashboard, Rules, Alerts, and Audit Logs.
+            Regular users can only access the Chat feature.
+          </p>
+        </div>
+        <div class="mb-3">
+          <strong>Roles</strong>
+          <p class="text-muted fs-2 mb-0">
+            Roles are used for organization and filtering. They don't affect permissions directly.
+          </p>
+        </div>
+        <div>
+          <strong>Company</strong>
+          <p class="text-muted fs-2 mb-0">
+            All users you create will be assigned to your company: <strong>{{ request.user.profile.company.name }}</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {% if is_edit %}
+    <div class="card mt-3">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:chart-bold" class="text-primary me-1"></iconify-icon>
+          User Stats
+        </h6>
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Created</span>
+            <span>{{ edit_user.date_joined|date:"M d, Y" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Last Login</span>
+            <span>{{ edit_user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2">
+            <span class="text-muted">Active</span>
+            <span>
+              {% if edit_user.is_active %}
+              <span class="badge bg-success">Yes</span>
+              {% else %}
+              <span class="badge bg-danger">No</span>
+              {% endif %}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

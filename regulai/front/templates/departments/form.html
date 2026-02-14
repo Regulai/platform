@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Department{% else %}Create Department{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="{% if is_edit %}solar:pen-bold{% else %}solar:add-circle-bold{% endif %}" class="text-primary me-2"></iconify-icon>
+            {% if is_edit %}Edit Department{% else %}Create New Department{% endif %}
+          </h5>
+          <a href="{% url 'front:departments_list' %}" class="btn btn-outline-secondary btn-sm">
+            <iconify-icon icon="solar:arrow-left-bold" class="me-1"></iconify-icon>
+            Back
+          </a>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="name" class="form-label">Department Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" name="name"
+                   value="{% if is_edit %}{{ department.name }}{% else %}{{ form_data.name|default:'' }}{% endif %}"
+                   placeholder="e.g., IT, Security, HR, Finance" required>
+          </div>
+
+          <div class="mb-4">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"
+                      placeholder="Optional description of the department">{% if is_edit %}{{ department.description|default:'' }}{% else %}{{ form_data.description|default:'' }}{% endif %}</textarea>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="{% if is_edit %}solar:check-circle-bold{% else %}solar:add-circle-bold{% endif %}" class="me-1"></iconify-icon>
+              {% if is_edit %}Save Changes{% else %}Create Department{% endif %}
+            </button>
+            <a href="{% url 'front:departments_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

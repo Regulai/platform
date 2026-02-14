@@ -1,0 +1,411 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Prompts</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_prompts }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:chat-round-dots-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Active Alerts</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_alerts }}</h4>
+          </div>
+          <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:bell-bing-bold" class="text-danger fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Active Rules</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_rules }}</h4>
+          </div>
+          <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Users</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_users }}</h4>
+          </div>
+          <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:users-group-two-rounded-bold" class="text-warning fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Alerts Timeline Chart -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:chart-2-bold" class="text-primary me-2"></iconify-icon>
+            Alerts Timeline (Last 5 Days)
+          </h5>
+          <div class="d-flex align-items-center gap-3">
+            <span class="d-flex align-items-center gap-1">
+              <span class="rounded-circle" style="width: 10px; height: 10px; background-color: #dc3545;"></span>
+              <small class="text-muted">Critical</small>
+            </span>
+            <span class="d-flex align-items-center gap-1">
+              <span class="rounded-circle" style="width: 10px; height: 10px; background-color: #fd7e14;"></span>
+              <small class="text-muted">High</small>
+            </span>
+            <span class="d-flex align-items-center gap-1">
+              <span class="rounded-circle" style="width: 10px; height: 10px; background-color: #0dcaf0;"></span>
+              <small class="text-muted">Medium</small>
+            </span>
+            <span class="d-flex align-items-center gap-1">
+              <span class="rounded-circle" style="width: 10px; height: 10px; background-color: #6c757d;"></span>
+              <small class="text-muted">Low</small>
+            </span>
+            <span class="d-flex align-items-center gap-1">
+              <span style="width: 16px; border-top: 2px dashed #5B6ABF;"></span>
+              <small class="text-muted">Prompts</small>
+            </span>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="alertsTimelineChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Alerts Row -->
+<div class="row">
+  <!-- Recent Alerts -->
+  <div class="col-12">
+    <div class="card w-100">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h5 class="card-title fw-semibold mb-0">Recent Alerts</h5>
+          <a href="{% url 'front:alerts_list' %}" class="btn btn-sm btn-primary">View All</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">User</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Rule</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Severity</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Description</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for alert in recent_alerts %}
+              <tr>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:user-circle-bold" class="fs-6 text-muted"></iconify-icon>
+                    <span class="fw-normal">{{ alert.user.username }}</span>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="fw-normal text-muted">{{ alert.rule.name|default:"N/A" }}</span>
+                </td>
+                <td class="border-bottom-0">
+                  {% if alert.severity == 'critical' %}
+                  <span class="badge bg-danger rounded-3 fw-semibold">Critical</span>
+                  {% elif alert.severity == 'high' %}
+                  <span class="badge bg-warning rounded-3 fw-semibold">High</span>
+                  {% elif alert.severity == 'medium' %}
+                  <span class="badge bg-info rounded-3 fw-semibold">Medium</span>
+                  {% else %}
+                  <span class="badge bg-secondary rounded-3 fw-semibold">Low</span>
+                  {% endif %}
+                </td>
+                <td class="border-bottom-0">
+                  <span class="fw-normal text-muted" style="max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis;">{{ alert.description }}</span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                  <iconify-icon icon="solar:shield-check-line-duotone" style="font-size: 2rem;"></iconify-icon>
+                  <p class="mt-2 mb-0">No alerts yet. The system is running smoothly!</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Prompts -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h5 class="card-title fw-semibold mb-0">Recent Prompts</h5>
+          <a href="{% url 'front:chat' %}" class="btn btn-sm btn-primary">
+            <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+            New Chat
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">User</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Prompt</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Date</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for prompt in recent_prompts %}
+              <tr>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:user-circle-bold" class="fs-6 text-muted"></iconify-icon>
+                    <span class="fw-normal">{{ prompt.user.username }}</span>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="fw-normal" style="max-width: 400px; display: inline-block; overflow: hidden; text-overflow: ellipsis;">{{ prompt.content|truncatewords:15 }}</span>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted">{{ prompt.created_at|date:"M d, Y H:i" }}</span>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted py-4">
+                  <iconify-icon icon="solar:chat-round-dots-line-duotone" style="font-size: 2rem;"></iconify-icon>
+                  <p class="mt-2 mb-0">No prompts yet. Start a conversation!</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const alertsData = {{ alerts_timeline_data|safe }};
+  const promptsData = {{ prompts_timeline_data|safe }};
+
+  // Severity colors
+  const severityColors = {
+    'critical': '#dc3545',
+    'high': '#fd7e14',
+    'medium': '#0dcaf0',
+    'low': '#6c757d'
+  };
+
+  // Generate last 5 days labels
+  const labels = [];
+  const today = new Date();
+  for (let i = 4; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    labels.push(date.toISOString().split('T')[0]);
+  }
+
+  // Format labels for display
+  const displayLabels = labels.map(date => {
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  });
+
+  // Initialize data structure for each severity
+  const severities = ['critical', 'high', 'medium', 'low'];
+  const dataByDateSeverity = {};
+
+  labels.forEach(date => {
+    dataByDateSeverity[date] = { critical: 0, high: 0, medium: 0, low: 0 };
+  });
+
+  // Populate data from alertsData
+  alertsData.forEach(item => {
+    if (item.date && item.severity && dataByDateSeverity[item.date]) {
+      const severity = item.severity.toLowerCase();
+      if (severities.includes(severity)) {
+        dataByDateSeverity[item.date][severity] = item.count;
+      }
+    }
+  });
+
+  // Build prompts count per day
+  const promptsByDate = {};
+  labels.forEach(date => { promptsByDate[date] = 0; });
+  promptsData.forEach(item => {
+    if (item.date && promptsByDate.hasOwnProperty(item.date)) {
+      promptsByDate[item.date] = item.count;
+    }
+  });
+
+  // Build datasets for stacked bar chart
+  const datasets = severities.map(sev => ({
+    label: sev.charAt(0).toUpperCase() + sev.slice(1),
+    data: labels.map(date => dataByDateSeverity[date][sev]),
+    backgroundColor: severityColors[sev],
+    borderColor: severityColors[sev],
+    borderWidth: 1,
+    borderRadius: 4,
+    yAxisID: 'y'
+  }));
+
+  // Add prompts line dataset
+  datasets.push({
+    label: 'Prompts',
+    data: labels.map(date => promptsByDate[date]),
+    type: 'line',
+    borderColor: '#5B6ABF',
+    backgroundColor: '#5B6ABF',
+    borderWidth: 2,
+    borderDash: [6, 4],
+    pointStyle: 'circle',
+    pointRadius: 5,
+    pointBackgroundColor: '#5B6ABF',
+    pointBorderColor: '#fff',
+    pointBorderWidth: 2,
+    fill: false,
+    tension: 0.3,
+    yAxisID: 'y1',
+    stack: false
+  });
+
+  const ctx = document.getElementById('alertsTimelineChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: displayLabels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          position: 'left',
+          ticks: {
+            stepSize: 1,
+            precision: 0
+          },
+          title: {
+            display: true,
+            text: 'Alerts',
+            font: {
+              weight: 'bold'
+            }
+          },
+          grid: {
+            color: 'rgba(0,0,0,0.05)'
+          }
+        },
+        y1: {
+          beginAtZero: true,
+          position: 'right',
+          ticks: {
+            stepSize: 1,
+            precision: 0
+          },
+          title: {
+            display: true,
+            text: 'Prompts',
+            font: {
+              weight: 'bold'
+            },
+            color: '#5B6ABF'
+          },
+          grid: {
+            drawOnChartArea: false
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}
+

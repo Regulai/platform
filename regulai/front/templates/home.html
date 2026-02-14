@@ -1,0 +1,556 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <img src="{% static 'images/logos/logo.png' %}" alt="regulAI" height="50" class="bg-white rounded p-2">
+                        </div>
+                        <div>
+                            <h2 class="mb-1">Welcome to regulAI, {{ user.first_name|default:user.username }}</h2>
+                            <p class="mb-0 opacity-75">
+                                {% if is_admin %}
+                                    Administrator Dashboard - Full system access and configuration
+                                {% elif is_staff %}
+                                    Security Dashboard - Monitor and protect AI usage in your organization
+                                {% else %}
+                                    AI Chat Assistant - Secure conversations with AI, protected by enterprise security
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if is_regular %}
+    <!-- ==================== REGULAR USER VIEW ==================== -->
+    <div class="row">
+        <!-- AI Chat Section -->
+        <div class="col-lg-8 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-message-circle me-2 text-primary"></i>AI Chat</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Start secure conversations with AI assistants. Your prompts are protected by enterprise security rules that detect and block sensitive information before it leaves your organization.</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <i class="ti ti-shield-check text-success fs-4 mb-2 d-block"></i>
+                                <h6>Secure by Design</h6>
+                                <small class="text-muted">All your conversations are validated against security policies before being sent to the AI. Sensitive data like passwords, API keys, or confidential information is automatically detected and blocked.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <i class="ti ti-file-upload text-info fs-4 mb-2 d-block"></i>
+                                <h6>File Analysis</h6>
+                                <small class="text-muted">Upload documents for AI analysis. Supported formats include PDFs, Word documents, Excel spreadsheets, and images. Files are scanned for sensitive content before processing.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <i class="ti ti-history text-warning fs-4 mb-2 d-block"></i>
+                                <h6>Conversation History</h6>
+                                <small class="text-muted">Your conversations are saved and organized for easy reference. Continue previous chats or start new ones at any time.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <i class="ti ti-robot text-primary fs-4 mb-2 d-block"></i>
+                                <h6>Multiple AI Models</h6>
+                                <small class="text-muted">Choose from different AI engines configured by your organization: OpenAI GPT-4, Anthropic Claude, DeepSeek, and more. Each with different capabilities and strengths.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'front:chat' %}" class="btn btn-primary btn-lg">
+                            <i class="ti ti-message-circle me-2"></i>Start Chatting
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-bolt me-2 text-warning"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'front:chat' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="ti ti-plus text-primary me-3 fs-5"></i>
+                            <div>
+                                <strong>New Conversation</strong>
+                                <small class="d-block text-muted">Start a new chat with AI</small>
+                            </div>
+                        </a>
+                        <a href="{% url 'front:profile' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="ti ti-user text-info me-3 fs-5"></i>
+                            <div>
+                                <strong>My Profile</strong>
+                                <small class="d-block text-muted">Update your settings and preferences</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif is_staff and not is_admin %}
+    <!-- ==================== STAFF USER VIEW ==================== -->
+    <div class="row">
+        <!-- Stats Cards -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-message-2 text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.total_prompts }}</h3>
+                            <span class="text-muted">Total Prompts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-shield-x text-danger fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.blocked_prompts }}</h3>
+                            <span class="text-muted">Blocked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-list-check text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.active_rules }}</h3>
+                            <span class="text-muted">Active Rules</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-alert-triangle text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.pending_alerts }}</h3>
+                            <span class="text-muted">Pending Alerts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- AI Chat Section -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-message-circle me-2 text-primary"></i>AI Chat</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Chat with AI assistants while your security rules protect the conversation. Test your rules or use AI for daily tasks.</p>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-3 h-100">
+                                <i class="ti ti-robot text-primary fs-4 mb-2 d-block"></i>
+                                <h6 class="mb-1">Multiple Engines</h6>
+                                <small class="text-muted">OpenAI, Anthropic, DeepSeek and more AI providers available.</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3 h-100">
+                                <i class="ti ti-file-upload text-info fs-4 mb-2 d-block"></i>
+                                <h6 class="mb-1">File Analysis</h6>
+                                <small class="text-muted">Upload PDFs, Word, Excel, images for AI processing.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'front:chat' %}" class="btn btn-primary">
+                        <i class="ti ti-message-circle me-2"></i>Open Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security & Management Section (Combined) -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-shield me-2 text-success"></i>Security & Management</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Monitor AI usage, manage security rules, and review alerts. Protect your organization from data leaks and policy violations.</p>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{% url 'front:dashboard' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="ti ti-chart-bar text-primary fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">Dashboard</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Statistics, trends and usage analytics</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'front:prompts_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="ti ti-message-report text-info fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">Prompts</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Review all AI requests and responses</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'front:alerts_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="ti ti-bell-ringing text-warning fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">Alerts</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Security incidents and violations</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'front:auditlogs_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="ti ti-file-text text-secondary fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">Audit Logs</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Complete activity trail for compliance</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'front:rulesgroups_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="ti ti-folders text-success fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">Rules Groups</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Organize rules by category or purpose</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'front:rules_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow">
+                                    <i class="ti ti-shield-check text-danger fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">YARA Rules</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Create patterns to detect sensitive data</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <a href="{% url 'front:rules_community_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 text-center hover-shadow bg-light">
+                                    <i class="ti ti-world text-primary fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block small">Rules Community</strong>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Browse and configure community-maintained YARA rules</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ==================== ADMIN USER VIEW ==================== -->
+    <div class="row">
+        <!-- Stats Cards -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-message-2 text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.total_prompts }}</h3>
+                            <span class="text-muted">Total Prompts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-shield-x text-danger fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.blocked_prompts }}</h3>
+                            <span class="text-muted">Blocked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-list-check text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.active_rules }}</h3>
+                            <span class="text-muted">Active Rules</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="ti ti-alert-triangle text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">{{ stats.pending_alerts }}</h3>
+                            <span class="text-muted">Pending Alerts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- AI Chat Section -->
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-message-circle me-2 text-primary"></i>AI Chat</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Start conversations with AI while testing your security rules in real-time.</p>
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="ti ti-robot text-primary fs-4 me-2"></i>
+                            <div>
+                                <strong class="d-block">Multiple AI Engines</strong>
+                                <small class="text-muted">Use OpenAI GPT-4, Anthropic Claude, DeepSeek, or any OpenAI-compatible API. Switch between models on the fly.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="ti ti-file-upload text-info fs-4 me-2"></i>
+                            <div>
+                                <strong class="d-block">Document Analysis</strong>
+                                <small class="text-muted">Upload PDFs, Word, Excel, and images. Content is extracted and scanned before AI processing.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border rounded p-3 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="ti ti-eye text-success fs-4 me-2"></i>
+                            <div>
+                                <strong class="d-block">Vision Support</strong>
+                                <small class="text-muted">Send images directly to vision-capable models for analysis and description.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'front:chat' %}" class="btn btn-primary w-100">
+                        <i class="ti ti-message-circle me-2"></i>Open AI Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security & Management Section (Combined) -->
+        <div class="col-lg-8 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-shield me-2 text-success"></i>Security & Management</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Monitor all AI interactions, configure security rules with YARA patterns, and maintain complete audit trails for compliance.</p>
+                    <div class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:dashboard' %}" class="text-decoration-none d-block h-100">
+                                <div class="border rounded p-3 h-100 hover-shadow">
+                                    <i class="ti ti-chart-bar text-primary fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block">Dashboard</strong>
+                                    <small class="text-muted">Real-time statistics, usage trends, and analytics. Monitor prompt volume, block rates, and security events over time.</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:prompts_list' %}" class="text-decoration-none d-block h-100">
+                                <div class="border rounded p-3 h-100 hover-shadow">
+                                    <i class="ti ti-message-report text-info fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block">Prompts</strong>
+                                    <small class="text-muted">Review all prompts sent to AI engines. See full content, which rules triggered, and whether they were blocked.</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:alerts_list' %}" class="text-decoration-none d-block h-100">
+                                <div class="border rounded p-3 h-100 hover-shadow">
+                                    <i class="ti ti-bell-ringing text-warning fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block">Alerts</strong>
+                                    <small class="text-muted">Security incidents when rules are triggered. View severity, user details, file hashes, and resolve issues.</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:auditlogs_list' %}" class="text-decoration-none d-block h-100">
+                                <div class="border rounded p-3 h-100 hover-shadow">
+                                    <i class="ti ti-file-text text-secondary fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block">Audit Logs</strong>
+                                    <small class="text-muted">Complete activity trail for compliance. Track logins, rule changes, alerts, and all system actions.</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:rulesgroups_list' %}" class="text-decoration-none d-block h-100">
+                                <div class="border rounded p-3 h-100 hover-shadow">
+                                    <i class="ti ti-folders text-success fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block">Rules Groups</strong>
+                                    <small class="text-muted">Organize YARA rules by category: PII protection, API keys, passwords, custom patterns, etc.</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:rules_list' %}" class="text-decoration-none d-block h-100">
+                                <div class="border rounded p-3 h-100 hover-shadow">
+                                    <i class="ti ti-shield-check text-danger fs-3 mb-2 d-block"></i>
+                                    <strong class="d-block">YARA Rules</strong>
+                                    <small class="text-muted">Create detection patterns using YARA syntax. Block sensitive data, credentials, or custom content.</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-12">
+                            <a href="{% url 'front:rules_community_list' %}" class="text-decoration-none d-block">
+                                <div class="border rounded p-3 hover-shadow bg-light">
+                                    <div class="d-flex align-items-center">
+                                        <i class="ti ti-world text-primary fs-2 me-3"></i>
+                                        <div>
+                                            <strong class="d-block">Rules Community</strong>
+                                            <small class="text-muted">Browse and sync community-maintained YARA rules from GitHub. Configure rules for your organization with one click.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Admin Settings -->
+        <div class="col-lg-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="ti ti-settings me-2 text-danger"></i>Administration</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">Configure your organization: manage users and permissions, organize departments, and set up AI engines with their API credentials.</p>
+                    <div class="row g-4">
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:users_list' %}" class="text-decoration-none">
+                                <div class="border rounded p-4 h-100 hover-shadow">
+                                    <div class="d-flex align-items-start">
+                                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                                            <i class="ti ti-users text-info fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Users</h5>
+                                            <p class="text-muted mb-2 small">{{ admin_stats.total_users }} registered</p>
+                                            <small class="text-muted">Create user accounts, assign roles (admin, staff, user), set departments, and manage permissions. Users inherit security rules from their company.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:departments_list' %}" class="text-decoration-none">
+                                <div class="border rounded p-4 h-100 hover-shadow">
+                                    <div class="d-flex align-items-start">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                                            <i class="ti ti-building text-primary fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">Departments</h5>
+                                            <p class="text-muted mb-2 small">{{ admin_stats.total_departments }} created</p>
+                                            <small class="text-muted">Organize users by department for better management and reporting. Useful for tracking AI usage by team or business unit.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <a href="{% url 'front:engines_list' %}" class="text-decoration-none">
+                                <div class="border rounded p-4 h-100 hover-shadow">
+                                    <div class="d-flex align-items-start">
+                                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                                            <i class="ti ti-robot text-success fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">AI Engines</h5>
+                                            <p class="text-muted mb-2 small">{{ admin_stats.active_engines }} active</p>
+                                            <small class="text-muted">Configure AI providers with API keys: OpenAI, Anthropic Claude, DeepSeek, or custom OpenAI-compatible endpoints. Manage available models for each engine.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.15s ease-in-out;
+    transform: translateY(-2px);
+}
+.hover-shadow {
+    transition: all 0.15s ease-in-out;
+}
+</style>
+{% endblock %}

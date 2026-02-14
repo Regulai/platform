@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit Logs{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row -->
+<div class="row">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Total Logs</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ total_logs }}</h4>
+          </div>
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:document-text-bold" class="text-primary fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Today</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ today_logs }}</h4>
+          </div>
+          <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:calendar-bold" class="text-success fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Actions</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ actions|length }}</h4>
+          </div>
+          <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:bolt-bold" class="text-info fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card overflow-hidden rounded-2">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted fs-3">Users</span>
+            <h4 class="fw-semibold fs-7 mt-1">{{ users|length }}</h4>
+          </div>
+          <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+            <iconify-icon icon="solar:users-group-rounded-bold" class="text-warning fs-7"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Logs List -->
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Header -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:document-text-line-duotone" class="fs-6 text-primary me-2"></iconify-icon>
+            Audit Logs
+          </h5>
+          <form method="post" action="{% url 'front:auditlogs_clear' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirm('Delete all logs older than 30 days?')">
+              <iconify-icon icon="solar:trash-bin-minimalistic-bold" class="me-1"></iconify-icon>
+              Clear Old Logs
+            </button>
+          </form>
+        </div>
+
+        <!-- Filters -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <form method="get" class="d-flex gap-2">
+              <input type="text" name="search" class="form-control form-control-sm" placeholder="Search details..." value="{{ search }}">
+              <button type="submit" class="btn btn-outline-primary btn-sm">
+                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-9">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <!-- Action Filter -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_action %}{{ current_action }}{% else %}Action{% endif %}
+                </button>
+                <ul class="dropdown-menu" style="max-height: 300px; overflow-y: auto;">
+                  <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}">All Actions</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% for action in actions %}
+                  <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}?action={{ action }}">{{ action }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <!-- User Filter -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  {% if current_user %}User{% else %}User{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}">All Users</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}?user=system">System</a></li>
+                  {% for u in users %}
+                  <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}?user={{ u.id }}">{{ u.username }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <!-- Date Range -->
+              <form method="get" class="d-flex gap-2 align-items-center">
+                <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from|default:'' }}" placeholder="From">
+                <span class="text-muted">-</span>
+                <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to|default:'' }}" placeholder="To">
+                <button type="submit" class="btn btn-outline-primary btn-sm">
+                  <iconify-icon icon="solar:filter-bold"></iconify-icon>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Logs Table -->
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Timestamp</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">User</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Action</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">Details</h6>
+                </th>
+                <th class="border-bottom-0 text-end">
+                  <h6 class="fw-semibold mb-0">Actions</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in logs %}
+              <tr>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:clock-circle-bold" class="text-muted"></iconify-icon>
+                    <div>
+                      <span class="fw-semibold">{{ log.timestamp|date:"M d, Y" }}</span>
+                      <br>
+                      <span class="text-muted fs-2">{{ log.timestamp|date:"H:i:s" }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  <div class="d-flex align-items-center gap-2">
+                    <iconify-icon icon="solar:user-circle-bold" class="fs-6 text-muted"></iconify-icon>
+                    <span>{{ log.user.username|default:"System" }}</span>
+                  </div>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="badge
+                    {% if 'error' in log.action or 'fail' in log.action %}bg-danger
+                    {% elif 'alert' in log.action or 'warning' in log.action %}bg-warning
+                    {% elif 'success' in log.action or 'create' in log.action %}bg-success
+                    {% elif 'login' in log.action %}bg-info
+                    {% elif 'logout' in log.action %}bg-secondary
+                    {% else %}bg-primary{% endif %}
+                    rounded-3 fw-semibold">
+                    {{ log.action }}
+                  </span>
+                </td>
+                <td class="border-bottom-0">
+                  <span class="text-muted" style="max-width: 250px; display: inline-block; overflow: hidden; text-overflow: ellipsis;">
+                    {{ log.details|truncatewords:10|default:"No details" }}
+                  </span>
+                </td>
+                <td class="border-bottom-0 text-end">
+                  <div class="d-flex gap-2 justify-content-end">
+                    <a href="{% url 'front:auditlog_detail' log.pk %}" class="btn btn-sm btn-outline-primary" title="View details">
+                      <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                    </a>
+                    <a href="{% url 'front:auditlog_delete' log.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <iconify-icon icon="solar:document-text-line-duotone" style="font-size: 3rem;"></iconify-icon>
+                  <p class="mt-3 mb-0">No audit logs found.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if logs|length >= 100 %}
+        <div class="text-center mt-3">
+          <span class="text-muted">Showing first 100 records. Use filters to narrow down results.</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

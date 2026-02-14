@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit Log #{{ log.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .details-content {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+  <div class="col-12">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'front:auditlogs_list' %}">Audit Logs</a></li>
+        <li class="breadcrumb-item active">Log #{{ log.id }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Log Header -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+              <iconify-icon icon="solar:document-text-bold" class="text-primary fs-7"></iconify-icon>
+            </div>
+            <div>
+              <h4 class="fw-semibold mb-1">Audit Log #{{ log.id }}</h4>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge
+                  {% if 'error' in log.action or 'fail' in log.action %}bg-danger
+                  {% elif 'alert' in log.action or 'warning' in log.action %}bg-warning
+                  {% elif 'success' in log.action or 'create' in log.action %}bg-success
+                  {% elif 'login' in log.action %}bg-info
+                  {% elif 'logout' in log.action %}bg-secondary
+                  {% else %}bg-primary{% endif %}
+                  rounded-3 fw-semibold">
+                  {{ log.action }}
+                </span>
+                <span class="text-muted">|</span>
+                <span class="text-muted fs-3">
+                  <iconify-icon icon="solar:calendar-bold" class="me-1"></iconify-icon>
+                  {{ log.timestamp|date:"M d, Y H:i:s" }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'front:auditlogs_list' %}?action={{ log.action }}" class="btn btn-outline-primary">
+              <iconify-icon icon="solar:filter-bold" class="me-1"></iconify-icon>
+              View Similar
+            </a>
+            <a href="{% url 'front:auditlog_delete' log.pk %}" class="btn btn-outline-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Delete
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Log Details -->
+  <div class="col-lg-8">
+    <!-- Details -->
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-3">
+          <iconify-icon icon="solar:document-text-bold" class="text-primary me-2"></iconify-icon>
+          Details
+        </h5>
+        {% if log.details %}
+        <div class="details-content">{{ log.details }}</div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <iconify-icon icon="solar:document-text-line-duotone" style="font-size: 2rem;"></iconify-icon>
+          <p class="mt-2 mb-0">No additional details available.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:info-circle-bold" class="text-primary me-2"></iconify-icon>
+          Log Information
+        </h5>
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Log ID</span>
+            <span class="fw-semibold">#{{ log.id }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Action</span>
+            <span class="fw-semibold">{{ log.action }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">User</span>
+            <span class="fw-semibold">{{ log.user.username|default:"System" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Date</span>
+            <span class="fw-semibold">{{ log.timestamp|date:"M d, Y" }}</span>
+          </li>
+          <li class="d-flex justify-content-between py-2">
+            <span class="text-muted">Time</span>
+            <span class="fw-semibold">{{ log.timestamp|date:"H:i:s" }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mt-4">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:bolt-bold" class="text-warning me-2"></iconify-icon>
+          Quick Actions
+        </h5>
+        <div class="d-grid gap-2">
+          <a href="{% url 'front:auditlogs_list' %}?action={{ log.action }}" class="btn btn-outline-primary">
+            <iconify-icon icon="solar:filter-bold" class="me-2"></iconify-icon>
+            Filter by Action
+          </a>
+          {% if log.user %}
+          <a href="{% url 'front:auditlogs_list' %}?user={{ log.user.id }}" class="btn btn-outline-secondary">
+            <iconify-icon icon="solar:user-bold" class="me-2"></iconify-icon>
+            View User Activity
+          </a>
+          {% endif %}
+          <a href="{% url 'front:auditlogs_list' %}?date_from={{ log.timestamp|date:'Y-m-d' }}&date_to={{ log.timestamp|date:'Y-m-d' }}" class="btn btn-outline-info">
+            <iconify-icon icon="solar:calendar-bold" class="me-2"></iconify-icon>
+            View Same Day
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
