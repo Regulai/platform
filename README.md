@@ -23,6 +23,10 @@
 
 <br/>
 
+<p align="center">
+  <img src="https://regulai.a0.digital/img/screenshot-home.PNG" width="700" alt="regulAI Dashboard">
+</p>
+
 ## The Problem
 
 Organizations face critical risks when employees use AI tools — confidential data leaks to external providers, regulated information leaves the perimeter, and there is zero visibility into what is being sent. regulAI acts as a security layer between your users and AI providers, detecting and blocking sensitive information in real time using YARA rules before it reaches external services.
@@ -117,13 +121,25 @@ rule CreditCardNumber {
 }
 ```
 
+<p align="center">
+  <img src="https://regulai.a0.digital/img/screenshot-rules.PNG" width="700" alt="YARA Rules Management">
+</p>
+
 **Content Filtering** — Prompts are validated against all active rules before submission. Matches generate alerts and block the request.
+
+<p align="center">
+  <img src="https://regulai.a0.digital/img/screenshot-alerts.PNG" width="700" alt="Security Alerts Dashboard">
+</p>
 
 **Obfuscation** — Rules with `obfuscate="true"` metadata automatically redact matched content, replacing sensitive data before sending to the AI provider.
 
 **File Scanning** — Uploaded documents (PDF, DOCX, XLSX, images) are scanned for sensitive content using the same rule engine.
 
 ## Chat Interface
+
+<p align="center">
+  <img src="https://regulai.a0.digital/img/screenshot-chat.PNG" width="700" alt="Secure AI Chat">
+</p>
 
 Modern chat UI with file uploads, vision-capable models, conversation history, and on-the-fly model switching.
 
