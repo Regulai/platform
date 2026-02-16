@@ -291,9 +291,6 @@ class CompanyEngine(models.Model):
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ("company", "engine")
-
     def __str__(self):
         return f"{self.company.name} → {self.display_name}"
 

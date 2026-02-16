@@ -839,9 +839,8 @@ def engine_create(request):
     """Add a new engine to the company."""
     company = request.user.profile.company
 
-    # Get all available engines that are not already added to this company
-    existing_engine_ids = CompanyEngine.objects.filter(company=company).values_list('engine_id', flat=True)
-    available_engines = Engine.objects.exclude(id__in=existing_engine_ids).order_by('name')
+    # Get all available engines
+    available_engines = Engine.objects.all().order_by('name')
 
     if request.method == 'POST':
         engine_id = request.POST.get('engine')
@@ -859,9 +858,6 @@ def engine_create(request):
         engine = Engine.objects.filter(id=engine_id).first()
         if not engine:
             errors.append('Invalid engine selected.')
-
-        if CompanyEngine.objects.filter(company=company, engine_id=engine_id).exists():
-            errors.append('This engine is already configured for your company.')
 
         if errors:
             for error in errors:
