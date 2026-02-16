@@ -398,8 +398,7 @@
                       <span class="badge bg-danger ms-2">Blocked</span>
                     {% endif %}
                   </div>
-                  <div class="message-content">
-                  </div>
+                  <div class="message-content">{{ msg.content }}</div>
                   {% if msg.file_name %}
                   <div class="file-attachment">
                     <iconify-icon icon="solar:file-bold"></iconify-icon>
