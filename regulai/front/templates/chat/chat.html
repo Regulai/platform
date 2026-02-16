@@ -312,7 +312,7 @@
             {% if available_engines %}
             <!-- Engine Selector -->
             <div class="custom-dropdown" id="engineDropdownContainer">
-              <button class="btn btn-outline-primary btn-sm custom-dropdown-btn" type="button" onclick="toggleDropdown('engineDropdownMenu')">
+              <button class="btn btn-outline-primary btn-sm custom-dropdown-btn" type="button" onclick="toggleDropdown('engineDropdownMenu', event)">
                 <iconify-icon icon="solar:cpu-bolt-bold" class="me-1"></iconify-icon>
                 <span id="currentEngineName">{% if current_engine %}{{ current_engine.display_name }}{% else %}Select Engine{% endif %}</span>
                 <iconify-icon icon="solar:alt-arrow-down-linear" class="ms-1"></iconify-icon>
@@ -348,7 +348,7 @@
 
             <!-- Model Selector -->
             <div class="custom-dropdown" id="modelDropdownContainer" {% if not available_models %}style="display:none"{% endif %}>
-              <button class="btn btn-outline-secondary btn-sm custom-dropdown-btn" type="button" onclick="toggleDropdown('modelDropdownMenu')">
+              <button class="btn btn-outline-secondary btn-sm custom-dropdown-btn" type="button" onclick="toggleDropdown('modelDropdownMenu', event)">
                 <iconify-icon icon="solar:atom-bold" class="me-1"></iconify-icon>
                 <span id="currentModelName">{% if current_model %}{{ current_model.name }}{% else %}Select Model{% endif %}</span>
                 <iconify-icon icon="solar:alt-arrow-down-linear" class="ms-1"></iconify-icon>
@@ -543,7 +543,10 @@
   document.addEventListener('DOMContentLoaded', function() {
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('.custom-dropdown')) {
+      // Check both the target and composed path for Shadow DOM elements (e.g. iconify-icon)
+      const insideDropdown = e.target.closest('.custom-dropdown') ||
+        (e.composedPath && e.composedPath().some(el => el.classList && el.classList.contains('custom-dropdown')));
+      if (!insideDropdown) {
         document.querySelectorAll('.custom-dropdown-menu').forEach(menu => {
           menu.classList.remove('show');
         });
@@ -561,13 +564,6 @@
     const blockedModal = new bootstrap.Modal(document.getElementById('blockedRulesModal'));
     blockedModal.show();
     {% endif %}
-
-    // Handle obfuscation modal close (cancel)
-        // If modal was closed without confirming, remove the user bubble
-          showToast('Message not sent', 'info');
-        }
-      });
-    }
 
     // Auto-resize textarea
     const textarea = document.getElementById('prompt');
@@ -693,16 +689,18 @@
           window.history.pushState({}, '', `/chat/${data.conversation_id}/`);
         }
 
-        // NUEVO: Handle obfuscation confirmation required
-          // Add obfuscated badge to message role
+        // Handle obfuscation confirmation required
+        if (data.obfuscated) {
           const roleDiv = userBubble.querySelector('.message-role');
+          if (roleDiv) {
             const containerId = 'obf-' + Date.now();
             const badgeHtml = `
               <span
                 class="badge bg-warning text-dark ms-2"
                 style="cursor: pointer;"
                 id="${containerId}-badge"
-                title="Click to show/hide original content">
+                title="Click to show/hide original content"
+                onclick="toggleObfuscation('${containerId}')">
                 <iconify-icon icon="solar:eye-closed-bold" class="me-1"></iconify-icon>
               </span>
             `;
@@ -712,24 +710,20 @@
             const contentDiv = userBubble.querySelector('.message-content');
             if (contentDiv) {
               contentDiv.innerHTML = `
-                  <div id="${containerId}" class="obfuscated-content" style="display: block;">
-                  </div>
-                  <div id="${containerId}-original" class="original-content" style="display: none;">
-                    ${escapeHtml(data.user_message.content)}
-                  </div>
+                <div id="${containerId}" class="obfuscated-content" style="display: block;">
+                  ${escapeHtml(data.obfuscated_content || '')}
+                </div>
+                <div id="${containerId}-original" class="original-content" style="display: none;">
+                  ${escapeHtml(data.user_message.content)}
                 </div>
               `;
             }
           }
 
-          // Store data for confirmation (including original content)
-            user_message_id: data.user_message.id,
-            conversation_id: data.conversation_id,
-            original_content: data.user_message.content,
-            userBubble: userBubble
-          };
-
-          // Show obfuscation modal
+          // Show obfuscation modal if rules are provided
+          if (data.obfuscation_rules && data.obfuscation_rules.length > 0) {
+            showObfuscationModal(data.obfuscation_rules);
+          }
           return; // Don't continue with normal flow
         }
 
@@ -874,6 +868,7 @@
   /**
    * Toggle between obfuscated and original content for a message
    */
+  function toggleObfuscation(containerId) {
     const obfuscatedDiv = document.getElementById(containerId);
     const originalDiv = document.getElementById(containerId + '-original');
     const btn = document.getElementById(containerId + '-btn');
@@ -885,31 +880,26 @@
       obfuscatedDiv.style.display = 'block';
       originalDiv.style.display = 'none';
 
-      // Update button if exists
       if (btn) {
         btn.innerHTML = '<iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon> Show Original';
         btn.classList.remove('btn-info');
         btn.classList.add('btn-outline-warning');
       }
 
-      // Update badge if exists
       if (badge) {
         badge.classList.remove('bg-info');
         badge.classList.add('bg-warning');
         badge.title = 'Click to show original content';
       }
     } else {
-      // Show original, hide obfuscated
       obfuscatedDiv.style.display = 'none';
       originalDiv.style.display = 'block';
 
-      // Update button if exists
       if (btn) {
         btn.classList.remove('btn-outline-warning');
         btn.classList.add('btn-info');
       }
 
-      // Update badge if exists
       if (badge) {
         badge.innerHTML = '<iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon> Original';
         badge.classList.remove('bg-warning');
@@ -917,21 +907,41 @@
         badge.title = 'Click to hide original content';
       }
     }
-  };
+  }
 
-    // Check if Bootstrap is available
+  function showObfuscationModal(rules) {
     if (typeof bootstrap === 'undefined') {
       console.error('Bootstrap not loaded, showing alert instead');
       alert('Sensitive content detected. Rules: ' + rules.map(r => r.name).join(', '));
       return;
     }
 
+    let modal = document.getElementById('obfuscationRulesModal');
     if (!modal) {
-      console.error('Obfuscation modal not found');
-      return;
+      modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.id = 'obfuscationRulesModal';
+      modal.tabIndex = -1;
+      modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title">
+                <iconify-icon icon="solar:shield-warning-bold" class="me-2"></iconify-icon>
+                Sensitive Content Detected
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="obfuscationRulesContent"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
     }
 
-    // Populate rules
     const rulesContent = document.getElementById('obfuscationRulesContent');
     rulesContent.innerHTML = rules.map(rule => `
       <div class="card mb-3 border-${getSeverityClass(rule.severity)}">
@@ -948,7 +958,6 @@
       </div>
     `).join('');
 
-    // Show modal
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
   }
@@ -1142,8 +1151,12 @@
   }
 
   // Toggle custom dropdown
-  function toggleDropdown(menuId) {
+  function toggleDropdown(menuId, event) {
+    if (event) {
+      event.stopPropagation();
+    }
     const menu = document.getElementById(menuId);
+    if (!menu) return;
     const isOpen = menu.classList.contains('show');
 
     // Close all dropdowns first
