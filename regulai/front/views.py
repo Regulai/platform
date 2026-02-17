@@ -1990,7 +1990,12 @@ def chat_send_message(request, conversation_id=None):
         file_sha256=file_hashes.get('sha256') if file_hashes else None
     )
 
+    # Check if user already confirmed consent
+    consent_confirmed = request.POST.get('consent_confirmed') == 'true'
+
     # Validate prompt against rules
+    requires_consent = False
+    consent_rules_data = []
     try:
         prompt_matches, prompt_matched_rules = validate_prompt(user, prompt_text, prompt_obj, None, 'prompts')
 
@@ -2005,20 +2010,17 @@ def chat_send_message(request, conversation_id=None):
         all_matches = (prompt_matches or []) + (file_matches or [])
         all_matched_rules = prompt_matched_rules + file_matched_rules
 
-        # Simple blocking logic: all matched rules block the message
+        # Separate rules by action type
+        blocking_rules = [r for r in all_matched_rules if r.get('action', 'block') == 'block']
+        consent_rules = [r for r in all_matched_rules if r.get('action') == 'consent']
         blocked_rules_data = []
 
-        if all_matched_rules:
-            # Create alerts for all matched rules
-            for rule_data in all_matched_rules:
+        # Block rules always take priority
+        if blocking_rules:
+            for rule_data in blocking_rules:
                 try:
                     from front.models import Rule
                     rule = Rule.objects.get(id=rule_data['id'])
-
-                    alert_description = (
-                        f"Prompt blocked by rule '{rule.name}'. "
-                        f"The message was not sent to the LLM."
-                    )
 
                     Alert.objects.create(
                         user=user,
@@ -2026,7 +2028,7 @@ def chat_send_message(request, conversation_id=None):
                         prompt=prompt_obj,
                         rule=rule,
                         severity=rule_data.get('severity', 'medium'),
-                        description=alert_description
+                        description=f"Prompt blocked by rule '{rule.name}'. The message was not sent to the LLM."
                     )
 
                     log_action(user, 'blocking_alert_created', {
@@ -2046,7 +2048,39 @@ def chat_send_message(request, conversation_id=None):
             user_message.blocked = True
             user_message.save()
             blocked = True
-            blocked_rules_data = [{'name': r['name'], 'severity': r['severity'], 'description': r['description']} for r in all_matched_rules]
+            blocked_rules_data = [{'name': r['name'], 'severity': r['severity'], 'description': r['description']} for r in blocking_rules]
+
+        # Consent rules: ask for confirmation (only if no blocking rules)
+        elif consent_rules and not consent_confirmed:
+            requires_consent = True
+            consent_rules_data = [{'name': r['name'], 'severity': r['severity'], 'description': r['description']} for r in consent_rules]
+
+        # User confirmed consent: create consent alerts and proceed
+        elif consent_rules and consent_confirmed:
+            for rule_data in consent_rules:
+                try:
+                    from front.models import Rule
+                    rule = Rule.objects.get(id=rule_data['id'])
+
+                    Alert.objects.create(
+                        user=user,
+                        company=company,
+                        prompt=prompt_obj,
+                        rule=rule,
+                        severity=rule_data.get('severity', 'medium'),
+                        description=f"User consented to send message despite rule '{rule.name}' match."
+                    )
+
+                    log_action(user, 'consent_alert_created', {
+                        'rule_name': rule.name,
+                        'severity': rule_data.get('severity', 'medium'),
+                        'prompt_id': prompt_obj.id,
+                        'conversation_id': conversation.id
+                    }, request)
+
+                except Rule.DoesNotExist:
+                    import logging
+                    logging.warning(f"Rule {rule_data.get('name', 'unknown')} not found for alert creation")
 
     except Exception as validation_error:
         # Log validation error but don't block the request
@@ -2072,6 +2106,8 @@ def chat_send_message(request, conversation_id=None):
         'conversation_id': conversation.id,
         'blocked': blocked,
         'blocked_rules': blocked_rules_data,
+        'requires_consent': requires_consent,
+        'consent_rules': consent_rules_data,
         'user_message': {
             'id': user_message.id,
             'content': display_content,
@@ -2080,6 +2116,10 @@ def chat_send_message(request, conversation_id=None):
             'blocked': blocked
         }
     }
+
+    # If consent is required, return early without sending to LLM
+    if requires_consent:
+        return JsonResponse(response_data)
 
     # Only send to LLM if not blocked
     if not blocked:
@@ -2263,6 +2303,7 @@ def validate_prompt(user, prompt_text, prompt_instance=None, file=None, content_
             'name': rule.name if rule else 'Unknown Rule',
             'description': rule.description if rule else '',
             'severity': severity,
+            'action': rule.action if rule else 'block',
         })
 
     # NOTE: No creamos alertas aquí - se crean en chat_send_message según el tipo de regla
@@ -2572,6 +2613,7 @@ def rule_create(request):
         rules_group_id = request.POST.get('rules_group')
         severity = request.POST.get('severity', 'medium')
         applies_to = request.POST.get('applies_to', 'both')
+        action = request.POST.get('action', 'block')
         active = request.POST.get('active') == 'on'
 
         # Validate required fields
@@ -2615,6 +2657,7 @@ def rule_create(request):
                 rules_group_id=rules_group_id,
                 severity=severity,
                 applies_to=applies_to,
+                action=action,
                 active=active,
             )
             log_action(request.user, 'rule_create', {
@@ -2622,6 +2665,7 @@ def rule_create(request):
                 'rule_name': rule.name,
                 'severity': severity,
                 'applies_to': applies_to,
+                'action': action,
                 'active': active
             }, request)
             messages.success(request, f'Rule "{rule.name}" created successfully.')
@@ -2657,6 +2701,7 @@ def rule_edit(request, pk):
         rules_group_id = request.POST.get('rules_group')
         rule.severity = request.POST.get('severity', 'medium')
         rule.applies_to = request.POST.get('applies_to', 'both')
+        rule.action = request.POST.get('action', 'block')
         rule.active = request.POST.get('active') == 'on'
 
         # Validate required fields
@@ -2701,6 +2746,7 @@ def rule_edit(request, pk):
                 'rule_name': rule.name,
                 'severity': rule.severity,
                 'applies_to': rule.applies_to,
+                'action': rule.action,
                 'active': rule.active
             }, request)
             messages.success(request, f'Rule "{rule.name}" updated successfully.')

@@ -89,8 +89,8 @@ class RulesGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Rule)
 class RuleAdmin(admin.ModelAdmin):
-    list_display = ("name", "rules_group", "active", "created_at")
-    list_filter = ("active", "rules_group__company")
+    list_display = ("name", "rules_group", "action", "active", "created_at")
+    list_filter = ("active", "action", "rules_group__company")
     search_fields = ("name", "description")
     ordering = ("-created_at",)
 

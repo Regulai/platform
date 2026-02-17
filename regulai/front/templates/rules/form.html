@@ -144,6 +144,27 @@
             </div>
           </div>
 
+          <div class="row">
+            <div class="col-md-6 mb-4">
+              <label for="action" class="form-label fw-semibold">Action <span class="text-danger">*</span></label>
+              <select class="form-select" id="action" name="action" required>
+                <option value="block" {% if rule and rule.action == 'block' %}selected{% endif %}
+                        {% if form_data and form_data.action == 'block' %}selected{% endif %}
+                        {% if not rule and not form_data %}selected{% endif %}>
+                  Block
+                </option>
+                <option value="consent" {% if rule and rule.action == 'consent' %}selected{% endif %}
+                        {% if form_data and form_data.action == 'consent' %}selected{% endif %}>
+                  Consent
+                </option>
+              </select>
+              <div class="form-text">
+                <strong>Block</strong> prevents the message from being sent.
+                <strong>Consent</strong> asks the user for confirmation before sending.
+              </div>
+            </div>
+          </div>
+
           <div class="mb-4">
             <label for="yara_rule" class="form-label fw-semibold">YARA Rule <span class="text-danger">*</span></label>
             <textarea class="form-control yara-editor" id="yara_rule" name="yara_rule" rows="14"

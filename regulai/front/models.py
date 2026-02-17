@@ -111,12 +111,18 @@ class Rule(models.Model):
         ("both", "Both"),
     ]
 
+    ACTION_CHOICES = [
+        ("block", "Block"),
+        ("consent", "Consent"),
+    ]
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     yara_rule = models.TextField(help_text="Define the YARA rule here")
     rules_group = models.ForeignKey(RulesGroup, on_delete=models.CASCADE, related_name="rules")
     severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default="medium")
     applies_to = models.CharField(max_length=20, choices=APPLIES_TO_CHOICES, default="both")
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, default="block", help_text="Block stops the message. Consent asks the user for confirmation before sending.")
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

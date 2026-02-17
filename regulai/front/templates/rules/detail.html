@@ -223,6 +223,16 @@
             </span>
           </li>
           <li class="d-flex justify-content-between py-2 border-bottom">
+            <span class="text-muted">Action</span>
+            <span class="fw-semibold">
+              {% if rule.action == 'consent' %}
+              <span class="badge bg-warning-subtle text-warning">Consent</span>
+              {% else %}
+              <span class="badge bg-danger-subtle text-danger">Block</span>
+              {% endif %}
+            </span>
+          </li>
+          <li class="d-flex justify-content-between py-2 border-bottom">
             <span class="text-muted">Group</span>
             <span class="fw-semibold">{{ rule.rules_group.name|default:"None" }}</span>
           </li>

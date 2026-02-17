@@ -726,6 +726,25 @@
           return; // Don't continue with normal flow
         }
 
+        // Handle consent required
+        if (data.requires_consent && data.consent_rules && data.consent_rules.length > 0) {
+          // Store pending data for resend
+          window._pendingConsent = {
+            prompt: prompt,
+            conversationId: data.conversation_id,
+            userBubble: userBubble
+          };
+          // Add warning badge to user bubble
+          const roleDiv = userBubble.querySelector('.message-role');
+          if (roleDiv) {
+            roleDiv.innerHTML += '<span class="badge bg-warning text-dark ms-2">Pending consent</span>';
+          }
+          showConsentModal(data.consent_rules);
+          isLoading = false;
+          setLoadingState(false);
+          return;
+        }
+
         // Handle blocked message
         if (data.blocked) {
           userBubble.classList.add('blocked');
@@ -961,6 +980,181 @@
     bsModal.show();
   }
 
+  function showConsentModal(rules) {
+    if (typeof bootstrap === 'undefined') {
+      console.error('Bootstrap not loaded, showing alert instead');
+      if (confirm('Security rules matched: ' + rules.map(r => r.name).join(', ') + '. Send anyway?')) {
+        resendWithConsent();
+      }
+      return;
+    }
+
+    let modal = document.getElementById('consentRulesModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.id = 'consentRulesModal';
+      modal.tabIndex = -1;
+      modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+              <h5 class="modal-title">
+                <iconify-icon icon="solar:shield-warning-bold" class="me-2"></iconify-icon>
+                Security Rules Matched — Consent Required
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-warning mb-4">
+                <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+                <strong>Attention:</strong> Your message matched the following security rules. You can choose to send it anyway or cancel.
+              </div>
+              <div id="consentRulesContent"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="cancelConsent()">
+                <iconify-icon icon="solar:close-circle-bold" class="me-1"></iconify-icon>
+                Cancel
+              </button>
+              <button type="button" class="btn btn-warning" onclick="resendWithConsent()">
+                <iconify-icon icon="solar:shield-check-bold" class="me-1"></iconify-icon>
+                Send Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    const rulesContent = document.getElementById('consentRulesContent');
+    rulesContent.innerHTML = rules.map(rule => `
+      <div class="card mb-3 border-${getSeverityClass(rule.severity)}">
+        <div class="card-header d-flex align-items-center justify-content-between bg-${getSeverityClass(rule.severity)}-subtle">
+          <div class="d-flex align-items-center">
+            <iconify-icon icon="solar:shield-check-bold" class="me-2 fs-5"></iconify-icon>
+            <strong>${escapeHtml(rule.name)}</strong>
+          </div>
+          <span class="badge bg-${getSeverityClass(rule.severity)}">${rule.severity}</span>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">${rule.description ? escapeHtml(rule.description) : '<em class="text-muted">No description.</em>'}</p>
+        </div>
+      </div>
+    `).join('');
+
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  }
+
+  function cancelConsent() {
+    // Remove pending consent badge from user bubble
+    if (window._pendingConsent && window._pendingConsent.userBubble) {
+      const badge = window._pendingConsent.userBubble.querySelector('.badge.bg-warning');
+      if (badge) badge.remove();
+      // Add cancelled badge
+      const roleDiv = window._pendingConsent.userBubble.querySelector('.message-role');
+      if (roleDiv) {
+        roleDiv.innerHTML += '<span class="badge bg-secondary ms-2">Cancelled</span>';
+      }
+    }
+    window._pendingConsent = null;
+    showToast('Message not sent', 'info');
+  }
+
+  async function resendWithConsent() {
+    // Close modal
+    const modal = document.getElementById('consentRulesModal');
+    if (modal) {
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      if (bsModal) bsModal.hide();
+    }
+
+    const pending = window._pendingConsent;
+    if (!pending) return;
+
+    // Remove pending badge and add consented badge
+    if (pending.userBubble) {
+      const badge = pending.userBubble.querySelector('.badge.bg-warning');
+      if (badge) badge.remove();
+      const roleDiv = pending.userBubble.querySelector('.message-role');
+      if (roleDiv) {
+        roleDiv.innerHTML += '<span class="badge bg-info ms-2">Consented</span>';
+      }
+    }
+
+    isLoading = true;
+    setLoadingState(true);
+
+    const chatContainer = document.getElementById('chatContainer');
+    const loadingIndicator = createLoadingIndicator();
+    chatContainer.appendChild(loadingIndicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    const formData = new FormData();
+    formData.append('prompt', pending.prompt);
+    formData.append('consent_confirmed', 'true');
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    const url = pending.conversationId
+      ? `/chat/${pending.conversationId}/send/`
+      : '/chat/send/';
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData
+      });
+
+      loadingIndicator.remove();
+
+      if (!response.ok) {
+        const errorBubble = createSystemBubble(`Error: Server returned ${response.status}`);
+        chatContainer.appendChild(errorBubble);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        isLoading = false;
+        setLoadingState(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (!currentConversationId && data.conversation_id) {
+          currentConversationId = data.conversation_id;
+          window.history.pushState({}, '', `/chat/${data.conversation_id}/`);
+        }
+
+        if (data.assistant_message) {
+          const assistantBubble = createAssistantBubble(data.assistant_message.content);
+          chatContainer.appendChild(assistantBubble);
+        }
+
+        if (data.error_message) {
+          const errorBubble = createSystemBubble(data.error_message.content);
+          chatContainer.appendChild(errorBubble);
+        }
+
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        showToast('Message sent with consent', 'success');
+      } else {
+        const errorBubble = createSystemBubble(data.error || 'An error occurred');
+        chatContainer.appendChild(errorBubble);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    } catch (error) {
+      if (loadingIndicator.parentNode) loadingIndicator.remove();
+      console.error('Consent resend error:', error);
+      const errorBubble = createSystemBubble(`Error: ${error.message || 'Could not connect to the server'}`);
+      chatContainer.appendChild(errorBubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    window._pendingConsent = null;
+    isLoading = false;
+    setLoadingState(false);
+  }
 
   function showBlockedModal(rules) {
     // Check if Bootstrap is available
