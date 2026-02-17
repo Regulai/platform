@@ -3151,6 +3151,7 @@ def alerts_list(request):
     severity_filter = request.GET.get('severity')
     status_filter = request.GET.get('status')
     rule_filter = request.GET.get('rule')
+    action_filter = request.GET.get('action')
     department_filter = request.GET.get('department')
     search = request.GET.get('search', '')
 
@@ -3164,6 +3165,9 @@ def alerts_list(request):
 
     if rule_filter:
         alerts = alerts.filter(rule_id=rule_filter)
+
+    if action_filter:
+        alerts = alerts.filter(rule__action=action_filter)
 
     if department_filter:
         alerts = alerts.filter(user__profile__department_id=department_filter)
@@ -3205,6 +3209,7 @@ def alerts_list(request):
         'current_severity': severity_filter,
         'current_status': status_filter,
         'current_rule': rule_filter,
+        'current_action': action_filter,
         'current_department': department_filter,
         'search': search,
     }

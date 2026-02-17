@@ -200,12 +200,12 @@
                   {% if current_severity %}{{ current_severity|title }}{% else %}Severity{% endif %}
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_rule or current_department or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_rule %}{% if current_status %}&{% endif %}rule={{ current_rule }}{% endif %}{% if current_department %}{% if current_status or current_rule %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_status or current_rule or current_department %}&{% endif %}search={{ search }}{% endif %}">All Severities</a></li>
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_rule or current_action or current_department or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_rule %}{% if current_status %}&{% endif %}rule={{ current_rule }}{% endif %}{% if current_action %}{% if current_status or current_rule %}&{% endif %}action={{ current_action }}{% endif %}{% if current_department %}{% if current_status or current_rule or current_action %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_status or current_rule or current_action or current_department %}&{% endif %}search={{ search }}{% endif %}">All Severities</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger" href="{% url 'front:alerts_list' %}?severity=critical{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Critical</a></li>
-                  <li><a class="dropdown-item text-warning" href="{% url 'front:alerts_list' %}?severity=high{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">High</a></li>
-                  <li><a class="dropdown-item text-info" href="{% url 'front:alerts_list' %}?severity=medium{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Medium</a></li>
-                  <li><a class="dropdown-item text-secondary" href="{% url 'front:alerts_list' %}?severity=low{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Low</a></li>
+                  <li><a class="dropdown-item text-danger" href="{% url 'front:alerts_list' %}?severity=critical{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Critical</a></li>
+                  <li><a class="dropdown-item text-warning" href="{% url 'front:alerts_list' %}?severity=high{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">High</a></li>
+                  <li><a class="dropdown-item text-info" href="{% url 'front:alerts_list' %}?severity=medium{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Medium</a></li>
+                  <li><a class="dropdown-item text-secondary" href="{% url 'front:alerts_list' %}?severity=low{% if current_status %}&status={{ current_status }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Low</a></li>
                 </ul>
               </div>
 
@@ -216,14 +216,27 @@
                   {% if current_rule %}Rule{% else %}Filter by Rule{% endif %}
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_severity or current_department or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_severity %}{% if current_status %}&{% endif %}severity={{ current_severity }}{% endif %}{% if current_department %}{% if current_status or current_severity %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_status or current_severity or current_department %}&{% endif %}search={{ search }}{% endif %}">All Rules</a></li>
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_severity or current_action or current_department or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_severity %}{% if current_status %}&{% endif %}severity={{ current_severity }}{% endif %}{% if current_action %}{% if current_status or current_severity %}&{% endif %}action={{ current_action }}{% endif %}{% if current_department %}{% if current_status or current_severity or current_action %}&{% endif %}department={{ current_department }}{% endif %}{% if search %}{% if current_status or current_severity or current_action or current_department %}&{% endif %}search={{ search }}{% endif %}">All Rules</a></li>
                   <li><hr class="dropdown-divider"></li>
                   {% for rule in rules %}
-                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?rule={{ rule.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ rule.name }}</a></li>
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?rule={{ rule.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ rule.name }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
               {% endif %}
+
+              <!-- Action Filter (Block / Consent) -->
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% if current_action == 'block' %}Block{% elif current_action == 'consent' %}Consent{% else %}Action{% endif %}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?{% if current_status %}status={{ current_status }}&{% endif %}{% if current_severity %}severity={{ current_severity }}&{% endif %}{% if current_rule %}rule={{ current_rule }}&{% endif %}{% if current_department %}department={{ current_department }}&{% endif %}{% if search %}search={{ search }}{% endif %}">All Actions</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="{% url 'front:alerts_list' %}?action=block{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Block</a></li>
+                  <li><a class="dropdown-item text-warning" href="{% url 'front:alerts_list' %}?action=consent{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Consent</a></li>
+                </ul>
+              </div>
 
               <!-- Department Filter -->
               {% if departments %}
@@ -232,10 +245,10 @@
                   {% if current_department %}Department{% else %}All Departments{% endif %}
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_severity or current_rule or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_severity %}{% if current_status %}&{% endif %}severity={{ current_severity }}{% endif %}{% if current_rule %}{% if current_status or current_severity %}&{% endif %}rule={{ current_rule }}{% endif %}{% if search %}{% if current_status or current_severity or current_rule %}&{% endif %}search={{ search }}{% endif %}">All Departments</a></li>
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}{% if current_status or current_severity or current_rule or current_action or search %}?{% endif %}{% if current_status %}status={{ current_status }}{% endif %}{% if current_severity %}{% if current_status %}&{% endif %}severity={{ current_severity }}{% endif %}{% if current_rule %}{% if current_status or current_severity %}&{% endif %}rule={{ current_rule }}{% endif %}{% if current_action %}{% if current_status or current_severity or current_rule %}&{% endif %}action={{ current_action }}{% endif %}{% if search %}{% if current_status or current_severity or current_rule or current_action %}&{% endif %}search={{ search }}{% endif %}">All Departments</a></li>
                   <li><hr class="dropdown-divider"></li>
                   {% for dept in departments %}
-                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?department={{ dept.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ dept.name }}</a></li>
+                  <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?department={{ dept.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_action %}&action={{ current_action }}{% endif %}{% if search %}&search={{ search }}{% endif %}">{{ dept.name }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
