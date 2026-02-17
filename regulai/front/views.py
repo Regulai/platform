@@ -77,6 +77,12 @@ def get_user_company(user):
         return user.profile.company
     # Return Default Company as fallback
     default_company, _ = Company.objects.get_or_create(name="Default Company")
+    # Ensure default company has a default rules group
+    RulesGroup.objects.get_or_create(
+        name='Default',
+        company=default_company,
+        defaults={'description': 'Default rules group'}
+    )
     return default_company
 
 
@@ -304,6 +310,13 @@ def signup_view(request):
             admin_role, _ = Role.objects.get_or_create(
                 name='Admin',
                 defaults={'description': 'Company administrator with full access'}
+            )
+
+            # Create default rules group for the company
+            RulesGroup.objects.get_or_create(
+                name='Default',
+                company=company,
+                defaults={'description': 'Default rules group'}
             )
 
             # Create profile
