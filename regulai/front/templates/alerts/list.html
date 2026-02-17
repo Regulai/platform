@@ -80,7 +80,7 @@
         </h5>
 
         <!-- Critical -->
-        <a href="{% url 'front:alerts_list' %}?severity=critical&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-danger-subtle text-decoration-none {% if current_severity == 'critical' and current_status == 'unresolved' %}border border-danger{% endif %}">
+        <a href="{% url 'front:alerts_list' %}?severity=critical&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 text-decoration-none {% if current_severity == 'critical' and current_status == 'unresolved' %}border border-danger{% endif %}">
           <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle bg-danger d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
               <iconify-icon icon="solar:shield-warning-bold" class="text-white"></iconify-icon>
@@ -94,7 +94,7 @@
         </a>
 
         <!-- High -->
-        <a href="{% url 'front:alerts_list' %}?severity=high&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-warning-subtle text-decoration-none {% if current_severity == 'high' and current_status == 'unresolved' %}border border-warning{% endif %}">
+        <a href="{% url 'front:alerts_list' %}?severity=high&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 text-decoration-none {% if current_severity == 'high' and current_status == 'unresolved' %}border border-warning{% endif %}">
           <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
               <iconify-icon icon="solar:danger-triangle-bold" class="text-dark"></iconify-icon>
@@ -108,7 +108,7 @@
         </a>
 
         <!-- Medium -->
-        <a href="{% url 'front:alerts_list' %}?severity=medium&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-info-subtle text-decoration-none {% if current_severity == 'medium' and current_status == 'unresolved' %}border border-info{% endif %}">
+        <a href="{% url 'front:alerts_list' %}?severity=medium&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 text-decoration-none {% if current_severity == 'medium' and current_status == 'unresolved' %}border border-info{% endif %}">
           <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle bg-info d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
               <iconify-icon icon="solar:info-circle-bold" class="text-white"></iconify-icon>
@@ -122,7 +122,7 @@
         </a>
 
         <!-- Low -->
-        <a href="{% url 'front:alerts_list' %}?severity=low&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 bg-secondary-subtle text-decoration-none {% if current_severity == 'low' and current_status == 'unresolved' %}border border-secondary{% endif %}">
+        <a href="{% url 'front:alerts_list' %}?severity=low&status=unresolved" class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3 text-decoration-none {% if current_severity == 'low' and current_status == 'unresolved' %}border border-secondary{% endif %}">
           <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
               <iconify-icon icon="solar:info-square-bold" class="text-white"></iconify-icon>
