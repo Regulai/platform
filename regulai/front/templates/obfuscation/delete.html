@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Remove Obfuscation Config{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5">
+        <div class="mb-4">
+          <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+            <iconify-icon icon="solar:trash-bin-trash-bold" class="text-danger" style="font-size: 2.5rem;"></iconify-icon>
+          </div>
+        </div>
+
+        <h4 class="fw-semibold mb-3">Remove Obfuscation Configuration</h4>
+
+        <p class="text-muted mb-4">
+          Are you sure you want to remove the obfuscation configuration <strong>{{ config.name }}</strong>?
+        </p>
+
+        <div class="alert alert-warning text-start mb-4">
+          <iconify-icon icon="solar:danger-triangle-bold" class="me-2"></iconify-icon>
+          <strong>Warning:</strong> This action will:
+          <ul class="mb-0 mt-2">
+            <li>Remove this obfuscation configuration</li>
+            <li>Prompts will no longer be obfuscated by this config</li>
+            <li>This action cannot be undone</li>
+          </ul>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex justify-content-center gap-2">
+            <a href="{% url 'front:obfuscation_list' %}" class="btn btn-outline-secondary">
+              <iconify-icon icon="solar:arrow-left-bold" class="me-1"></iconify-icon>
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+              <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+              Yes, Remove Configuration
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

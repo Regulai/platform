@@ -13,6 +13,7 @@ from .views import (
     departments_list, department_create, department_edit, department_delete,
     engines_list, engine_create, engine_edit, engine_delete, engine_toggle,
     model_create, model_edit, model_toggle, model_delete,
+    obfuscation_list, obfuscation_create, obfuscation_edit, obfuscation_delete, obfuscation_toggle,
 )
 
 app_name = 'front'
@@ -104,4 +105,11 @@ urlpatterns = [
     path("settings/models/<int:pk>/edit/", model_edit, name="model_edit"),
     path("settings/models/<int:pk>/toggle/", model_toggle, name="model_toggle"),
     path("settings/models/<int:pk>/delete/", model_delete, name="model_delete"),
+
+    # Obfuscation
+    path("obfuscation/", obfuscation_list, name="obfuscation_list"),
+    path("obfuscation/create/", obfuscation_create, name="obfuscation_create"),
+    path("obfuscation/<int:pk>/edit/", obfuscation_edit, name="obfuscation_edit"),
+    path("obfuscation/<int:pk>/delete/", obfuscation_delete, name="obfuscation_delete"),
+    path("obfuscation/<int:pk>/toggle/", obfuscation_toggle, name="obfuscation_toggle"),
 ]

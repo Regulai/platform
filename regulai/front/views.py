@@ -1974,6 +1974,19 @@ def chat_send_message(request, conversation_id=None):
         full_content = prompt_text
         display_content = prompt_text
 
+    # --- Obfuscation ---
+    obfuscation_context = None
+    try:
+        obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
+        if obfuscation_context:
+            full_content = obfuscated_text
+            display_content = obfuscated_text
+            if prompt_text:
+                prompt_text = obfuscated_text
+    except Exception as obf_error:
+        import logging
+        logging.error(f"Obfuscation error: {obf_error}")
+
     # Create new conversation if needed
     if not conversation:
         title = prompt_text[:50] if prompt_text else file_name[:50] if file_name else "New conversation"
@@ -2002,6 +2015,33 @@ def chat_send_message(request, conversation_id=None):
         file_sha1=file_hashes.get('sha1') if file_hashes else None,
         file_sha256=file_hashes.get('sha256') if file_hashes else None
     )
+
+    # Create obfuscation alert if data was obfuscated
+    if obfuscation_context:
+        entities_detected = list(obfuscation_context.keys())
+        entity_count = len(entities_detected)
+        entity_types = set()
+        for key in entities_detected:
+            parts = key.strip('[]').rsplit('_', 1)
+            if len(parts) > 1:
+                entity_types.add(parts[0])
+
+        Alert.objects.create(
+            user=user,
+            company=company,
+            prompt=prompt_obj,
+            rule=None,
+            severity='medium',
+            source='obfuscation',
+            description=f"Prompt obfuscated: {entity_count} entities detected ({', '.join(sorted(entity_types))}). Sensitive data was masked before sending to AI engine."
+        )
+
+        log_action(user, 'obfuscation_alert_created', {
+            'prompt_id': prompt_obj.id,
+            'conversation_id': conversation.id,
+            'entities_count': entity_count,
+            'entity_types': list(entity_types),
+        }, request)
 
     # Check if user already confirmed consent
     consent_confirmed = request.POST.get('consent_confirmed') == 'true'
@@ -3167,7 +3207,10 @@ def alerts_list(request):
         alerts = alerts.filter(rule_id=rule_filter)
 
     if action_filter:
-        alerts = alerts.filter(rule__action=action_filter)
+        if action_filter == 'obfuscation':
+            alerts = alerts.filter(source='obfuscation')
+        else:
+            alerts = alerts.filter(rule__action=action_filter, source='rule')
 
     if department_filter:
         alerts = alerts.filter(user__profile__department_id=department_filter)
@@ -3592,4 +3635,199 @@ def prompt_detail(request, pk):
         'alerts': alerts,
     }
     return render(request, 'prompts/detail.html', context)
+
+
+# ==================== OBFUSCATION ====================
+
+def obfuscate_text(text, company):
+    """
+    Ofusca texto encadenando todas las configs activas de la company.
+    Retorna (texto_ofuscado, contexto_map_combinado) o (texto_original, None) si no hay configs.
+    """
+    configs = ObfuscationConfig.objects.filter(company=company, active=True).order_by("created_at")
+    if not configs.exists():
+        return text, None
+
+    current_text = text
+    combined_context = {}
+    counters = {}
+
+    for config in configs:
+        detect_param = ["pii", "secrets"] if config.detect == "both" else [config.detect]
+
+        payload = {
+            "text": current_text,
+            "detect": detect_param,
+        }
+        if config.language:
+            payload["language"] = config.language
+        if counters:
+            payload["startFrom"] = counters
+
+        api_endpoint = config.api_url.rstrip('/') + '/api/mask'
+        response = requests.post(api_endpoint, json=payload, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+
+        current_text = result.get("masked", current_text)
+        combined_context.update(result.get("context", {}))
+
+        result_counters = result.get("counters", {})
+        for entity_type, count in result_counters.items():
+            counters[entity_type] = counters.get(entity_type, 0) + count
+
+    return current_text, combined_context if combined_context else None
+
+
+@security_required
+def obfuscation_list(request):
+    """List obfuscation configurations for the user's company."""
+    company = get_user_company(request.user)
+    configs = ObfuscationConfig.objects.filter(company=company)
+
+    context = {
+        'configs': configs,
+        'total_configs': configs.count(),
+        'active_configs': configs.filter(active=True).count(),
+    }
+    return render(request, 'obfuscation/list.html', context)
+
+
+@security_required
+def obfuscation_create(request):
+    """Create a new obfuscation configuration."""
+    company = get_user_company(request.user)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        api_url = request.POST.get('api_url', '').strip()
+        detect = request.POST.get('detect', 'both')
+        language = request.POST.get('language', '').strip()
+        active = request.POST.get('active') == 'on'
+
+        errors = []
+        if not name:
+            errors.append('Name is required.')
+        if not api_url:
+            errors.append('API URL is required.')
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'obfuscation/form.html', {
+                'form_data': request.POST,
+                'is_edit': False,
+            })
+
+        ObfuscationConfig.objects.create(
+            name=name,
+            company=company,
+            api_url=api_url,
+            detect=detect,
+            language=language,
+            active=active,
+        )
+
+        log_action(request.user, 'obfuscation_create', {
+            'name': name,
+            'api_url': api_url,
+            'detect': detect,
+            'company': company.name,
+        }, request)
+
+        messages.success(request, f'Obfuscation config "{name}" created successfully.')
+        return redirect('front:obfuscation_list')
+
+    return render(request, 'obfuscation/form.html', {'is_edit': False})
+
+
+@security_required
+def obfuscation_edit(request, pk):
+    """Edit an existing obfuscation configuration."""
+    company = get_user_company(request.user)
+    config = get_object_or_404(ObfuscationConfig, pk=pk, company=company)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        api_url = request.POST.get('api_url', '').strip()
+        detect = request.POST.get('detect', 'both')
+        language = request.POST.get('language', '').strip()
+        active = request.POST.get('active') == 'on'
+
+        errors = []
+        if not name:
+            errors.append('Name is required.')
+        if not api_url:
+            errors.append('API URL is required.')
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'obfuscation/form.html', {
+                'config': config,
+                'is_edit': True,
+            })
+
+        config.name = name
+        config.api_url = api_url
+        config.detect = detect
+        config.language = language
+        config.active = active
+        config.save()
+
+        log_action(request.user, 'obfuscation_edit', {
+            'name': name,
+            'api_url': api_url,
+            'detect': detect,
+            'company': company.name,
+        }, request)
+
+        messages.success(request, f'Obfuscation config "{name}" updated successfully.')
+        return redirect('front:obfuscation_list')
+
+    return render(request, 'obfuscation/form.html', {
+        'config': config,
+        'is_edit': True,
+    })
+
+
+@security_required
+def obfuscation_delete(request, pk):
+    """Delete an obfuscation configuration."""
+    company = get_user_company(request.user)
+    config = get_object_or_404(ObfuscationConfig, pk=pk, company=company)
+
+    if request.method == 'POST':
+        name = config.name
+        config.delete()
+
+        log_action(request.user, 'obfuscation_delete', {
+            'name': name,
+            'company': company.name,
+        }, request)
+
+        messages.success(request, f'Obfuscation config "{name}" deleted successfully.')
+        return redirect('front:obfuscation_list')
+
+    return render(request, 'obfuscation/delete.html', {'config': config})
+
+
+@security_required
+def obfuscation_toggle(request, pk):
+    """Toggle active/inactive status of an obfuscation configuration."""
+    company = get_user_company(request.user)
+    config = get_object_or_404(ObfuscationConfig, pk=pk, company=company)
+
+    config.active = not config.active
+    config.save()
+
+    status = "activated" if config.active else "deactivated"
+    log_action(request.user, 'obfuscation_toggle', {
+        'name': config.name,
+        'active': config.active,
+        'company': company.name,
+    }, request)
+
+    messages.success(request, f'Obfuscation config "{config.name}" {status}.')
+    return redirect('front:obfuscation_list')
 

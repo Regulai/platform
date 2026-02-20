@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Obfuscation Config{% else %}Add Obfuscation Config{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:shield-keyhole-line-duotone" class="text-primary me-2"></iconify-icon>
+          {% if is_edit %}Edit Obfuscation Configuration{% else %}Add New Obfuscation Configuration{% endif %}
+        </h5>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" name="name"
+                   value="{% if is_edit %}{{ config.name }}{% elif form_data %}{{ form_data.name }}{% endif %}"
+                   placeholder="e.g. PasteGuard PII" required>
+            <div class="form-text">A descriptive name for this obfuscation configuration.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="api_url" class="form-label fw-semibold">API URL <span class="text-danger">*</span></label>
+            <input type="url" class="form-control" id="api_url" name="api_url"
+                   value="{% if is_edit %}{{ config.api_url }}{% elif form_data %}{{ form_data.api_url }}{% endif %}"
+                   placeholder="https://pasteguard.com" required>
+            <div class="form-text">Base URL of the PasteGuard service. The <code>/api/mask</code> endpoint will be appended automatically.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="detect" class="form-label fw-semibold">Detection Type</label>
+            <select class="form-select" id="detect" name="detect">
+              <option value="both" {% if is_edit %}{% if config.detect == 'both' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'both' %}selected{% endif %}{% else %}selected{% endif %}>PII & Secrets</option>
+              <option value="pii" {% if is_edit %}{% if config.detect == 'pii' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'pii' %}selected{% endif %}{% endif %}>PII only</option>
+              <option value="secrets" {% if is_edit %}{% if config.detect == 'secrets' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'secrets' %}selected{% endif %}{% endif %}>Secrets only</option>
+            </select>
+            <div class="form-text">Choose what types of sensitive data to detect and obfuscate.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="language" class="form-label fw-semibold">Language</label>
+            <input type="text" class="form-control" id="language" name="language"
+                   value="{% if is_edit %}{{ config.language }}{% elif form_data %}{{ form_data.language }}{% endif %}"
+                   placeholder="Leave empty for auto-detection">
+            <div class="form-text">Language code (e.g. <code>es</code>, <code>en</code>). Leave empty to auto-detect.</div>
+          </div>
+
+          <div class="mb-4">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="active" name="active"
+                     {% if is_edit %}{% if config.active %}checked{% endif %}{% else %}checked{% endif %}>
+              <label class="form-check-label" for="active">Active</label>
+            </div>
+            <div class="form-text">Only active configurations are applied to outgoing prompts.</div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="solar:diskette-bold" class="me-1"></iconify-icon>
+              {% if is_edit %}Update Configuration{% else %}Add Configuration{% endif %}
+            </button>
+            <a href="{% url 'front:obfuscation_list' %}" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Sidebar -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:info-circle-bold" class="text-info me-2"></iconify-icon>
+          About Obfuscation
+        </h6>
+        <p class="text-muted small mb-3">
+          Obfuscation automatically masks sensitive data (PII, secrets) in user prompts before sending them to AI engines, using PasteGuard.
+        </p>
+        <hr>
+        <h6 class="fw-semibold mb-2">How it works:</h6>
+        <ul class="list-unstyled small text-muted">
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
+            Detects PII (names, emails, phones, etc.)
+          </li>
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
+            Detects secrets (API keys, tokens, etc.)
+          </li>
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
+            Replaces with placeholders like <code>[[PERSON_1]]</code>
+          </li>
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
+            Multiple configs are chained in sequence
+          </li>
+        </ul>
+        <hr>
+        <p class="text-muted small mb-0">
+          <iconify-icon icon="solar:link-bold" class="text-primary me-1"></iconify-icon>
+          Powered by <strong>PasteGuard</strong> API
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

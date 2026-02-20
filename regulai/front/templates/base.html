@@ -122,6 +122,12 @@
                 <span class="hide-menu">Alerts</span>
               </a>
             </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {% if 'obfuscation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:obfuscation_list' %}" aria-expanded="false">
+                <iconify-icon icon="solar:shield-keyhole-line-duotone"></iconify-icon>
+                <span class="hide-menu">Obfuscation</span>
+              </a>
+            </li>
             {% endif %}
 
             <!-- SETTINGS SECTION - Visible only for Admin (is_superuser) -->

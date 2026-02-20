@@ -221,7 +221,12 @@ class AuditLog(models.Model):
 
 
 class Alert(models.Model):
-    """Alertas cuando se dispara una regla."""
+    """Alertas cuando se dispara una regla o se ofusca un prompt."""
+    SOURCE_CHOICES = [
+        ("rule", "Rule"),
+        ("obfuscation", "Obfuscation"),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
     prompt = models.ForeignKey(Prompt, on_delete=models.SET_NULL, null=True, blank=True)
@@ -232,6 +237,7 @@ class Alert(models.Model):
         ("high", "High"),
         ("critical", "Critical"),
     ], default="medium")
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="rule")
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     resolved = models.BooleanField(default=False)
@@ -304,3 +310,26 @@ class CompanyEngine(models.Model):
     def display_name(self):
         """Returns custom name if set, otherwise the engine name."""
         return self.name if self.name else self.engine.name
+
+
+class ObfuscationConfig(models.Model):
+    """Configuración de ofuscación para una empresa (integración con PasteGuard)."""
+    DETECT_CHOICES = [
+        ("pii", "PII"),
+        ("secrets", "Secrets"),
+        ("both", "PII & Secrets"),
+    ]
+
+    name = models.CharField(max_length=255)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="obfuscation_configs")
+    api_url = models.URLField(help_text="Base URL del servicio PasteGuard (ej: https://pasteguard.com)")
+    detect = models.CharField(max_length=20, choices=DETECT_CHOICES, default="both")
+    language = models.CharField(max_length=10, blank=True, default="", help_text="Idioma para detección (vacío=auto-detectar)")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.name} ({self.company.name})"

@@ -228,13 +228,14 @@
               <!-- Action Filter (Block / Consent) -->
               <div class="dropdown">
                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {% if current_action == 'block' %}Block{% elif current_action == 'consent' %}Consent{% else %}Action{% endif %}
+                  {% if current_action == 'block' %}Block{% elif current_action == 'consent' %}Consent{% elif current_action == 'obfuscation' %}Obfuscation{% else %}Action{% endif %}
                 </button>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="{% url 'front:alerts_list' %}?{% if current_status %}status={{ current_status }}&{% endif %}{% if current_severity %}severity={{ current_severity }}&{% endif %}{% if current_rule %}rule={{ current_rule }}&{% endif %}{% if current_department %}department={{ current_department }}&{% endif %}{% if search %}search={{ search }}{% endif %}">All Actions</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item text-danger" href="{% url 'front:alerts_list' %}?action=block{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Block</a></li>
                   <li><a class="dropdown-item text-warning" href="{% url 'front:alerts_list' %}?action=consent{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Consent</a></li>
+                  <li><a class="dropdown-item text-info" href="{% url 'front:alerts_list' %}?action=obfuscation{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}{% if current_department %}&department={{ current_department }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Obfuscation</a></li>
                 </ul>
               </div>
 

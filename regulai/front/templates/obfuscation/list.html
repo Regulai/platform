@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Obfuscation{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-semibold mb-1">
+          <iconify-icon icon="solar:shield-keyhole-line-duotone" class="text-primary me-2"></iconify-icon>
+          Obfuscation
+        </h4>
+        <p class="text-muted mb-0">Configure PII and secrets obfuscation for outgoing prompts</p>
+      </div>
+      <a href="{% url 'front:obfuscation_create' %}" class="btn btn-primary">
+        <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+        Add Configuration
+      </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="rounded-circle bg-primary-subtle p-3 me-3">
+                <iconify-icon icon="solar:shield-keyhole-bold" class="text-primary fs-4"></iconify-icon>
+              </div>
+              <div>
+                <h3 class="fw-semibold mb-0">{{ total_configs }}</h3>
+                <span class="text-muted">Total Configurations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="rounded-circle bg-success-subtle p-3 me-3">
+                <iconify-icon icon="solar:check-circle-bold" class="text-success fs-4"></iconify-icon>
+              </div>
+              <div>
+                <h3 class="fw-semibold mb-0">{{ active_configs }}</h3>
+                <span class="text-muted">Active Configurations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurations List -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        {% if configs %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>API URL</th>
+                <th>Detect</th>
+                <th>Language</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for config in configs %}
+              <tr class="{% if not config.active %}opacity-50{% endif %}">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <iconify-icon icon="solar:shield-keyhole-bold" class="text-primary me-2"></iconify-icon>
+                    <strong>{{ config.name }}</strong>
+                  </div>
+                </td>
+                <td><code class="text-muted small">{{ config.api_url }}</code></td>
+                <td>
+                  <span class="badge bg-info-subtle text-info">{{ config.get_detect_display }}</span>
+                </td>
+                <td>
+                  {% if config.language %}
+                  <span class="badge bg-secondary-subtle text-secondary">{{ config.language }}</span>
+                  {% else %}
+                  <span class="text-muted small">Auto-detect</span>
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if config.active %}
+                  <span class="badge bg-success-subtle text-success">Active</span>
+                  {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <a href="{% url 'front:obfuscation_toggle' config.pk %}" class="btn btn-outline-{{ config.active|yesno:'warning,success' }}" title="{{ config.active|yesno:'Deactivate,Activate' }}">
+                      <iconify-icon icon="solar:{{ config.active|yesno:'pause-bold,play-bold' }}" class="me-1"></iconify-icon>
+                      {{ config.active|yesno:'Deactivate,Activate' }}
+                    </a>
+                    <a href="{% url 'front:obfuscation_edit' config.pk %}" class="btn btn-outline-primary" title="Edit">
+                      <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
+                      Edit
+                    </a>
+                    <a href="{% url 'front:obfuscation_delete' config.pk %}" class="btn btn-outline-danger" title="Remove">
+                      <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
+                      Remove
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <iconify-icon icon="solar:shield-keyhole-line-duotone" class="text-muted mb-3" style="font-size: 4rem;"></iconify-icon>
+          <h5 class="text-muted">No obfuscation configurations</h5>
+          <p class="text-muted mb-3">Add a configuration to start obfuscating sensitive data in prompts.</p>
+          <a href="{% url 'front:obfuscation_create' %}" class="btn btn-primary">
+            <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+            Add Your First Configuration
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
