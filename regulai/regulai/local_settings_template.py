@@ -22,6 +22,9 @@ import os
 
 # Alternatively, read from environment variable:
 #Lunch -> python3 -c "import base64, os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())"
+
+
+#CHANGE:
 ENCRYPTION_KEY = 'FO4V3GO6J3TjZdRf_VSW5bJqLT8CZCw1818F5eiKzvY='
 
 # ==============================================================================
@@ -29,6 +32,7 @@ ENCRYPTION_KEY = 'FO4V3GO6J3TjZdRf_VSW5bJqLT8CZCw1818F5eiKzvY='
 # ==============================================================================
 
 # Uncomment to override the default (recommended for production)
+#CHANGE:
 SECRET_KEY = 'fsd89fsdy9fas89dyf8y9asfyasdf99y8fysd98lnmsa'
 CORS_ALLOW_CREDENTIALS = False
 # ==============================================================================
@@ -36,6 +40,7 @@ CORS_ALLOW_CREDENTIALS = False
 # ==============================================================================
 
 # Set to False in production
+#CHANGE:
 DEBUG = True
 
 # ==============================================================================
@@ -43,6 +48,7 @@ DEBUG = True
 # ==============================================================================
 
 # Add your domain(s) in production
+#CHANGE:
 ALLOWED_HOSTS = ["*"]
 
 # ==============================================================================
@@ -74,7 +80,7 @@ ALLOWED_HOSTS = ["*"]
 # ==============================================================================
 # SECURITY SETTINGS (Production)
 # ==============================================================================
-#ONLY FOR TEST
+#ONLY FOR TEST CHANGE:
 SECURE_SSL_REDIRECT = False          # No redirigir HTTP → HTTPS
 SESSION_COOKIE_SECURE = False        # Permitir cookies por HTTP
 CSRF_COOKIE_SECURE = False           # Permitir CSRF cookie por HTTP
