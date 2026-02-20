@@ -71,6 +71,10 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cd regulai
 
+# Copy and edit local settings before running
+cp regulai/local_settings_template.py regulai/local_settings.py
+# Edit regulai/local_settings.py — update values marked with #CHANGE:
+
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
