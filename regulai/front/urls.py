@@ -10,6 +10,7 @@ from .views import (
     auditlogs_list, auditlog_detail, auditlog_delete, auditlogs_clear,
     prompts_list, prompt_detail,
     users_list, user_create, user_edit, user_delete,
+    company_settings,
     departments_list, department_create, department_edit, department_delete,
     engines_list, engine_create, engine_edit, engine_delete, engine_toggle,
     model_create, model_edit, model_toggle, model_delete,
@@ -86,6 +87,9 @@ urlpatterns = [
     path("settings/users/create/", user_create, name="user_create"),
     path("settings/users/<int:pk>/edit/", user_edit, name="user_edit"),
     path("settings/users/<int:pk>/delete/", user_delete, name="user_delete"),
+
+    # Company Settings
+    path("settings/company/", company_settings, name="company_settings"),
 
     # Department Management (Settings)
     path("settings/departments/", departments_list, name="departments_list"),

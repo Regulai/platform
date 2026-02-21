@@ -39,10 +39,17 @@
                    placeholder="e.g., IT, Security, HR, Finance" required>
           </div>
 
-          <div class="mb-4">
+          <div class="mb-3">
             <label for="description" class="form-label">Description</label>
             <textarea class="form-control" id="description" name="description" rows="3"
                       placeholder="Optional description of the department">{% if is_edit %}{{ department.description|default:'' }}{% else %}{{ form_data.description|default:'' }}{% endif %}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label for="system_prompt" class="form-label">System Prompt (Context)</label>
+            <textarea class="form-control" id="system_prompt" name="system_prompt" rows="6"
+                      placeholder="Department-specific context sent to all AI engines in every conversation. Appended after the company context.">{% if is_edit %}{{ department.system_prompt|default:'' }}{% else %}{{ form_data.system_prompt|default:'' }}{% endif %}</textarea>
+            <div class="form-text">This context is automatically injected at the start of every conversation for users in this department.</div>
           </div>
 
           <div class="d-flex gap-2">

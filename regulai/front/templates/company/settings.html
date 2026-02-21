@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Company Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:buildings-2-line-duotone" class="text-primary me-2"></iconify-icon>
+            Company Settings
+          </h5>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="name" class="form-label">Company Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" name="name"
+                   value="{{ company.name }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="domain" class="form-label">Domain</label>
+            <input type="text" class="form-control" id="domain" name="domain"
+                   value="{{ company.domain|default:'' }}"
+                   placeholder="e.g., acme.com">
+            <div class="form-text">Used to auto-assign users by email domain.</div>
+          </div>
+
+          <hr class="my-4">
+
+          <h6 class="fw-semibold mb-1">
+            <iconify-icon icon="solar:chat-square-code-line-duotone" class="text-primary me-1"></iconify-icon>
+            AI Context
+          </h6>
+          <p class="text-muted small mb-3">
+            This system prompt is automatically injected at the start of every conversation for all users in your company, regardless of the AI engine used.
+          </p>
+
+          <div class="mb-4">
+            <label for="system_prompt" class="form-label">Company System Prompt</label>
+            <textarea class="form-control" id="system_prompt" name="system_prompt" rows="8"
+                      placeholder="Define the general context, tone, restrictions or instructions that all AI engines should follow for your company...">{{ company.system_prompt|default:'' }}</textarea>
+            <div class="form-text">Leave empty to send no company-level context. Department-specific prompts are appended after this one.</div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:info-circle-line-duotone" class="text-primary me-1"></iconify-icon>
+          About Company Context
+        </h6>
+        <p class="text-muted small">
+          The system prompt is sent to every AI engine at the beginning of each conversation, before any user message.
+        </p>
+        <p class="text-muted small">
+          Use it to define your company's:
+        </p>
+        <ul class="text-muted small">
+          <li>Industry and business context</li>
+          <li>Tone and communication style</li>
+          <li>Compliance rules or restrictions</li>
+          <li>Confidentiality instructions</li>
+        </ul>
+        <hr>
+        <h6 class="fw-semibold mb-2">Context priority order</h6>
+        <ol class="text-muted small">
+          <li>Company system prompt <span class="badge bg-primary-subtle text-primary">this page</span></li>
+          <li>Department system prompt <a href="{% url 'front:departments_list' %}" class="small">→ Departments</a></li>
+          <li>Conversation history</li>
+          <li>User message</li>
+        </ol>
+        <hr>
+        <div class="d-flex justify-content-between text-muted small">
+          <span>Created</span>
+          <span>{{ company.created_at|date:"d M Y" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

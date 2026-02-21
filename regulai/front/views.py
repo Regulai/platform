@@ -704,6 +704,41 @@ def user_delete(request, pk):
     return render(request, 'users/delete.html', context)
 
 
+# ==================== COMPANY SETTINGS VIEWS ====================
+
+@admin_required
+def company_settings(request):
+    """View and edit the settings of the admin's company."""
+    company = request.user.profile.company
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        domain = request.POST.get('domain', '').strip() or None
+        system_prompt = request.POST.get('system_prompt', '').strip() or None
+
+        if not name:
+            messages.error(request, 'Company name is required.')
+            return render(request, 'company/settings.html', {'company': company})
+
+        if Company.objects.filter(name=name).exclude(pk=company.pk).exists():
+            messages.error(request, 'A company with this name already exists.')
+            return render(request, 'company/settings.html', {'company': company})
+
+        company.name = name
+        company.domain = domain
+        company.system_prompt = system_prompt
+        company.save()
+
+        log_action(request.user, 'company_settings_edit', {
+            'company': company.name,
+        }, request)
+
+        messages.success(request, 'Company settings updated successfully.')
+        return redirect('front:company_settings')
+
+    return render(request, 'company/settings.html', {'company': company})
+
+
 # ==================== DEPARTMENT MANAGEMENT VIEWS ====================
 
 @admin_required
@@ -729,6 +764,7 @@ def department_create(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         description = request.POST.get('description', '').strip()
+        system_prompt = request.POST.get('system_prompt', '').strip() or None
 
         if not name:
             messages.error(request, 'Department name is required.')
@@ -748,6 +784,7 @@ def department_create(request):
             name=name,
             company=company,
             description=description,
+            system_prompt=system_prompt,
         )
 
         log_action(request.user, 'department_create', {
@@ -770,6 +807,7 @@ def department_edit(request, pk):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         description = request.POST.get('description', '').strip()
+        system_prompt = request.POST.get('system_prompt', '').strip() or None
 
         if not name:
             messages.error(request, 'Department name is required.')
@@ -787,6 +825,7 @@ def department_edit(request, pk):
 
         department.name = name
         department.description = description
+        department.system_prompt = system_prompt
         department.save()
 
         log_action(request.user, 'department_edit', {
@@ -1533,6 +1572,13 @@ def chat_view(request, conversation_id=None):
             try:
                 # Build messages history for context using ChatMessage objects
                 chat_messages = []
+
+                # Inject company and department system prompts
+                if profile.company and profile.company.system_prompt:
+                    chat_messages.append(ChatMessage(role='system', content=profile.company.system_prompt))
+                if profile.department and profile.department.system_prompt:
+                    chat_messages.append(ChatMessage(role='system', content=profile.department.system_prompt))
+
                 for msg in conversation.messages.exclude(id=user_message.id):
                     if msg.role in ['user', 'assistant']:
                         chat_messages.append(ChatMessage(
@@ -2179,6 +2225,13 @@ def chat_send_message(request, conversation_id=None):
         try:
             # Build messages history for context using ChatMessage objects
             chat_messages = []
+
+            # Inject company and department system prompts
+            if profile.company and profile.company.system_prompt:
+                chat_messages.append(ChatMessage(role='system', content=profile.company.system_prompt))
+            if profile.department and profile.department.system_prompt:
+                chat_messages.append(ChatMessage(role='system', content=profile.department.system_prompt))
+
             for msg in conversation.messages.exclude(id=user_message.id):
                 if msg.role in ['user', 'assistant']:
                     chat_messages.append(ChatMessage(

@@ -137,6 +137,12 @@
               <span class="hide-menu">Settings</span>
             </li>
             <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'company_settings' %}active{% endif %}" href="{% url 'front:company_settings' %}" aria-expanded="false">
+                <iconify-icon icon="solar:buildings-2-line-duotone"></iconify-icon>
+                <span class="hide-menu">Company</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
               <a class="sidebar-link {% if request.resolver_match.url_name == 'users_list' or request.resolver_match.url_name == 'user_create' or request.resolver_match.url_name == 'user_edit' or request.resolver_match.url_name == 'user_delete' %}active{% endif %}" href="{% url 'front:users_list' %}" aria-expanded="false">
                 <iconify-icon icon="solar:users-group-rounded-line-duotone"></iconify-icon>
                 <span class="hide-menu">Users</span>

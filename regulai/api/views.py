@@ -492,6 +492,13 @@ def chat_send_message(request):
 
             # Build messages history for context
             chat_messages = []
+
+            # Inject company and department system prompts
+            if profile.company and profile.company.system_prompt:
+                chat_messages.append(ChatMessage(role='system', content=profile.company.system_prompt))
+            if profile.department and profile.department.system_prompt:
+                chat_messages.append(ChatMessage(role='system', content=profile.department.system_prompt))
+
             for msg in conversation.messages.exclude(id=user_message.id):
                 if msg.role in ['user', 'assistant']:
                     chat_messages.append(ChatMessage(

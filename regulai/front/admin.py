@@ -7,6 +7,7 @@ class CompanyAdmin(admin.ModelAdmin):
     list_display = ("name", "domain", "created_at")
     search_fields = ("name", "domain")
     ordering = ("name",)
+    fields = ("name", "domain", "system_prompt")
 
 
 class EngineModelInline(admin.TabularInline):
@@ -78,6 +79,7 @@ class DepartmentAdmin(admin.ModelAdmin):
     list_display = ("name", "company", "created_at")
     list_filter = ("company",)
     search_fields = ("name", "company__name")
+    fields = ("name", "company", "description", "system_prompt")
 
 
 @admin.register(RulesGroup)
