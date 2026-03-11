@@ -23,6 +23,9 @@ local_settings.py
 .env
 .env.*
 
+# Local config
+.claude/
+
 # IDE
 .vscode/
 .idea/
