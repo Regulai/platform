@@ -143,7 +143,7 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = [
             'id', 'conversation', 'role', 'content', 'created_at',
-            'blocked', 'tokens_used', 'file_name', 'file_size'
+            'blocked', 'tokens_used', 'file_name', 'file_size', 'response_file'
         ]
         read_only_fields = ['id', 'created_at']
 

@@ -416,6 +416,15 @@
                     AI Assistant
                   </div>
                   <div class="message-content">{{ msg.content }}</div>
+                  {% if msg.file_name and msg.response_file %}
+                  <div class="file-attachment mt-2">
+                    <iconify-icon icon="solar:file-download-bold"></iconify-icon>
+                    <a href="{% url 'front:chat_download_file' msg.id %}" download="{{ msg.file_name }}" class="ms-1">{{ msg.file_name }}</a>
+                    {% if msg.file_size %}
+                    <span class="opacity-75 ms-1">({{ msg.file_size|filesizeformat }})</span>
+                    {% endif %}
+                  </div>
+                  {% endif %}
                 </div>
               {% elif msg.role == 'system' %}
                 <div class="chat-bubble system">
@@ -761,7 +770,8 @@
 
         // Add assistant response
         if (data.assistant_message) {
-          const assistantBubble = createAssistantBubble(data.assistant_message.content);
+          const am = data.assistant_message;
+          const assistantBubble = createAssistantBubble(am.content, am.file_name || null, am.file_size || null, am.file_url || null);
           chatContainer.appendChild(assistantBubble);
         }
 
@@ -846,17 +856,32 @@
     return bubble;
   }
 
-  function createAssistantBubble(content) {
+  function createAssistantBubble(content, fileName = null, fileSize = null, fileUrl = null) {
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble assistant';
+    let fileHtml = '';
+    if (fileName && fileUrl) {
+      const sizeText = fileSize ? ` <span class="opacity-75">(${formatFileSize(fileSize)})</span>` : '';
+      fileHtml = `
+        <div class="file-attachment mt-2">
+          <iconify-icon icon="solar:file-download-bold"></iconify-icon>
+          <a href="${escapeHtml(fileUrl)}" download="${escapeHtml(fileName)}" class="ms-1">${escapeHtml(fileName)}</a>${sizeText}
+        </div>`;
+    }
     bubble.innerHTML = `
       <div class="message-role text-primary">
         <iconify-icon icon="solar:atom-bold"></iconify-icon>
         AI Assistant
       </div>
-      <div class="message-content">${escapeHtml(content)}</div>
+      <div class="message-content">${escapeHtml(content)}</div>${fileHtml}
     `;
     return bubble;
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
   function createSystemBubble(content) {
@@ -1127,7 +1152,8 @@
         }
 
         if (data.assistant_message) {
-          const assistantBubble = createAssistantBubble(data.assistant_message.content);
+          const am = data.assistant_message;
+          const assistantBubble = createAssistantBubble(am.content, am.file_name || null, am.file_size || null, am.file_url || null);
           chatContainer.appendChild(assistantBubble);
         }
 

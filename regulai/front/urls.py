@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     home_view, login_view, logout_view, signup_view, profile_view,
-    chat_view, chat_new, chat_delete, chat_send_message, chat_select_engine, chat_select_model, dashboard_view,
+    chat_view, chat_new, chat_delete, chat_send_message, chat_download_file, chat_select_engine, chat_select_model, dashboard_view,
     rulesgroups_list, rulesgroup_detail, rulesgroup_create, rulesgroup_edit, rulesgroup_delete,
     rulesgroup_activate_all, rulesgroup_deactivate_all,
     rules_list, rule_detail, rule_create, rule_edit, rule_delete, rule_toggle,
@@ -40,6 +40,7 @@ urlpatterns = [
     path("chat/<int:conversation_id>/send/", chat_send_message, name="chat_send_conversation"),
     path("chat/<int:conversation_id>/", chat_view, name="chat_conversation"),
     path("chat/<int:conversation_id>/delete/", chat_delete, name="chat_delete"),
+    path("chat/download/<int:message_id>/", chat_download_file, name="chat_download_file"),
 
     # Rules Groups
     path("rules/groups/", rulesgroups_list, name="rulesgroups_list"),

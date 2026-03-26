@@ -528,6 +528,20 @@ def chat_send_message(request):
                 tokens_used=ai_response.tokens_used
             )
 
+            # Detect and save structured file content from the response
+            from front.views import extract_file_from_ai_response
+            from django.core.files.base import ContentFile
+            file_info = extract_file_from_ai_response(ai_response.content)
+            file_url = None
+            if file_info:
+                file_bytes, gen_file_name, mime_type = file_info
+                assistant_message.file_name = gen_file_name
+                assistant_message.file_size = len(file_bytes)
+                assistant_message.response_file.save(gen_file_name, ContentFile(file_bytes), save=True)
+                file_url = request.build_absolute_uri(
+                    f'/chat/download/{assistant_message.id}/'
+                )
+
             # Save Response object for tracking
             ResponseModel.objects.create(
                 prompt=prompt_obj,
@@ -535,7 +549,9 @@ def chat_send_message(request):
                 tokens_used=ai_response.tokens_used
             )
 
-            response_data['assistant_message'] = MessageSerializer(assistant_message).data
+            assistant_data = MessageSerializer(assistant_message).data
+            assistant_data['file_url'] = file_url
+            response_data['assistant_message'] = assistant_data
 
             log_action(user, 'api_response_received', {
                 'prompt_id': prompt_obj.id,

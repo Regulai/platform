@@ -175,9 +175,10 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     blocked = models.BooleanField(default=False)
     tokens_used = models.IntegerField(default=0)
-    # File attachment fields
+    # File attachment fields (user uploads and AI-generated files)
     file_name = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.IntegerField(default=0)
+    response_file = models.FileField(upload_to='chat_responses/', null=True, blank=True)
 
     class Meta:
         ordering = ['created_at']
