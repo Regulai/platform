@@ -1,8 +1,0 @@
-[phases.setup]
-aptPkgs = ["tesseract-ocr"]
-
-[phases.install]
-cmds = ["pip install -r regulai/requirements.txt"]
-
-[start]
-cmd = "cd regulai && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn regulai.wsgi:application --bind 0.0.0.0:$PORT --workers 2"
