@@ -1,0 +1,11 @@
+[build]
+builder = "NIXPACKS"
+
+[build.nixpacks]
+aptPkgs = ["tesseract-ocr"]
+
+[deploy]
+startCommand = "cd regulai && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn regulai.wsgi:application --bind 0.0.0.0:$PORT --workers 2"
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

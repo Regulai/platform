@@ -10,10 +10,23 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in
+    os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.up.railway.app').split(',')
+]
 
 # Application definition
 
@@ -33,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,6 +141,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Media files (Uploaded files)
 MEDIA_URL = '/media/'
@@ -147,7 +166,6 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # rwxr-xr-x
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # OpenAI API Configuration
-import os
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
 # Authentication
@@ -189,6 +207,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8000",
+] + [
+    origin.strip() for origin in
+    os.environ.get('CORS_EXTRA_ORIGINS', '').split(',') if origin.strip()
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -196,16 +217,18 @@ CORS_ALLOW_CREDENTIALS = True
 # Registration
 ALLOW_REGISTRATION = True  # Set to False to disable public registration
 
-# SECURITY FLAGS
-#SECURE_SSL_REDIRECT = True
-#SESSION_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE = True
-#SECURE_HSTS_SECONDS = 31536000
-#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#SECURE_HSTS_PRELOAD = True
-#SECURE_CONTENT_TYPE_NOSNIFF = True
-#SECURE_BROWSER_XSS_FILTER = True
-#X_FRAME_OPTIONS = 'DENY'
+# SECURITY FLAGS (enabled when not in DEBUG mode)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 try:
     from .local_settings import *
