@@ -174,9 +174,7 @@ LOGIN_REDIRECT_URL = 'front:dashboard'
 LOGOUT_REDIRECT_URL = 'front:login'
 
 # Registration
-ALLOW_REGISTRATION = True  # Set to False to disable public registration
-
-# Django REST Framework Configuration
+ALLOW_REGISTRATION = os.environ.get('ALLOW_REGISTRATION', 'True').lower() in ('true', '1', 'yes')
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -213,9 +211,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
-# Registration
-ALLOW_REGISTRATION = True  # Set to False to disable public registration
 
 # SECURITY FLAGS (enabled when not in DEBUG mode)
 if not DEBUG:
