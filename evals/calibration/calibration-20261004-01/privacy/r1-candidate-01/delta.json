@@ -1,0 +1,101 @@
+[
+  {
+    "id": "id_spaces",
+    "before": [
+      "DNI: 12 345 678-Z. Plazo: 19 días."
+    ],
+    "after": [
+      "DNI: [[REGULAI_ID]]. Plazo: 19 días."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "id_nie_spaces",
+    "before": [
+      "NIE: X 1 234 567-L. Total: 46 EUR."
+    ],
+    "after": [
+      "NIE: [[REGULAI_ID]]. Total: 46 EUR."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "id_dots",
+    "before": [
+      "DNI: 12.345.678-Z. Total: 46 EUR."
+    ],
+    "after": [
+      "DNI: [[REGULAI_ID]]. Total: 46 EUR."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "id_zero_width",
+    "before": [
+      "DNI: 1234​5678Z. Plazo: 19 días."
+    ],
+    "after": [
+      "DNI: [[REGULAI_ID]]. Plazo: 19 días."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "id_nbsp",
+    "before": [
+      "DNI: 12 345 678-Z. Total: 46 EUR."
+    ],
+    "after": [
+      "DNI: [[REGULAI_ID]]. Total: 46 EUR."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "email_fullwidth",
+    "before": [
+      "Correo: ana＠example．test. Plazo: 19 días."
+    ],
+    "after": [
+      "Correo: [[REGULAI_EMAIL]]. Plazo: 19 días."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "email_zero_width",
+    "before": [
+      "Correo: ana@exam​ple.test. Total: 46 EUR."
+    ],
+    "after": [
+      "Correo: [[REGULAI_EMAIL]]. Total: 46 EUR."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "PII-03",
+    "before": [
+      "Registro sintético. DNI: 00 000 000-T. Importe: 250,00 EUR. [[REGULAI_PERSON]] el importe."
+    ],
+    "after": [
+      "Registro sintético. DNI: [[REGULAI_ID]]. Importe: 250,00 EUR. [[REGULAI_PERSON]] el importe."
+    ],
+    "before_success": false,
+    "after_success": true
+  },
+  {
+    "id": "PII-04",
+    "before": [
+      "Registro sintético. DNI A: ００００００００Ｔ. DNI B: 0000​0000T. [[REGULAI_LOCATION]] el registro sin identificadores."
+    ],
+    "after": [
+      "Registro sintético. DNI A: [[REGULAI_ID]]. DNI B: [[REGULAI_ID]]. [[REGULAI_LOCATION]] el registro sin identificadores."
+    ],
+    "before_success": false,
+    "after_success": true
+  }
+]

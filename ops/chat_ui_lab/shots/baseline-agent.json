@@ -1,0 +1,8 @@
+[
+ {"name": "desktop-10-agent-completed", "user": "lab-user", "path": "/chat/9/", "width": 1440, "height": 900, "settle": 2500},
+ {"name": "desktop-11-agent-completed-full", "user": "lab-user", "path": "/chat/9/", "width": 1440, "height": 900, "settle": 2500, "full": true},
+ {"name": "desktop-12-agent-visual-review", "user": "lab-user", "path": "/chat/10/", "width": 1440, "height": 900, "settle": 2500},
+ {"name": "desktop-12b-agent-visual-review-full", "user": "lab-user", "path": "/chat/10/", "width": 1440, "height": 900, "settle": 2500, "full": true},
+ {"name": "mobile-04-agent-completed", "user": "lab-user", "path": "/chat/9/", "width": 390, "height": 844, "settle": 2500},
+ {"name": "mobile-05-agent-completed-full", "user": "lab-user", "path": "/chat/9/", "width": 390, "height": 844, "settle": 2500, "full": true}
+]

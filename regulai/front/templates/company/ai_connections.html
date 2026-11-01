@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Conexiones IA{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-10">
+    <div class="mb-4">
+      <h1 class="h3 fw-semibold">Conexiones IA</h1>
+      <p class="text-muted mb-0">Configura la IA de <strong>{{ company.name }}</strong>. Las claves se comparten solo con los usuarios de esta cuenta de empresa.</p>
+    </div>
+    {% for message in messages %}<div class="alert alert-{{ message.tags }}" role="status">{{ message }}</div>{% endfor %}
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold">1. Una clave propia por servicio</h2>
+        <p class="text-muted">Claude, Gemini, Mistral, OpenAI y DeepSeek se conectan directamente con su clave API. Solo Jev utiliza una clave de Vercel AI Gateway.</p>
+        <form method="post" autocomplete="off">
+          {% csrf_token %}
+          {% for error in form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endfor %}
+          {% for service in services %}
+          <div class="border rounded p-3 mb-3">
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
+              <label class="form-label fw-semibold mb-0" for="{{ service.field.id_for_label }}">{{ service.label }}</label>
+              <span class="badge {% if service.active %}bg-success-subtle text-success{% else %}bg-light text-dark{% endif %}">{% if service.configured %}Clave guardada{% if not service.active %} · Inactiva{% endif %}{% else %}Sin clave{% endif %}</span>
+            </div>
+            {{ service.field }}
+            {% for error in service.field.errors %}<div class="text-danger mt-1" role="alert">{{ error }}</div>{% endfor %}
+            <div class="form-text">{% if service.via_gateway %}Clave de Vercel, usada exclusivamente para TypeSafe Jev.{% else %}Clave del proveedor, sin pasar por Vercel.{% endif %}
+              <a href="{{ service.key_url }}" target="_blank" rel="noopener noreferrer">Obtener clave</a>
+            </div>
+          </div>
+          {% endfor %}
+          <p class="text-muted small">Configura solo los servicios que quieras usar. Los campos vacíos conservan sus claves. Se guardan cifradas y nunca se muestran al volver a abrir esta página.</p>
+          <button class="btn btn-primary" name="action" value="save" type="submit">Guardar claves</button>
+          <p class="text-muted small mt-3 mb-0">Guardar no consume créditos ni verifica acceso. Jev analiza y verifica; los otros servicios generan respuestas.</p>
+        </form>
+      </div>
+    </div>
+    <div class="card"><div class="card-body">
+      <h2 class="h5 fw-semibold">2. Activar el chat básico</h2>
+      {% if company.ai_config %}
+      <p>Esta cuenta ya tiene una política guardada. Puedes <a href="{% url 'front:chat' %}">abrir el chat</a> o <a href="{% url 'front:policy_simulator' %}">revisar la política</a> si aparece un bloqueo.</p>
+      {% elif setup.token %}
+      <p>Revisa lo que se activará para todos los usuarios de esta cuenta:</p>
+      <ul>
+        <li>Proveedores autorizados: <strong>{{ setup.services|join:", " }}</strong>. Selección manual, sin cambiar automáticamente de proveedor.</li>
+        <li>Enmascarado local de datos personales y secretos antes de salir. Bloqueo de patrones de credenciales y claves privadas.</li>
+        <li>Chat de texto para información pública o interna. Los textos se tratarán como internos; no hay clasificación semántica de confidencialidad. No introduzcas información confidencial.</li>
+        <li>Hasta 1.000 tokens de respuesta. Sin límite monetario configurado: cada proveedor factura su uso y el coste puede figurar como desconocido.</li>
+        <li>Jev y los documentos requieren configuración avanzada. Esta activación no los autoriza.</li>
+      </ul>
+      <p class="small text-muted">La detección local puede omitir datos sensibles. Se conservan las reglas existentes. Activar no realiza llamadas externas.</p>
+      <form method="post">{% csrf_token %}
+        <input type="hidden" name="review_token" value="{{ setup.token }}">
+        <button class="btn btn-primary" name="action" value="activate_basic" type="submit">Activar chat básico</button>
+      </form>
+      {% else %}
+      <p class="alert alert-info">{{ setup.reason }}</p>
+      {% endif %}
+      <p class="text-muted small mt-3 mb-0"><a href="{% url 'front:policy_simulator' %}">Configuración avanzada de la política</a>. Las suscripciones de las aplicaciones de chat no sustituyen las claves de sus API.</p>
+      {% if has_keys %}
+      <details class="mt-4">
+        <summary class="text-danger">Eliminar las claves de estas conexiones</summary>
+        <p class="small mt-2">Se desactivarán las conexiones de esta pantalla. Se conservan las conversaciones, la política y otras conexiones configuradas anteriormente.</p>
+        <form method="post">{% csrf_token %}<button class="btn btn-outline-danger" name="action" value="remove" type="submit">Eliminar estas claves</button></form>
+      </details>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+Creating test database for alias 'default'...
+
+{"timestamp": "2026-10-13T17:36:08.795511+00:00", "level": "INFO", "logger": "front.migrations.0016_encrypt_api_keys", "request_id": null, "code": "unclassified_event", "exception_type": null}
+.{"timestamp": "2026-10-13T17:36:13.052179+00:00", "level": "ERROR", "logger": "django.request", "request_id": "c7aca90c-fbcc-4a6e-bd31-a9997b5aad0b", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-13T17:36:14.165231+00:00", "level": "ERROR", "logger": "django.request", "request_id": "171ddcf7-7810-445c-9bcd-b8eaa0dd940f", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-13T17:36:15.283769+00:00", "level": "ERROR", "logger": "django.request", "request_id": "45543049-10ba-48f1-a70b-daf7dbf7fb2c", "code": "unclassified_event", "exception_type": null}
+.........{"timestamp": "2026-10-13T17:36:15.987313+00:00", "level": "WARNING", "logger": "django.request", "request_id": "33725994-777c-4b37-9c3f-4b009a1b58f9", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-13T17:36:16.003323+00:00", "level": "WARNING", "logger": "django.request", "request_id": "a48a9fba-f94f-4e9a-9beb-658a71ba4b95", "code": "unclassified_event", "exception_type": null}
+.{"timestamp": "2026-10-13T17:36:16.027712+00:00", "level": "WARNING", "logger": "django.request", "request_id": "1b67425b-7ba3-4b0b-8605-fe381c990a22", "code": "unclassified_event", "exception_type": null}
+.{"timestamp": "2026-10-13T17:36:16.053800+00:00", "level": "WARNING", "logger": "django.request", "request_id": "940c0bfb-5197-4bbe-9e15-1cfd6f5fea22", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-13T17:36:16.062221+00:00", "level": "WARNING", "logger": "django.request", "request_id": "760b1f3e-c4a7-46dc-a10f-d2e3f9e4a0a3", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-13T17:36:16.075410+00:00", "level": "WARNING", "logger": "django.request", "request_id": "c1d55197-375d-4e7d-86b8-8072d052f045", "code": "unclassified_event", "exception_type": null}
+.............
+----------------------------------------------------------------------
+Ran 25 tests in 6.504s
+
+OK
+Destroying test database for alias 'default'...
+
+Found 25 test(s).
+System check identified no issues (0 silenced).

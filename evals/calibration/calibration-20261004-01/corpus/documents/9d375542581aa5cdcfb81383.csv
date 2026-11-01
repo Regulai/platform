@@ -1,0 +1,9 @@
+sección;contenido
+0;Ficha pública sintética de almacén.
+1;Actividad principal: entrada.
+2;Registro auxiliar 0: la actividad de salida corresponde al turno 0; la anotación no modifica la tarifa ni el plazo.
+3;Registro auxiliar 1: la actividad de salida corresponde al turno 1; la anotación no modifica la tarifa ni el plazo.
+4;Registro auxiliar 2: la actividad de salida corresponde al turno 2; la anotación no modifica la tarifa ni el plazo.
+5;Registro auxiliar 3: la actividad de salida corresponde al turno 3; la anotación no modifica la tarifa ni el plazo.
+6;Registro auxiliar 4: la actividad de salida corresponde al turno 4; la anotación no modifica la tarifa ni el plazo.
+7;Condición final: la tarifa es 137 EUR y el plazo es 30 días.

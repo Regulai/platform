@@ -1,0 +1,13 @@
+.dependencies/
+sources/llmail/data/
+sources/gretel/data/
+sources/gsm8k/grade_school_math/data/
+sources/pint/benchmark/data/
+__pycache__/
+.preview/
+.preview2/
+.candidate/
+.reproduction/
+.regrouped/
+.regrouped2/
+.regrouped3/

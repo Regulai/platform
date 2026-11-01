@@ -1,9 +1,11 @@
 # Git
 .git
 .gitignore
+.claude
 
 # Python
 __pycache__
+**/__pycache__
 *.py[cod]
 *$py.class
 *.so
@@ -13,6 +15,7 @@ __pycache__
 env/
 venv/
 ENV/
+**/.env*
 
 # IDE
 .idea
@@ -20,30 +23,33 @@ ENV/
 *.swp
 *.swo
 
-# Database (will be created fresh in container)
+# Database
 *.sqlite3
+**/*.sqlite3
 db.sqlite3
 
-# Local settings (will be created from template)
+# Local settings
 regulai/regulai/local_settings.py
+**/local_settings.py
 local_config/
+**/*private*.json
 
-# Static files (will be collected in container)
+# Static/Media files
 regulai/staticfiles/
-
-# Media files (will be mounted as volume)
+**/staticfiles
 regulai/media/
+**/media
 
 # Documentation
-*.md
-!README.md
 docs/
 
-# Tests
+# Tests/Evals
 tests/
 *.test.py
 .pytest_cache/
 .coverage
+evals
+output
 
 # Build artifacts
 *.egg-info/
@@ -54,3 +60,6 @@ build/
 Dockerfile*
 docker-compose*
 .docker/
+
+# Large files
+*.pdf

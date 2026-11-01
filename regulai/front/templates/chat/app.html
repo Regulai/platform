@@ -1,0 +1,23 @@
+{% load static chat_app %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>{% if conversation_title %}{{ conversation_title }}{% else %}Chat{% endif %} · regulAI</title>
+  <link rel="icon" type="image/png" href="{% static 'images/logos/favicon.png' %}">
+  {% chat_app_assets %}
+</head>
+{% comment %}
+React island: one root, one owner. Django renders only this frame and the public
+bootstrap; the island never reads HTML back to rebuild state. Portals (menus,
+dialogs, popovers) render into #regulai-chat-portal, inside the same token scope.
+{% endcomment %}
+<body class="regulai-chat">
+  <div id="regulai-chat-root" class="rg-root">
+    <noscript><p class="rg-noscript">El chat necesita JavaScript. Actívalo y vuelve a cargar la página.</p></noscript>
+  </div>
+  <div id="regulai-chat-portal"></div>
+  {{ bootstrap|json_script:"regulai-chat-bootstrap" }}
+</body>
+</html>

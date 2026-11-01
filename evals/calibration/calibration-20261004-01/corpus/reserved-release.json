@@ -1,0 +1,22 @@
+{
+  "status": "released_once_for_final_comparison",
+  "corpus_manifest_sha256": "9d9b0951e754cb544032e6743d736bd1dfc8696066a977652b596a61520b0e50",
+  "final_selection_sha256": "a33dad5bcb906f0bf26b55dfab04aa90be2f299faa4780216f157c68282d72a5",
+  "candidate_commit": "b3fea6a63761c06ef66695fee26377d23786c347",
+  "candidate_configuration_sha256": "d8038364b6c01aec5159c73d7f938d4dd4c1c2be5db131ceb8df884eb715d5da",
+  "custodian": "A",
+  "custodian_released_at": "2026-10-04T08:35:56.737372+00:00",
+  "scope": {
+    "phase": "final_local_comparison",
+    "partition": "reserved",
+    "cases_per_comparator": 571,
+    "comparators": [
+      "baseline",
+      "privacy-v5-legacy-policy"
+    ],
+    "http_cases_per_comparator": 20,
+    "sampling_seed": 20261004,
+    "new_provider_calls_permitted": false,
+    "post_holdout_tuning_permitted": false
+  }
+}

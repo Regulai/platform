@@ -5,7 +5,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-BSL-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Django-5.2-green.svg" alt="Django">
-  <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/Runtime-Python%203.12-blue.svg" alt="Runtime Python 3.12">
 </p>
 
 <p align="center">
@@ -34,77 +34,78 @@ Organizations face critical risks when employees use AI tools — confidential d
 ## How It Works
 
 ```
-User sends prompt ──▶ YARA Validation ──▶ Approved? ──▶ AI Provider
-                                              │
-                                              ▼ Blocked
-                                        Alert + Audit Log
+User input → YARA on original → Policy / consent → Required masking → Authorized provider
+                     Any mandatory denial or failed check → Stop + decision record
 ```
 
 1. User sends a prompt via the chat interface or API
 2. YARA rules engine analyzes the content against all active security rules
-3. Approved prompts are sent to the AI provider — blocked prompts generate alerts
-4. All interactions are logged for compliance and analysis
+3. Authorized content passes through mandatory masking before classification, generation or judging; failures stop the request
+4. Decision records preserve destinations, status, verification and known or uncertain costs; operational logs omit message bodies and credentials
 
 ## Features
 
 **YARA Rules Engine** — Define custom patterns to detect credit cards, API keys, personal information, and confidential markers. Organize rules into groups with severity levels.
 
-**Real-Time Blocking** — Intercept and block prompts containing confidential content before they reach external AI providers.
+**Policy Enforcement** — Apply configured blocking, consent and destination rules before content reaches an external AI provider. Classification and detection can miss sensitive content; these controls do not guarantee anonymity or regulatory compliance.
 
 **Multi-Provider AI** — Connect OpenAI, Anthropic Claude, DeepSeek, or any OpenAI-compatible endpoint. Each company configures their own API keys and models.
 
-**Complete Audit Trail** — Detailed logging of all interactions: who, what, when, and from where. Investigate and resolve security incidents from the dashboard.
+**Decision Records** — Review request status, policy decisions, provider calls and recorded costs from the dashboard. Operational logs omit message bodies and credentials; access to stored conversations is separately authorized.
 
-**File Scanning** — Analyze uploaded documents (PDF, Word, Excel, images) for sensitive content using the same rule engine.
+**File Scanning** — Analyze bounded text, textual PDF, DOCX, XLSX and CSV documents. Coverage checks stop incomplete extraction; images and legacy XLS require a readable supported document.
 
 **Multi-Tenant Architecture** — Independent data isolation per organization with separate rules, users, and configurations.
 
+**Professional Agent** — Execute authorized document and data tasks in private E2B microVMs. The Django service controls tool access, outbound data and inference. The worker requires a separate SDK/runtime installation, an enabled profile and an explicit account grant.
+
 ## Quick Start
 
-```bash
-git clone https://github.com/framirez/regulai.git
-cd regulai
+The local agent installer requires Linux x86-64 Docker with nested KVM and a
+Python 3.11+ host launcher. Application and worker containers use Python 3.12.
+See [INSTALL.md](INSTALL.md) for hardware requirements and the full procedure.
 
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+**This is an import-based installer, not a public first-account setup wizard.**
+It requires an operator-provided `regulai-private.json` exported from an existing,
+configured installation. The repository contains no private profile, provider
+credentials or ready-to-use account export. Without that profile, `install`
+stops; cloning this repository alone does not create a working agent account.
 
-pip install -r requirements.txt
-cd regulai
+If you already have an authorized private profile, keep it outside the checkout
+and run:
 
-# Copy and edit local settings before running
-cp regulai/local_settings_template.py regulai/local_settings.py
-# Edit regulai/local_settings.py — update values marked with #CHANGE:
-
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+```powershell
+.\setup.cmd install --private-profile "C:\private\regulai-private.json"
 ```
 
-Open [localhost:8000](http://localhost:8000) and log in with your superuser credentials.
+On Linux: `sh setup.sh install --private-profile /private/regulai-private.json`.
+When the installer prints `READY`, open <http://127.0.0.1:8800/login/>. A new
+import initializes the `admin` password to `admin`; change it before use and
+keep this development installation on loopback. Existing passwords are preserved
+on restart. Run `python setup.py start` to start it again and `python setup.py stop`
+to stop it while retaining data. Generation uses the configured provider and can
+incur API charges; readiness checks make no model calls.
+
+For source review without a private profile or Docker, run
+`python -m unittest ops.setup.test_installer ops.setup.test_chat_bundle`.
+The [development and offline demo guide](docs/plan-blackhat/arranque-y-demo.md)
+documents the separate Django development setup and explicitly simulated demo.
+The demo does not validate a live provider or the professional execution runtime.
 
 <details>
 <summary><strong>Initial Configuration</strong></summary>
 
-1. Access the admin panel at [localhost:8000/admin](http://localhost:8000/admin)
-2. Create a **Company** for your organization
-3. Add an **AI Engine** (OpenAI, Anthropic, or custom)
-4. Link the engine to your company with an **API key**
-5. Create **YARA rule groups** and add detection patterns
-6. Create user profiles and assign roles
+For Django development configuration, follow the [startup and configuration guide](docs/plan-blackhat/arranque-y-demo.md). It preserves existing settings and encryption keys. Global catalogue/Django admin access requires an active staff superuser whose ID is explicitly listed in `PLATFORM_ADMIN_USER_IDS`; company administrators retain company-scoped access. Configure an owned provider, active model metadata, rules and an explicit AI policy before sending. The [example policy](docs/plan-blackhat/ai-config-example.json) starts with no outbound permission and contains no secrets.
 
 </details>
 
 <details>
-<summary><strong>Environment Variables</strong></summary>
+<summary><strong>Configuración del instalador</strong></summary>
 
-Create a `.env` file in the project root:
-
-```env
-SECRET_KEY=your-secret-key-here
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-OPENAI_API_KEY=sk-your-openai-key
-```
+El instalador genera su configuración privada dentro de la VM y cifra las
+conexiones importadas con una clave nueva. No requiere crear un `.env` ni editar
+`local_settings.py`. Consulta [INSTALL.md](INSTALL.md) para arrancar, detener y
+comprobar la instalación.
 
 </details>
 
@@ -129,15 +130,15 @@ rule CreditCardNumber {
   <img src="https://regulai.a0.digital/img/screenshot-rules.PNG" width="700" alt="YARA Rules Management">
 </p>
 
-**Content Filtering** — Prompts are validated against all active rules before submission. Matches generate alerts and block the request.
+**Content Filtering** — Applicable active rules are evaluated before submission. The configured rule action determines whether a match blocks the request, requires confirmation or records an alert.
 
 <p align="center">
   <img src="https://regulai.a0.digital/img/screenshot-alerts.PNG" width="700" alt="Security Alerts Dashboard">
 </p>
 
-**Obfuscation** — Rules with `obfuscate="true"` metadata automatically redact matched content, replacing sensitive data before sending to the AI provider.
+**Integrated local masking** — CPU detection and irreversible replacement run inside Django, with no masking API call. HTTP masking remains available for existing configurations. Every backend requires company authorization and fails closed on errors. Detection is fallible; see [scope, configuration and observed omissions](docs/plan-blackhat/enmascarado-local.md). The agent also has conversation-scoped encrypted aliases with restricted local document resolution. General restoration of originals in the chat is described in a [proposal](docs/plan-blackhat/plan-tokenizacion-reversible-20261017.md), not delivered as a complete feature in this checkout. An alias alone cannot be used to calculate with its hidden original.
 
-**File Scanning** — Uploaded documents (PDF, DOCX, XLSX, images) are scanned for sensitive content using the same rule engine.
+**File Scanning** — Extracted text from supported PDF, DOCX, XLSX, CSV and text files is checked by the shared policy engine, with explicit extraction coverage.
 
 ## Chat Interface
 
@@ -145,34 +146,35 @@ rule CreditCardNumber {
   <img src="https://regulai.a0.digital/img/screenshot-chat.PNG" width="700" alt="Secure AI Chat">
 </p>
 
-Modern chat UI with file uploads, vision-capable models, conversation history, and on-the-fly model switching.
+The chat uses a React/TypeScript island served by Django, with bounded document uploads, authorized conversation history, explicit confirmations, decision receipts and model selection. The remaining management pages use Django templates. Committed chat assets are included in the installer; frontend changes must be rebuilt from `frontend/chat` using its pinned Node/npm versions and lockfile.
 
-- Attach images, PDFs, Word documents, and Excel files
-- Send images to vision models for analysis
+- Attach supported text, PDF, DOCX, CSV and XLSX documents
+- Inspect coverage and retained citations; agent file continuity depends on authorized retained artifacts and runtime availability
 - Switch between AI models within a conversation
 - Persistent chat history with easy navigation
 
 ## Multi-Provider Support
 
-| Provider | Models | Connector |
+| Provider | Model configuration | Connector |
 |----------|--------|-----------|
-| OpenAI | GPT-4o, GPT-4o-mini, GPT-3.5-turbo | OpenAI SDK |
-| Anthropic | Claude Sonnet 4, Claude 3.5 Haiku, Claude 3 Opus | Anthropic SDK |
-| DeepSeek, Groq, local LLMs | Any compatible model | OpenAI-compatible |
+| OpenAI | Operator-selected model IDs and capabilities | OpenAI SDK |
+| Anthropic | Operator-selected Claude model IDs and capabilities | Anthropic SDK |
+| DeepSeek, Groq, local LLMs | Models supported by the configured endpoint | OpenAI-compatible |
 
 Each company configures their own engines with their own API keys. Models are managed per engine.
 
 ## REST API
 
-Complete REST API with token authentication for programmatic access.
+REST API with token authentication for programmatic access. Examples use the local installer's port, `8800`; use your server's actual address for another deployment.
 
 ```bash
 # Authenticate
-curl -X POST http://localhost:8000/api/token/ \
+curl -X POST http://127.0.0.1:8800/api/auth/login/ \
+  -H "Content-Type: application/json" \
   -d '{"username": "user", "password": "pass"}'
 
 # List conversations
-curl http://localhost:8000/api/conversations/ \
+curl http://127.0.0.1:8800/api/conversations/ \
   -H "Authorization: Token YOUR_TOKEN"
 ```
 
@@ -186,18 +188,20 @@ curl http://localhost:8000/api/conversations/ \
 - `/api/rules/` — Individual YARA rules
 - `/api/alerts/` — Security alerts
 - `/api/audit-logs/` — Audit trail
-- `/api/prompts/` — Prompt history
-- `/api/users/` — User management
+- `/api/profiles/` — Company-scoped user profiles
+- `/api/chat/send/` — Shared authorized chat workflow
 
 </details>
 
+Chat requests include a stable UUID `request_id` and `content`, with owned `engine_id`/`model_id` when choosing a manual route. Reuse the same UUID and unchanged content/file when retrying or confirming. A pending confirmation returns a signed `consent_token`; a Boolean confirmation flag cannot authorize a send. See [the shared-flow contract](docs/plan-blackhat/03-flujo-unico-web-api.md).
+
 ## Tech Stack
 
-[Django](https://djangoproject.com) · [Django REST Framework](https://django-rest-framework.org) · [YARA](https://virustotal.github.io/yara/) · [OpenAI SDK](https://github.com/openai/openai-python) · [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-python) · [Bootstrap 5](https://getbootstrap.com)
+[Django](https://djangoproject.com) · [Django REST Framework](https://django-rest-framework.org) · [YARA](https://virustotal.github.io/yara/) · React/TypeScript · PostgreSQL · Deep Agents · private E2B microVMs · [OpenAI SDK](https://github.com/openai/openai-python) · [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-python) · [Bootstrap 5](https://getbootstrap.com)
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [the project workflow](AGENTS.md) and [local tasks](docs/agents/issue-tracker.md) for contribution guidance.
 
 ## License
 

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Skills{% endblock %}
+{% block body_attributes %} class="rg-page rg-skills-page"{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=p1-skills-ux-1">{% endblock %}
+{% block shell %}
+<nav class="rg-skills-nav" aria-label="Principal"><a href="{% url 'front:chat' %}">regulAI</a><a href="{% url 'front:chat' %}" data-skill-return>Volver al chat</a><a href="{% url 'front:skills_library' %}" aria-current="page">Skills</a></nav>
+<main class="rg-skills-main" id="skillsLibrary">
+  <header class="rg-skills-heading"><div><h1>Skills</h1><p>El agente puede cargar las skills que necesite. También puedes elegir una desde el chat.</p></div><button type="button" class="rg-btn" id="skillImportOpen">Importar GitHub o ZIP</button></header>
+  <div class="rg-skills-filters">
+    <label class="rg-skill-search">Buscar<input type="search" id="skillSearch" placeholder="Nombre, tarea u origen" autocomplete="off"></label>
+    <label>Categoría<select id="skillCategory"><option value="">Todas</option><option>Diseño</option><option>Revisión</option><option>Documentos</option><option>Cálculo</option></select></label>
+    <label>Requisitos<select id="skillAvailability"><option value="">Todos</option><option value="ready">Cumplidos</option><option value="requirements">Pendientes</option></select></label>
+  </div>
+  <div class="rg-skills-tabs" role="tablist" aria-label="Biblioteca"><button type="button" role="tab" aria-selected="true" aria-controls="skillResults" id="skillsAvailable" data-skill-tab="available">Disponibles</button><button type="button" role="tab" aria-selected="false" aria-controls="skillResults" tabindex="-1" id="skillsInstalled" data-skill-tab="installed">Instaladas</button></div>
+  <div id="skillStatus" role="status" aria-live="polite"></div>
+  <p id="skillRuntimeStatus"{% if skills_data.runtime_enabled %} hidden{% endif %}>La ejecución de skills está desactivada. Puedes instalar y gestionar paquetes; se conservan tus instalaciones.</p>
+  <section id="skillResults" role="tabpanel" aria-labelledby="skillsAvailable" tabindex="0"><div class="rg-skills-grid" id="skillGrid"></div>
+  <div class="rg-skills-empty" id="skillEmpty" hidden><h2>Sin resultados</h2><p id="skillEmptyText">Prueba con otro nombre o ajusta los filtros.</p><button type="button" class="rg-btn" id="skillClear">Ver disponibles</button></div>
+  </section>
+</main>
+<dialog class="rg-skill-dialog" id="skillImport" aria-labelledby="skillImportTitle">
+  <form id="skillImportForm">{% csrf_token %}<header><h2 id="skillImportTitle">Importar una skill</h2><button type="button" class="rg-btn" data-close-dialog aria-label="Cerrar importación">Cerrar</button></header>
+  <p>Elige una carpeta pública de GitHub o un ZIP. Conservamos instrucciones, recursos y licencia; los requisitos se comprueban antes de usarla.</p>
+  <label>Carpeta en GitHub<input name="url" type="url" placeholder="https://github.com/autor/repo/tree/revisión/skill" autocomplete="off"></label>
+  <label>O paquete ZIP<input name="file" type="file" accept=".zip,application/zip"></label>
+  <label>Alias (opcional)<input name="alias" maxlength="64" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="nombre-de-la-skill"></label>
+  <label id="skillFolderLabel" hidden>Carpeta<select name="subpath" id="skillFolder"></select></label>
+  <div id="skillImportReview" class="rg-skill-review" hidden></div><p id="skillImportStatus" role="status" aria-live="polite"></p>
+  <footer><button type="button" class="rg-btn" data-cancel-import>Cancelar</button><button type="submit" class="rg-btn rg-primary" id="skillImportNext">Revisar paquete</button></footer></form>
+</dialog>
+{{ skills_data|json_script:"skills-data" }}
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/skills.js' %}?v=p1-skills-ux-1"></script>{% endblock %}

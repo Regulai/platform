@@ -37,3 +37,11 @@ local_settings.py
 .DS_Store
 Thumbs.db
 nul
+
+# Private installer exports and generated setup state (never distribute in Git).
+.regulai-*/
+*private-install*.json
+regulai-private.json
+*.dump
+*.key
+*.pem

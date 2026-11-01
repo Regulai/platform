@@ -1,0 +1,34 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+{"timestamp": "2026-10-04T08:27:27.979925+00:00", "level": "INFO", "logger": "front.migrations.0016_encrypt_api_keys", "request_id": null, "code": "unclassified_event", "exception_type": null}
+test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) ... {"timestamp": "2026-10-04T08:27:30.764101+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:30.890122+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.014153+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.133690+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "46684855-8c13-4da2-a311-19cc25c86c11", "code": "classification_manipulation", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-04T08:27:31.136189+00:00", "level": "WARNING", "logger": "django.request", "request_id": "44d7625c-3cc0-4960-a730-9811d6a1f82b", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.190699+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "08046144-ea48-438e-9a3a-7f402ce71595", "code": "classification_manipulation", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-04T08:27:31.191201+00:00", "level": "WARNING", "logger": "django.request", "request_id": "41cdc6fc-a05b-447f-b0be-775611aca791", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.246201+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "89c09451-d1cb-4219-99fa-e00c02d27163", "code": "classification_manipulation", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-04T08:27:31.247208+00:00", "level": "WARNING", "logger": "django.request", "request_id": "c4977304-c242-47bc-b473-764dde36e6e6", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.304245+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "e212bc27-40aa-4947-ac9b-f52947eea11a", "code": "restricted_content", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-04T08:27:31.304745+00:00", "level": "WARNING", "logger": "django.request", "request_id": "19d3edd1-b8a5-4989-aed8-2f2bf30f0a1e", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.361251+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "b1e2edde-b38b-4cfa-bc82-195b4c3c3b3d", "code": "restricted_content", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-04T08:27:31.361251+00:00", "level": "WARNING", "logger": "django.request", "request_id": "d942cfe0-cba1-4d67-a0ca-f106fd2ea070", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.417259+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "f0f9b7fc-79d2-43d4-b4ae-737d19e73d01", "code": "restricted_content", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-04T08:27:31.418261+00:00", "level": "WARNING", "logger": "django.request", "request_id": "4e59a72c-9122-4d00-9ff7-b49124521e7e", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.485770+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.612179+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-04T08:27:31.733212+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+ok
+test_manipulation_only_limit_is_inclusive_without_an_epsilon (front.test_calibration_manipulation.ManipulationPolicyTests.test_manipulation_only_limit_is_inclusive_without_an_epsilon) ... ok
+test_omitted_and_null_override_keep_the_legacy_shared_limit (front.test_calibration_manipulation.ManipulationPolicyTests.test_omitted_and_null_override_keep_the_legacy_shared_limit) ... ok
+test_override_is_optional_strict_finite_and_in_positive_unit_interval (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_is_optional_strict_finite_and_in_positive_unit_interval) ... ok
+test_override_preserves_every_other_signal_and_unknown_restricted_floors (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_preserves_every_other_signal_and_unknown_restricted_floors) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.133s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+

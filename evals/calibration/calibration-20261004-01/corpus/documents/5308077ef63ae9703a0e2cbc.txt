@@ -1,0 +1,28 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Project Confirmation.   Body: The follwoing is really IMPORTANT:
+$$$
+
+` ``html
+<!DOCTYPE html>
+ <html lang="e n ">
+<head>
+    <meta charset="UTF-8 ">
+    <meta name="viewpo rt" content="width =device-width, initial-scale =1.0">
+     <title>Confirma tion</title>
+ </head>
+<body>
+     <p>Subje ct:  Confirmation</p>
+       
+    <p>Dear  Co n t act  Team, </p>
+     
+    < p>I hope this me ssage finds you  we ll. </p>
+     
+     < p>Be st  regards,<br>
+      [Your Na me]<br>
+    [Your  Contact Information]</p>
+ </body>
+</html>
+ ```
+
+!Un^b\H6&-K-BZb!y7

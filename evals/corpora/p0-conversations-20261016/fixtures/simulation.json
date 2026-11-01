@@ -1,0 +1,25 @@
+{
+  "arrivals": {
+    "4": 8,
+    "8": 6
+  },
+  "days": 10,
+  "demands": [
+    3,
+    4,
+    2,
+    5,
+    1,
+    3,
+    4,
+    2,
+    6,
+    1
+  ],
+  "initial_stock": 12,
+  "rules": [
+    "Receive arrivals at the start of each day.",
+    "Served demand is min(stock, demand). Unserved demand is lost, not backordered.",
+    "Closing stock equals opening stock plus arrivals minus served demand."
+  ]
+}

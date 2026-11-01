@@ -1,0 +1,138 @@
+[
+  {
+    "source": "llmail",
+    "revision": "1063bdf01ec8762b812d5e06ee768a06faa5a6f7",
+    "file": "README.md",
+    "url": "https://huggingface.co/datasets/microsoft/llmail-inject-challenge/resolve/1063bdf01ec8762b812d5e06ee768a06faa5a6f7/README.md",
+    "bytes": 23628,
+    "sha256": "d85767e349ab1abbaf43db9390c4e906e34954e5df3a1335c8f1516efa64e812"
+  },
+  {
+    "source": "llmail",
+    "revision": "1063bdf01ec8762b812d5e06ee768a06faa5a6f7",
+    "file": "data/labelled_unique_submissions_phase2.json",
+    "url": "https://huggingface.co/datasets/microsoft/llmail-inject-challenge/resolve/1063bdf01ec8762b812d5e06ee768a06faa5a6f7/data/labelled_unique_submissions_phase2.json",
+    "bytes": 68586935,
+    "sha256": "f89af984e345430c3b357903890e30867bf4676f4ef10c138cc7bad218e890b8"
+  },
+  {
+    "source": "gretel",
+    "revision": "7b844d16738527a04264f50214cb426a4cea0897",
+    "file": "README.md",
+    "url": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual/resolve/7b844d16738527a04264f50214cb426a4cea0897/README.md",
+    "bytes": 14735,
+    "sha256": "1818d7f7cd27101ee9f8c932baf5183482e49e54e4b108a1ba9138db60a3e8c8"
+  },
+  {
+    "source": "gretel",
+    "revision": "7b844d16738527a04264f50214cb426a4cea0897",
+    "file": "data/Spanish_train-00000-of-00001.parquet",
+    "url": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual/resolve/7b844d16738527a04264f50214cb426a4cea0897/data/Spanish_train-00000-of-00001.parquet",
+    "bytes": 3564816,
+    "sha256": "39954d0931f3d3771af1200f0255016bbe29905dcd0fec539864d3b01ea63b7b"
+  },
+  {
+    "source": "pint",
+    "revision": "0efab3f463eae9c823130d8faffb71b2e7c06e63",
+    "file": "README.md",
+    "url": "https://raw.githubusercontent.com/CheckPointSW/pint-benchmark/0efab3f463eae9c823130d8faffb71b2e7c06e63/README.md",
+    "bytes": 10734,
+    "sha256": "04379dd79f2a6f4f0cb037b86bc3f5b3986973bf589ef46fdb5827dc471df1d1"
+  },
+  {
+    "source": "pint",
+    "revision": "0efab3f463eae9c823130d8faffb71b2e7c06e63",
+    "file": "DETAILS.md",
+    "url": "https://raw.githubusercontent.com/CheckPointSW/pint-benchmark/0efab3f463eae9c823130d8faffb71b2e7c06e63/DETAILS.md",
+    "bytes": 2461,
+    "sha256": "bfe3884c26ee128446a3414c7796f7eca7ed74f6cb54bbe36514c699a3d26120"
+  },
+  {
+    "source": "pint",
+    "revision": "0efab3f463eae9c823130d8faffb71b2e7c06e63",
+    "file": "LICENSE",
+    "url": "https://raw.githubusercontent.com/CheckPointSW/pint-benchmark/0efab3f463eae9c823130d8faffb71b2e7c06e63/LICENSE",
+    "bytes": 1065,
+    "sha256": "5968e9fe3dd27f519635cea1e55aaa638434252e0d896f2f856c2ba0c07a9167"
+  },
+  {
+    "source": "pint",
+    "revision": "0efab3f463eae9c823130d8faffb71b2e7c06e63",
+    "file": "benchmark/data/example-dataset.yaml",
+    "url": "https://raw.githubusercontent.com/CheckPointSW/pint-benchmark/0efab3f463eae9c823130d8faffb71b2e7c06e63/benchmark/data/example-dataset.yaml",
+    "bytes": 7933,
+    "sha256": "df068b9a4ff72483f493add6be6242c6aa777df756bd61462aa0e13645cffa90"
+  },
+  {
+    "source": "bipia",
+    "revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "file": "README.md",
+    "url": "https://raw.githubusercontent.com/microsoft/BIPIA/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/README.md",
+    "bytes": 9765,
+    "sha256": "9fce640c22ae3277c83f31711044a90e64627501345c9ceb142b14167f07d47c"
+  },
+  {
+    "source": "bipia",
+    "revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "file": "LICENSE",
+    "url": "https://raw.githubusercontent.com/microsoft/BIPIA/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/LICENSE",
+    "bytes": 2642,
+    "sha256": "57cf81c45e0929899bc18051cf90134f00e55963ddecc7b37cfc5ea1494b1e8b"
+  },
+  {
+    "source": "bipia",
+    "revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "file": "NOTICE.md",
+    "url": "https://raw.githubusercontent.com/microsoft/BIPIA/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/NOTICE.md",
+    "bytes": 58696,
+    "sha256": "8bb119c94b51352a44c88b42c7f8101b0304885ae6cd1ef9c289ad78d409d68b"
+  },
+  {
+    "source": "bipia",
+    "revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "file": "benchmark/README.md",
+    "url": "https://raw.githubusercontent.com/microsoft/BIPIA/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/benchmark/README.md",
+    "bytes": 2400,
+    "sha256": "2f743580c83f4eab058d655fc6fc5f9a2ee2889d6f8396a5f088fce8286f6e4f"
+  },
+  {
+    "source": "bipia",
+    "revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "file": "benchmark/text_attack_train.json",
+    "url": "https://raw.githubusercontent.com/microsoft/BIPIA/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/benchmark/text_attack_train.json",
+    "bytes": 5999,
+    "sha256": "63f95d3e67eac4178cdabdbdaf192cd05f2b6ed0702b578f1d30d556e5155670"
+  },
+  {
+    "source": "bipia",
+    "revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "file": "benchmark/text_attack_test.json",
+    "url": "https://raw.githubusercontent.com/microsoft/BIPIA/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/benchmark/text_attack_test.json",
+    "bytes": 6322,
+    "sha256": "75750e7b4e8b34e8f9d88d89b357aeaaf02bd07f9e493ccd37eda74a0cd7c7f8"
+  },
+  {
+    "source": "gsm8k",
+    "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+    "file": "README.md",
+    "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/README.md",
+    "bytes": 6112,
+    "sha256": "27e1676d572f2289210170ff6dbb8c2ef7d9f6950c0f08c978ea8ee6b39dca29"
+  },
+  {
+    "source": "gsm8k",
+    "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+    "file": "LICENSE",
+    "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/LICENSE",
+    "bytes": 1062,
+    "sha256": "86bbb73e855821d7c401912fd4bf82e34313e6e3b6fd6f909f2b6cc9e209a53b"
+  },
+  {
+    "source": "gsm8k",
+    "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+    "file": "grade_school_math/data/train.jsonl",
+    "url": "https://raw.githubusercontent.com/openai/grade-school-math/3101c7d5072418e28b9008a6636bde82a006892c/grade_school_math/data/train.jsonl",
+    "bytes": 4166206,
+    "sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465"
+  }
+]

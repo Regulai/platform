@@ -1,0 +1,223 @@
+[
+  {
+    "fixture": "report",
+    "format": "docx",
+    "proof": {
+      "sha256": "c727d1007b5e56ef5ca54b2f543bbd61ca76165c1f5206d933e40a840f1169cd",
+      "narrative": true,
+      "pages": 5,
+      "docx_sha256": "c727d1007b5e56ef5ca54b2f543bbd61ca76165c1f5206d933e40a840f1169cd",
+      "pdf_sha256": "76507af6d836b59ccbf529766d38ed426f26da93479283e68725bde515aa3679",
+      "page_sha256": [
+        "b6ee275a949feba899eb97ed4ae99f817e0cebecd678dedebce5aceb97a6f24b",
+        "df8acecd4757658ddc2853fd1c7bd8de8c70ef9137762f652bf58d9f1b2992f9",
+        "f1b12c9fa32daeb0133524f67a6c369509c926027de9eac23835bc07d425c97f",
+        "13310ce3b6bed0b4d27069d981a8810618aa1bcafffeb10478666ad822816ff6",
+        "b9a7c725d45a851f0b55406e4795de65379a23dd18eeaf3f01fefbe5fdd8d497"
+      ],
+      "automated_passed": true,
+      "visual_review": "required",
+      "source_ids": [
+        "nist-fips-203",
+        "nist-fips-204",
+        "nist-fips-205",
+        "nist-pqc"
+      ],
+      "checks": [
+        "package_structure",
+        "content_exact",
+        "pdf_text",
+        "page_count",
+        "embedded_fonts",
+        "rendered_final_bytes"
+      ],
+      "request_checked": true
+    },
+    "unchanged_pixel_pages": [],
+    "source": "hand_authored_fixture_not_live_model"
+  },
+  {
+    "fixture": "report",
+    "format": "pdf",
+    "proof": {
+      "sha256": "76507af6d836b59ccbf529766d38ed426f26da93479283e68725bde515aa3679",
+      "narrative": true,
+      "pages": 5,
+      "docx_sha256": "c727d1007b5e56ef5ca54b2f543bbd61ca76165c1f5206d933e40a840f1169cd",
+      "pdf_sha256": "76507af6d836b59ccbf529766d38ed426f26da93479283e68725bde515aa3679",
+      "page_sha256": [
+        "b6ee275a949feba899eb97ed4ae99f817e0cebecd678dedebce5aceb97a6f24b",
+        "df8acecd4757658ddc2853fd1c7bd8de8c70ef9137762f652bf58d9f1b2992f9",
+        "f1b12c9fa32daeb0133524f67a6c369509c926027de9eac23835bc07d425c97f",
+        "13310ce3b6bed0b4d27069d981a8810618aa1bcafffeb10478666ad822816ff6",
+        "b9a7c725d45a851f0b55406e4795de65379a23dd18eeaf3f01fefbe5fdd8d497"
+      ],
+      "automated_passed": true,
+      "visual_review": "required",
+      "source_ids": [
+        "nist-fips-203",
+        "nist-fips-204",
+        "nist-fips-205",
+        "nist-pqc"
+      ],
+      "checks": [
+        "package_structure",
+        "content_exact",
+        "pdf_text",
+        "page_count",
+        "embedded_fonts",
+        "rendered_final_bytes"
+      ],
+      "request_checked": true
+    },
+    "unchanged_pixel_pages": [],
+    "source": "hand_authored_fixture_not_live_model"
+  },
+  {
+    "fixture": "report-edit",
+    "format": "docx",
+    "proof": {
+      "sha256": "a8abca2a7cd3ba5b339c0446598a76d3d5a135bc789488273e3095de1d349ed9",
+      "narrative": true,
+      "pages": 5,
+      "docx_sha256": "a8abca2a7cd3ba5b339c0446598a76d3d5a135bc789488273e3095de1d349ed9",
+      "pdf_sha256": "79c730dcf81059eee6a256bbc593448502bfbfe32ffb1415e92c4a9866ec18a8",
+      "page_sha256": [
+        "67e4ca96f41fafa067656d44be8eea8f6bdc23b0397596e0f1776d23256b43c5",
+        "df8acecd4757658ddc2853fd1c7bd8de8c70ef9137762f652bf58d9f1b2992f9",
+        "f1b12c9fa32daeb0133524f67a6c369509c926027de9eac23835bc07d425c97f",
+        "13310ce3b6bed0b4d27069d981a8810618aa1bcafffeb10478666ad822816ff6",
+        "b9a7c725d45a851f0b55406e4795de65379a23dd18eeaf3f01fefbe5fdd8d497"
+      ],
+      "automated_passed": true,
+      "visual_review": "required",
+      "source_ids": [
+        "nist-fips-203",
+        "nist-fips-204",
+        "nist-fips-205",
+        "nist-pqc"
+      ],
+      "checks": [
+        "package_structure",
+        "content_exact",
+        "pdf_text",
+        "page_count",
+        "embedded_fonts",
+        "rendered_final_bytes"
+      ],
+      "request_checked": true
+    },
+    "unchanged_pixel_pages": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "source": "hand_authored_fixture_not_live_model"
+  },
+  {
+    "fixture": "report-edit2",
+    "format": "docx",
+    "proof": {
+      "sha256": "ceb2ed10f110f80def6f14f65393199788d11ff1e3573218daa7183bcbefb6da",
+      "narrative": true,
+      "pages": 5,
+      "docx_sha256": "ceb2ed10f110f80def6f14f65393199788d11ff1e3573218daa7183bcbefb6da",
+      "pdf_sha256": "1d2437d78153ac1add5a95189863f64dd5c8ae928e61b956178cf2ef6e5598ef",
+      "page_sha256": [
+        "671783664b1e0708249153c77150ef41d63cab9341658a59ce40314ed17e66a9",
+        "df8acecd4757658ddc2853fd1c7bd8de8c70ef9137762f652bf58d9f1b2992f9",
+        "f1b12c9fa32daeb0133524f67a6c369509c926027de9eac23835bc07d425c97f",
+        "13310ce3b6bed0b4d27069d981a8810618aa1bcafffeb10478666ad822816ff6",
+        "b9a7c725d45a851f0b55406e4795de65379a23dd18eeaf3f01fefbe5fdd8d497"
+      ],
+      "automated_passed": true,
+      "visual_review": "required",
+      "source_ids": [
+        "nist-fips-203",
+        "nist-fips-204",
+        "nist-fips-205",
+        "nist-pqc"
+      ],
+      "checks": [
+        "package_structure",
+        "content_exact",
+        "pdf_text",
+        "page_count",
+        "embedded_fonts",
+        "rendered_final_bytes"
+      ],
+      "request_checked": true
+    },
+    "unchanged_pixel_pages": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "source": "hand_authored_fixture_not_live_model"
+  },
+  {
+    "fixture": "deck",
+    "format": "pptx",
+    "proof": {
+      "sha256": "5c0626e9d38fa78273797b144e83782f20de50145a47afe4c96aed09e18b5b78",
+      "narrative": true,
+      "pages": 3,
+      "pptx_sha256": "5c0626e9d38fa78273797b144e83782f20de50145a47afe4c96aed09e18b5b78",
+      "pdf_sha256": "020d6e537f50745cbacec03b1786f50588c98252ad73fc78195d212c23a456af",
+      "page_sha256": [
+        "b271a0299cfade18ee09ac9fa9138cd7b428e7b6ec1a1d6295d06ce77aea1190",
+        "669c624c2f0c69d7f1b3e604c7b2b6d5d14b969214b9f5839ddc799f4f140fe8",
+        "b06012c823e305a404e9f2fa508b310ca3908d27d8981326d3964ecc23516beb"
+      ],
+      "automated_passed": true,
+      "visual_review": "required",
+      "source_ids": [],
+      "checks": [
+        "package_structure",
+        "content_exact",
+        "pdf_text",
+        "page_count",
+        "embedded_fonts",
+        "rendered_final_bytes"
+      ],
+      "request_checked": true
+    },
+    "unchanged_pixel_pages": [],
+    "source": "hand_authored_fixture_not_live_model"
+  },
+  {
+    "fixture": "deck-edit",
+    "format": "pptx",
+    "proof": {
+      "sha256": "91e34efba705965760c7e4cf7f99b23ef2a72009e4bb64fa27107ecadf931225",
+      "narrative": true,
+      "pages": 3,
+      "pptx_sha256": "91e34efba705965760c7e4cf7f99b23ef2a72009e4bb64fa27107ecadf931225",
+      "pdf_sha256": "dedc8b131be15d4554f98f4d17e7c02f049294437f8cbe4aca94dd48f5f19426",
+      "page_sha256": [
+        "b271a0299cfade18ee09ac9fa9138cd7b428e7b6ec1a1d6295d06ce77aea1190",
+        "61f0f1e5973e1eda0fa45d78e1e02e0f39ddd16e543fad850869f6169540b5e4",
+        "b06012c823e305a404e9f2fa508b310ca3908d27d8981326d3964ecc23516beb"
+      ],
+      "automated_passed": true,
+      "visual_review": "required",
+      "source_ids": [],
+      "checks": [
+        "package_structure",
+        "content_exact",
+        "pdf_text",
+        "page_count",
+        "embedded_fonts",
+        "rendered_final_bytes"
+      ],
+      "request_checked": true
+    },
+    "unchanged_pixel_pages": [
+      1,
+      3
+    ],
+    "source": "hand_authored_fixture_not_live_model"
+  }
+]

@@ -1,0 +1,398 @@
+{
+  "constraints": {
+    "conversations": 10,
+    "max_output_tokens_suggested": 1600,
+    "never_send_rubric_or_oracle_to_model": true,
+    "paid_execution_requires_numeric_budget": true,
+    "sequential_execution": true,
+    "synthetic_only": true,
+    "turns": 17
+  },
+  "conversations": [
+    {
+      "desired_work_profile": "short_text",
+      "difficulty": "easy",
+      "id": "c01",
+      "preferred_entry": "web_sync",
+      "title": "Corrección de contexto",
+      "turns": [
+        {
+          "attachments": [],
+          "id": "t01",
+          "prompt": "Organizamos el evento ficticio Nébula en Sevilla el sábado a las 18:30. Confirma estos tres datos en una frase.",
+          "rubric": {
+            "facts": [
+              "Nébula",
+              "Sevilla",
+              "sábado",
+              "18:30"
+            ],
+            "sandbox_expected": false
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t02",
+          "prompt": "Corrección: la ciudad será Bilbao. Mantén todo lo demás. Confirma el cambio en una frase.",
+          "rubric": {
+            "facts": [
+              "Bilbao",
+              "18:30"
+            ],
+            "forbidden_current_facts": [
+              "Sevilla"
+            ],
+            "sandbox_expected": false
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t03",
+          "prompt": "¿Dónde y cuándo es al final el evento? Responde en una sola línea.",
+          "rubric": {
+            "facts": [
+              "Bilbao",
+              "sábado",
+              "18:30"
+            ],
+            "forbidden_current_facts": [
+              "Sevilla"
+            ],
+            "oracle_ref": "context",
+            "sandbox_expected": false
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "short_text",
+      "difficulty": "easy",
+      "id": "c02",
+      "preferred_entry": "api",
+      "title": "Aritmética y redondeo",
+      "turns": [
+        {
+          "attachments": [],
+          "id": "t01",
+          "prompt": "Un pedido ficticio tiene 3 piezas a 19,95 EUR y 2 a 7,50 EUR. Aplica un descuento del 10%; redondea esa base a céntimos con mitad hacia arriba y calcula después el IVA del 21%, redondeado igual. Indica subtotal, base descontada, IVA y total. Respuesta breve.",
+          "rubric": {
+            "numeric_tolerance": "0.00",
+            "oracle_ref": "arithmetic",
+            "sandbox_expected": false
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "medium",
+      "id": "c03",
+      "preferred_entry": "web_stream",
+      "title": "Ventas y reentrega de archivo",
+      "turns": [
+        {
+          "attachments": [
+            "fixtures/sales.csv"
+          ],
+          "id": "t01",
+          "prompt": "Analiza el adjunto: ignora pedidos cancelled y resta las devoluciones refund, cuyas cantidades ya son negativas. Indica ingresos netos por región, total y región líder. Crea resumen.csv con columnas region,net_revenue_eur y una fila TOTAL; usa punto decimal y dos decimales.",
+          "rubric": {
+            "artifacts": [
+              {
+                "columns": [
+                  "region",
+                  "net_revenue_eur"
+                ],
+                "filename": "resumen.csv",
+                "format": "csv",
+                "rows": 4
+              }
+            ],
+            "oracle_ref": "sales"
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t02",
+          "prompt": "Dámelo otra vez.",
+          "rubric": {
+            "new_provider_calls": 0,
+            "reissue_from": "t01",
+            "same_artifact_id": true,
+            "same_sha256": true
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "medium",
+      "id": "c04",
+      "preferred_entry": "api",
+      "title": "Cruce de dos hojas",
+      "turns": [
+        {
+          "attachments": [
+            "fixtures/inventory.xlsx"
+          ],
+          "id": "t01",
+          "prompt": "Analiza el libro adjunto. Une Productos y Movimientos por sku, aunque las filas estén en distinto orden. Calcula stock final de A, B y C; indica qué producto queda bajo su mínimo y cuántas unidades necesita para alcanzar ese mínimo. Responde aquí, sin crear archivos.",
+          "rubric": {
+            "artifacts": [],
+            "oracle_ref": "inventory",
+            "required_sheets": [
+              "Productos",
+              "Movimientos"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "medium",
+      "id": "c05",
+      "preferred_entry": "web_sync",
+      "title": "Lectura de documento y límites de evidencia",
+      "turns": [
+        {
+          "attachments": [
+            "fixtures/project-brief.pdf"
+          ],
+          "id": "t01",
+          "prompt": "Lee el documento adjunto completo. Dime presupuesto, fecha límite y porcentaje aceptado en el lote piloto, indicando la página de cada dato. ¿Quién dirige el proyecto y qué porcentaje de los 120 sensores se aceptará? Si el documento no lo permite saber, dilo. Responde aquí, sin crear archivos.",
+          "rubric": {
+            "citations": {
+              "budget_page": 1,
+              "deadline_page": 1,
+              "pilot_page": 2
+            },
+            "must_acknowledge_unknown": [
+              "project_owner",
+              "population_acceptance_percent"
+            ],
+            "oracle_ref": "pdf"
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "medium",
+      "id": "c06",
+      "preferred_entry": "web_stream",
+      "title": "Crear, recuperar y editar una página",
+      "turns": [
+        {
+          "attachments": [],
+          "id": "t01",
+          "prompt": "Crea un HTML autónomo llamado nebula.html para el evento ficticio Nébula. Debe mostrar Bilbao, sábado 18:30 y un botón Reservar con fondo #2457d6. Todo el estilo dentro del archivo, sin JavaScript ni recursos externos.",
+          "rubric": {
+            "artifacts": [
+              {
+                "contains": [
+                  "Nébula",
+                  "Bilbao",
+                  "18:30",
+                  "Reservar",
+                  "#2457d6"
+                ],
+                "filename": "nebula.html",
+                "format": "html",
+                "no_external_resources": true,
+                "no_scripts": true
+              }
+            ]
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t02",
+          "prompt": "Dámelo.",
+          "rubric": {
+            "new_provider_calls": 0,
+            "reissue_from": "t01",
+            "same_artifact_id": true,
+            "same_sha256": true
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t03",
+          "prompt": "Cambia únicamente el fondo del botón a #147d45 y conserva el resto. Genera la nueva revisión.",
+          "rubric": {
+            "artifacts": [
+              {
+                "contains": [
+                  "Nébula",
+                  "Bilbao",
+                  "18:30",
+                  "Reservar",
+                  "#147d45"
+                ],
+                "format": "html",
+                "no_external_resources": true
+              }
+            ],
+            "new_sha256": true,
+            "prior_revision_still_downloadable": true,
+            "revision_of": "t01"
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "complex",
+      "id": "c07",
+      "preferred_entry": "api",
+      "title": "Editar un paquete con dependencias",
+      "turns": [
+        {
+          "attachments": [
+            "fixtures/site.zip"
+          ],
+          "id": "t01",
+          "prompt": "Modifica el paquete adjunto: cambia solamente el fondo del botón a #147d45. Genera un ZIP con la estructura y los nombres originales. Conserva el título, el texto y la imagen.",
+          "rubric": {
+            "artifacts": [
+              {
+                "changed_member": "assets/style.css",
+                "contains_in_changed_member": "#147d45",
+                "format": "zip",
+                "members": [
+                  "index.html",
+                  "assets/style.css",
+                  "assets/mark.svg"
+                ],
+                "relative_dependencies_resolve": true,
+                "unchanged_members": [
+                  "index.html",
+                  "assets/mark.svg"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t02",
+          "prompt": "Dámelo otra vez.",
+          "rubric": {
+            "new_provider_calls": 0,
+            "reissue_from": "t01",
+            "same_artifact_id": true,
+            "same_sha256": true
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "medium",
+      "id": "c08",
+      "preferred_entry": "web_stream",
+      "title": "Consultar una página pública",
+      "turns": [
+        {
+          "attachments": [],
+          "id": "t01",
+          "prompt": "Abre https://www.iana.org/help/example-domains y explica en dos frases para qué se reservan example.com y example.org. Incluye el enlace de la fuente consultada. Si no puedes acceder, indica ese fallo y no finjas haberla leído.",
+          "rubric": {
+            "expected_semantics": [
+              "dominios de ejemplo para documentación",
+              "no disponibles para registro o transferencia"
+            ],
+            "external_dependency": "https://www.iana.org/help/example-domains",
+            "network_failure_is_blocked_not_semantic_pass": true,
+            "source_url_required": true,
+            "successful_network_evidence_required_for_pass": true
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "complex",
+      "id": "c09",
+      "preferred_entry": "api",
+      "title": "Simulación reproducible de inventario",
+      "turns": [
+        {
+          "attachments": [
+            "fixtures/simulation.json"
+          ],
+          "id": "t01",
+          "prompt": "Ejecuta una simulación de inventario con el adjunto. Cada día recibe primero las entradas; atiende min(stock disponible, demanda); la demanda no atendida se pierde. Crea simulacion.csv con day,opening,arrivals,demand,served,lost,closing. Indica demanda atendida, perdida, stock final y días con pérdida. Limita el cálculo a los diez días dados; no uses azar.",
+          "rubric": {
+            "actual_execution_evidence_required": true,
+            "artifacts": [
+              {
+                "columns": [
+                  "day",
+                  "opening",
+                  "arrivals",
+                  "demand",
+                  "served",
+                  "lost",
+                  "closing"
+                ],
+                "filename": "simulacion.csv",
+                "format": "csv",
+                "rows": 10
+              }
+            ],
+            "invariant": "opening + arrivals = served + closing; demand = served + lost; nonnegative stock",
+            "oracle_ref": "simulation"
+          }
+        }
+      ]
+    },
+    {
+      "desired_work_profile": "bounded",
+      "difficulty": "complex",
+      "id": "c10",
+      "preferred_entry": "web_sync",
+      "title": "Reconciliación con datos contradictorios",
+      "turns": [
+        {
+          "attachments": [
+            "fixtures/reconciliation-inputs.zip"
+          ],
+          "id": "t01",
+          "prompt": "Reconcílialo todo con el ZIP adjunto, que contiene orders.csv y reconciliation.json. Lee ambos archivos. Elimina duplicados idénticos, excluye cancelados de ventas y cobros válidos, y no elijas arbitrariamente un importe contradictorio. Indica ventas y cobros válidos que sí son ciertos, saldo pendiente cierto y errores detectados. Separa lo que no puedes resolver. Responde breve, sin crear archivos.",
+          "rubric": {
+            "input_archive_members": [
+              "orders.csv",
+              "reconciliation.json"
+            ],
+            "must_identify": [
+              "identical_duplicate",
+              "conflicting_duplicate",
+              "cancelled_payment",
+              "reported_collections_error_eur"
+            ],
+            "oracle_ref": "reconciliation",
+            "uncertain_order": "O5"
+          }
+        },
+        {
+          "attachments": [],
+          "id": "t02",
+          "prompt": "Confirmo que el importe correcto de O5 es 40,00 EUR y que no tiene ningún cobro. Actualiza las ventas válidas totales y el saldo pendiente total. No cambies ninguna otra regla.",
+          "rubric": {
+            "context_correction_required": true,
+            "numeric_keys": [
+              "resolved_valid_sales_eur",
+              "resolved_outstanding_eur"
+            ],
+            "oracle_ref": "reconciliation"
+          }
+        }
+      ]
+    }
+  ],
+  "corpus_id": "p0-conversations-20261016",
+  "language": "es",
+  "schema_version": 1
+}

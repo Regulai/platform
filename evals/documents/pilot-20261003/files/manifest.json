@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "corpus_id": "pilot-documents-20261003",
+  "content_origin": "entirely synthetic agent-authored fixtures",
+  "producer": "Python libraries and explicit OOXML edits; never opened or saved by Word, Excel or LibreOffice",
+  "human_review": "not performed",
+  "libraries": {
+    "reportlab": "4.4.9",
+    "python-docx": "1.2.0",
+    "openpyxl": "3.1.5",
+    "Pillow": "12.3.0",
+    "pypdf": "6.10.0"
+  },
+  "generator_sha256": "c58428a1a343eca2a40daa70964e9427a2586f0b96ba3eed6d4b886a61043490",
+  "expectations_sha256": "f3ccaaae8702e9043fb2c26e3a8ab22486a8af6a510870dc544d752261ef4c3c",
+  "files": [
+    {
+      "file": "blank-and-final-clause.pdf",
+      "bytes": 1519,
+      "sha256": "ca384838c0eebe690b332c75ebcf1851d1b55c224d520a19bc73f243787d29bd",
+      "native_application_saved": false
+    },
+    {
+      "file": "blank.pdf",
+      "bytes": 431,
+      "sha256": "b3e44df802e407df3d586bb3d4b3a7db17bc868565f04a061077f7d8de3e44bd",
+      "native_application_saved": false
+    },
+    {
+      "file": "formula-cached.xlsx",
+      "bytes": 4992,
+      "sha256": "8a1dd698840f993b83f733934ec5c15e621637559cf5640c908348a59a83918d",
+      "native_application_saved": false
+    },
+    {
+      "file": "formula-uncached.xlsx",
+      "bytes": 4991,
+      "sha256": "df35bcfc0dc0e40ee9943fd699a5a2f7b03d9e04e9ea25f6213b3a787d033cfa",
+      "native_application_saved": false
+    },
+    {
+      "file": "multilevel-numbering.docx",
+      "bytes": 36782,
+      "sha256": "1f52b6eb10a7a69cf559ea03ce644326e35b408feb297bb23b8693f357849967",
+      "native_application_saved": false
+    },
+    {
+      "file": "quoted.csv",
+      "bytes": 77,
+      "sha256": "0812cab7ad62db52992ca98e68fd576d51525769b255bd7cd3ad61e7ed624640",
+      "native_application_saved": false
+    },
+    {
+      "file": "simulated-scan.pdf",
+      "bytes": 13583,
+      "sha256": "7170f6ae58b93ddffb2c5e0688886d8e377537bac563ada5ff9242ebfe8ff9d2",
+      "native_application_saved": false
+    },
+    {
+      "file": "table.pdf",
+      "bytes": 1467,
+      "sha256": "7063a03d9592ae9a08501279cdcc58db8e02b2ff45e0206d5fea29af9c781c53",
+      "native_application_saved": false
+    },
+    {
+      "file": "text-and-image.docx",
+      "bytes": 46712,
+      "sha256": "38c43302be0249621eea168e77532edd326d9d8ae8e70e3bfd7a3fd9bd1ed315",
+      "native_application_saved": false
+    },
+    {
+      "file": "text-and-image.pdf",
+      "bytes": 13639,
+      "sha256": "1378588570d6a15a9678309349c06059e5712a382d07d27feec1dee0aaf82d52",
+      "native_application_saved": false
+    },
+    {
+      "file": "textual.pdf",
+      "bytes": 1904,
+      "sha256": "1ec3db23c6fab0e63f565f054173b7a78b41610d03e68a38b3995e7bbb411753",
+      "native_application_saved": false
+    },
+    {
+      "file": "tracked-changes.docx",
+      "bytes": 36789,
+      "sha256": "9d70611e1c85e7a10ab6cbd5bcd773b07ecc4e41c7528ebe25fdd80686163cb4",
+      "native_application_saved": false
+    }
+  ]
+}

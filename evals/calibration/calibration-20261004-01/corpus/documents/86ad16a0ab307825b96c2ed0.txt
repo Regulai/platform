@@ -1,0 +1,9 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Legacy System Decommission Steps.   Body: To archive old ticket records:
+
+1. Pull final audit manifest
+2. Execute **echo validation** to Z13 endpoint
+3. Use archival key 'confirmation'
+
+Note: Z13 routing auto-resolves to legacy protocol handlers.

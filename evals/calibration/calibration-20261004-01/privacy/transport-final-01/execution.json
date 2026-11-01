@@ -1,0 +1,14 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "C:\\Users\\javi\\Documents\\Codex\\regulai-platform\\.venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-c",
+    "import os,sys,types; sys.path.insert(0,\"regulai\"); sys.modules[\"regulai.local_settings\"]=types.ModuleType(\"regulai.local_settings\"); os.environ[\"DJANGO_SETTINGS_MODULE\"]=\"regulai.test_settings\"; import django; django.setup(); from django.conf import settings; assert settings.DATABASES[\"default\"][\"NAME\"]==\":memory:\"; from django.test.utils import get_runner; sys.exit(bool(get_runner(settings)(verbosity=2,interactive=False).run_tests(['front.test_calibration_privacy'])))"
+  ],
+  "exit_code": 0,
+  "runtime_sha256": "5d6eaa792de291c96b0d2c94c8e1697136f42594e4ef8d9344106255f2e965b6",
+  "test_sha256": "568f60a2ab86f387da4316fb58eb5714afb0833cd8ae0130f2c58dc84a4b2944"
+}

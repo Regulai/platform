@@ -1,0 +1,128 @@
+{
+  "completed_utc": "2026-10-04T08:38:00.634811+00:00",
+  "database_open_mode": "ro",
+  "query_only": true,
+  "ledger_bytes_unchanged": true,
+  "ledger_sha256": "614c62a38388af6ba9b8fc008ffd7c7c20b1d8bab844346c3205489a9864f250",
+  "historical_calls_unchanged": true,
+  "matches_final_runtime_snapshot": true,
+  "cap_eur": "2.00",
+  "cap_usd": "1.66",
+  "historical": {
+    "known_cost_usd": "0.006216438",
+    "provider_reported_usd": "0.001461138",
+    "tariff_estimated_usd": "0.00475530",
+    "budget_exposure_usd": "0.038440878",
+    "uncertain_reservations_usd": "0.003"
+  },
+  "campaign_increment": {
+    "known_cost_usd": "0.006197478",
+    "provider_reported_usd": "0.001333458",
+    "tariff_estimated_usd": "0.00486402",
+    "budget_exposure_usd": "0.037830498",
+    "uncertain_reservations_usd": "0.003"
+  },
+  "total": {
+    "known_cost_usd": "0.012413916",
+    "provider_reported_usd": "0.002794596",
+    "tariff_estimated_usd": "0.00961932",
+    "budget_exposure_usd": "0.076271376",
+    "uncertain_reservations_usd": "0.006"
+  },
+  "remaining_usd": "1.583728624",
+  "conservative_total_exposure_eur": "0.09172949452115812917594654788",
+  "all_ledger_entries_n": 199,
+  "campaign_entries_n": 89,
+  "campaign_entry_status": {
+    "completed": 88,
+    "outcome_unknown": 1
+  },
+  "campaign_external_calls_n": 49,
+  "campaign_external_calls_by_purpose": {
+    "classification": 29,
+    "generation": 11,
+    "verification": 9
+  },
+  "uncertain_calls": [
+    {
+      "id": "ab67112d-9a37-43cd-9b45-76c6d1f756dd",
+      "at": "2026-10-03T15:43:21.036182+00:00",
+      "purpose": "classification",
+      "reserved": "0.003",
+      "status": "outcome_unknown",
+      "cost": null,
+      "metadata": {
+        "case_id": "document-success",
+        "configuration": "strong",
+        "provider": "jev",
+        "model": "typesafe-ai/jev",
+        "transport": "http",
+        "cost_scope": "api",
+        "cost_kind": "unknown"
+      }
+    },
+    {
+      "id": "fa61b595-536f-4eac-b455-7c5cdd40c19c",
+      "at": "2026-10-04T08:31:54.792656+00:00",
+      "purpose": "classification",
+      "reserved": "0.003",
+      "status": "outcome_unknown",
+      "cost": null,
+      "metadata": {
+        "case_id": "P0619",
+        "configuration": "router",
+        "provider": "jev",
+        "model": "typesafe-ai/jev",
+        "transport": "http",
+        "cost_scope": "api",
+        "authorization_id": "calibration-20261004-01-r4-smoke-01",
+        "authorization_digest": "c8caf6f23b967df75190bf1b241ea27b8a2d841f5e11d8726aa070e5392d5b1a",
+        "manifest_sha256": "07c306ebf6e5ad258b3ad4a282cb34476e4d6f370d07d7a47fddb0fc19ed56d6",
+        "run_id": "309854c7-72e4-41c2-bee2-8e35ee226a34",
+        "scope_external_call": true,
+        "provider_error_code": "invalid_response",
+        "cost_kind": "unknown"
+      }
+    }
+  ],
+  "authorization_head": [
+    "calibration-20261004-01-r4-smoke-01",
+    "c8caf6f23b967df75190bf1b241ea27b8a2d841f5e11d8726aa070e5392d5b1a"
+  ],
+  "campaign_terms": {
+    "approved_ceiling_eur": "2.00",
+    "approved_ceiling_usd": "1.66",
+    "expires_at": "2026-10-04T23:12:23+00:00",
+    "fx_provenance": {
+      "date": "2026-10-02",
+      "rate_usd_per_eur": "1.1225",
+      "sha256": "d16ef240d4d97a953b925cbf81451c812c559cd33f2ebe07b08b51e4085709e2",
+      "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
+    },
+    "margin": "0.35",
+    "price_provenance": [
+      {
+        "date": "2026-10-04",
+        "sha256": "210f102275ccf1a6542f08a3bc9e4b4c7c83278cb74b35217bffa112df6363b2",
+        "source_url": "https://api-docs.deepseek.com/quick_start/pricing/"
+      },
+      {
+        "date": "2026-10-04",
+        "sha256": "9ff24b810d6f6a3810beba6a0c06ad26edafb79ffdacb898dc5392dc9115d5b1",
+        "source_url": "https://ai-gateway.vercel.sh/v1/models"
+      }
+    ],
+    "starts_at": "2026-10-03T23:12:23+00:00"
+  },
+  "stop_new_paid_calls": true,
+  "stop_reason": "Invalid Jev response produced outcome_unknown; no automatic retry or subsequent calls",
+  "unvalidated_charge_in_invalid_response_usd": "0.000035742",
+  "charge_note": "Not added to validated provider-reported totals; the full 0.003 USD reservation remains retained.",
+  "cost_note": "Known combines reported and estimated. Exposure retains tariff bounds and unknown reserves; do not add it to known costs.",
+  "source_sha256": {
+    "evals\\calibration\\calibration-20261004-01\\reconcile.py": "4cc4ebe222fa577d9689f6975f621301af65e06a9c4f84d2e21b1b0b8b853b9c",
+    "regulai\\front\\evaluation_budget.py": "249713b5d8daa09d59bc13bf4b3dd4229df255f00078839194a3d1192c1982ee",
+    "evals\\calibration\\calibration-20261004-01\\batches\\baseline-smoke-02\\activation.json": "86b47031deee85b92808e79c1c9deaa5768f501509843800a1da55c6bc9d35ef",
+    "evals\\calibration\\calibration-20261004-01\\batches\\r4-smoke-01\\live-run-01\\budget.json": "bdf26d430f6420e477fab132365842dda210ee51a33fa3842625872923ca34ec"
+  }
+}

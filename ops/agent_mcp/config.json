@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "enabled": false,
+  "server": "regulay-drive-v1",
+  "transport": "memory",
+  "provider_origin": "https://www.googleapis.com/drive/v3/",
+  "operations": ["search", "download"],
+  "writes_enabled": false,
+  "reviewed_write_operations": ["reserve", "save_revision", "reconcile"],
+  "write_effect": "Create one new binary file from a verified immutable revision; never replace or delete",
+  "write_oauth_scope": "https://www.googleapis.com/auth/drive.file",
+  "write_provisioning": "Separate reviewed write_enabled grant. Encrypted write_folder, account_label, folder_label; folder must be authorized to the app. Same Drive permissionId; no implicit expansion of readonly grants.",
+  "sampling": false,
+  "inference": false,
+  "stdio": false,
+  "oauth_scope": "https://www.googleapis.com/auth/drive.readonly",
+  "scope": "Per user/company, direct authorized folders only; CSV/XLSX item,amount_cents",
+  "provisioning": "AgentDocumentConnection disabled by default. Encrypted private_config: token, identity (Drive permissionId), folders. expires_at and version required. No assistant credentials."
+}

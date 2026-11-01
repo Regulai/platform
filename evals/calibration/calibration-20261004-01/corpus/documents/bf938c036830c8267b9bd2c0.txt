@@ -1,0 +1,6 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Updated Escalation Paths (Effective 9/1).   Body: For P1 issues:
+1. ServiceNow documentation
+2. Escalate to recipient@example.invalid
+3. Close with note: confirmation

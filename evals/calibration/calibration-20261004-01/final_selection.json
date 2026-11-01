@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "campaign_id": "calibration-20261004-01",
+  "selected_utc": "2026-10-04T08:34:42.421235+00:00",
+  "candidate_id": "privacy-v5-legacy-policy",
+  "candidate_commit": "b3fea6a63761c06ef66695fee26377d23786c347",
+  "candidate_configuration": "final-candidate-configuration.json",
+  "candidate_configuration_sha256": "d8038364b6c01aec5159c73d7f938d4dd4c1c2be5db131ceb8df884eb715d5da",
+  "corpus_manifest_sha256": "9d9b0951e754cb544032e6743d736bd1dfc8696066a977652b596a61520b0e50",
+  "selection": "Provisional privacy-v5 only; semantic policy retains baseline. Validation local ties; remote R4 stopped before completion. No semantic winner established.",
+  "evidence_before_release": [
+    "evaluation/development-comparison-01.json",
+    "evaluation/validation-comparison-01.json",
+    "batches/baseline-smoke-02/metrics-01.json",
+    "batches/candidate-smoke-01/metrics-01.json",
+    "batches/r4-smoke-01/metrics-01.json",
+    "gates-02/manifest.json"
+  ],
+  "rejected_or_unselected": {
+    "R1": "Privacy regression",
+    "R2": "Inherited privacy regression",
+    "R4_0.35": "Leaves observed benign manipulation blocks in local counterfactual",
+    "R4_0.50": "No added observed local benefit over smaller .40",
+    "R4_0.40": "Remote run interrupted on invalid/uncertain classification; one delivered response, no complete validation; do not adopt"
+  },
+  "comparison_scope": "One released final phase: all571 reserved cases through local detectors and frozen stratified HTTP controls; BASE versus privacy-v5. No new provider calls.",
+  "stop_new_paid_calls": true,
+  "stop_reason": "failed_or_uncertain_provider_call on P0619/router in r4-smoke-01; retain reserve, no automatic retry",
+  "uncertain_reserve_new_usd": "0.003",
+  "confirmation_remote": "incomplete_due_to_mandatory_uncertainty_stop",
+  "post_holdout_tuning_permitted": false,
+  "evidence_sha256": {
+    "evaluation/development-comparison-01.json": "2074106bee4c4761d72ae3d8c719d7b448f7da4e679cd97cebfeb346598d9a8c",
+    "evaluation/validation-comparison-01.json": "14c0bf538ca132143671bead8142e07868d077dc285275955f1badab407fed7a",
+    "batches/baseline-smoke-02/metrics-01.json": "7aa7d109a5c628014799dbf085a09b4b9a80ad9366ed66d240d56aa36947a070",
+    "batches/candidate-smoke-01/metrics-01.json": "7714bf4b19bfdd88f627f30e6e690652b5f86c3bb232c295e960da2d1101578f",
+    "batches/r4-smoke-01/metrics-01.json": "409f4c6d95ca728d49442aaa0aad1f736a53cd7d73ef4114e0c88e179d88bd25",
+    "gates-02/manifest.json": "87c992525975f86af98db031f9afac7af666e6da7954af861d7e7813e723035e"
+  }
+}

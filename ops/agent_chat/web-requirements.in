@@ -1,0 +1,25 @@
+# Minimal isolated lab server, constrained to the existing web versions.
+# No new runtime inference implementation: these are the application's imports.
+Django==5.2.17
+django-cors-headers==4.6.0
+djangorestframework==3.18.1
+djangorestframework_simplejwt==5.5.1
+cryptography==50.0.0
+openai==1.102.0
+anthropic==0.79.0
+openpyxl==3.1.5
+python-docx==1.2.0
+python-pptx==1.0.2
+XlsxWriter==3.2.9
+pypdf==6.19.0
+lxml==6.1.0
+yara-python==4.5.4
+requests==2.33.0
+python-dotenv==1.2.2
+Pillow==12.3.0
+pydantic==2.11.7
+psycopg[binary]==3.3.6
+uvicorn==0.35.0
+mcp==1.30.0
+packaging==26.0
+PyYAML==6.0.3

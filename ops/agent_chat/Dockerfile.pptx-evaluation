@@ -1,0 +1,6 @@
+FROM regulay-task51-docx-evaluation:local
+USER root
+COPY --chmod=0555 .task52-officecli-source/officecli-linux-x64 /usr/local/bin/officecli
+COPY .task52-officecli-source/LICENSE .task52-officecli-source/THIRD-PARTY-NOTICES.txt /usr/local/share/officecli/
+ENV OFFICECLI_NO_AUTO_RESIDENT=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 HOME=/tmp
+USER 1000:1000

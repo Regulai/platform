@@ -1,0 +1,16 @@
+[
+  {
+    "file": "standards-R.md",
+    "axis": "Standards",
+    "reviewed_base": "51f4ee5",
+    "reviewed_head": "b6a24fb0acaab83d5152156d0fe5205b6d5344b4",
+    "sha256": "495c0cfacc2d4447f5a68c84b3c4311e5cbcb6d80b68026431fe42123f43f5ac"
+  },
+  {
+    "file": "spec-R.md",
+    "axis": "Spec",
+    "reviewed_base": "51f4ee5",
+    "reviewed_head": "b6a24fb0acaab83d5152156d0fe5205b6d5344b4",
+    "sha256": "daf31661785aeb98068f6148974b56913ef53ddc65f5948bf7c9e79438514dce"
+  }
+]

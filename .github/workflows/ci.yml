@@ -1,0 +1,49 @@
+{
+  "name": "Quality gates",
+  "on": {"push": {}, "pull_request": {}},
+  "permissions": {"contents": "read"},
+  "jobs": {
+    "quality": {
+      "runs-on": "ubuntu-latest",
+      "timeout-minutes": 30,
+      "services": {
+        "postgres": {
+          "image": "postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+          "env": {"POSTGRES_USER": "task58", "POSTGRES_PASSWORD": "synthetic-ci-only"},
+          "ports": ["55458:5432"],
+          "options": "--health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 12"
+        }
+      },
+      "steps": [
+        {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}},
+        {"uses": "actions/setup-python@v5", "with": {"python-version": "3.12", "cache": "pip"}},
+        {"uses": "actions/setup-node@v4", "with": {"node-version": "22"}},
+        {"name": "Install pinned dependencies", "run": "python -m pip install -r requirements.txt uv==0.12.3"},
+        {"name": "Install locked agent web dependencies", "run": "python -m pip install --require-hashes -r ops/agent_chat/web-requirements.txt\npython -m pip check"},
+        {"name": "Install isolated agent SDK", "run": "python -m venv ops/agent_probe/.venv\nops/agent_probe/.venv/bin/pip install --require-hashes -r ops/agent_probe/requirements.txt"},
+        {"name": "Django checks", "run": "python regulai/manage.py check --settings=regulai.test_settings"},
+        {"name": "Installer tests", "run": "python -m unittest ops.setup.test_installer ops.setup.test_chat_bundle"},
+        {"name": "HTTP and invariant tests (isolated SQLite/PostgreSQL)", "run": "python scripts/run_ci_tests.py"},
+        {"name": "Migration drift", "run": "python regulai/manage.py makemigrations --check --dry-run --settings=regulai.test_settings"},
+        {"name": "Offline evaluation", "run": "evaluation_dir=$(mktemp -d)\ntrap 'rm -rf -- \"$evaluation_dir\"' EXIT\npython regulai/manage.py evaluate_ai --settings=regulai.test_settings --output \"$evaluation_dir/run\""},
+        {"name": "Dependency audit", "run": "uv tool run --from pip-audit==2.10.1 pip-audit -r requirements.txt"}
+      ]
+    },
+    "chat_island": {
+      "runs-on": "ubuntu-latest",
+      "timeout-minutes": 15,
+      "defaults": {"run": {"working-directory": "frontend/chat"}},
+      "steps": [
+        {"uses": "actions/checkout@v4"},
+        {"uses": "actions/setup-node@v4", "with": {"node-version-file": "frontend/chat/.node-version", "cache": "npm", "cache-dependency-path": "frontend/chat/package-lock.json"}},
+        {"name": "Pinned package manager", "run": "npm install --global npm@11.17.0 && npm --version"},
+        {"name": "Install the lockfile exactly", "run": "npm ci"},
+        {"name": "Typecheck", "run": "npm run typecheck"},
+        {"name": "Unit tests", "run": "npm test"},
+        {"name": "Build", "run": "npm run build"},
+        {"name": "The committed build is the build of these sources", "run": "git status --porcelain -- ../../regulai/static/chat-app\ngit diff --exit-code -- ../../regulai/static/chat-app\ntest -z \"$(git status --porcelain -- ../../regulai/static/chat-app)\""},
+        {"name": "Dependency audit (shipped packages)", "run": "npm audit --omit=dev --audit-level=high"}
+      ]
+    }
+  }
+}

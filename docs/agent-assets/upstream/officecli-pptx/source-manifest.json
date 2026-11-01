@@ -1,0 +1,28 @@
+{
+  "repo": "iOfficeAI/OfficeCLI",
+  "sha": "8d079c777ed6bea35b922c3d893758d3c2081137",
+  "version": "1.0.155",
+  "binary_sha256": "1a5da5cb7e9d995db7a6560beb7466760c79617648f72e65f4ce55897c407f67",
+  "files": [
+    {
+      "path": "SKILL.md",
+      "sha256": "c950d285ce60021712b4753fb2d9f592308d5622bab776229061dfecb1ce55d4"
+    },
+    {
+      "path": "skills/officecli-pptx/SKILL.md",
+      "sha256": "0d53192751d5770984f16f3c34f9923377651555c667150d7f96e16e8c9757b3"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "7e282402a5a6db33995fe638bb3fe79013f9884d8f7d15a42e481c1e86aadda1"
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.txt",
+      "sha256": "7e79e54cddf05f25681198429eb42e1401c1c53a3b29bf63744dc09411c029d8"
+    },
+    {
+      "path": "SHA256SUMS",
+      "sha256": "61dd1e51f7e316b946f53dd8aae221734c84947bc3cc4f559552facdc77cb377"
+    }
+  ]
+}

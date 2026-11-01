@@ -1,4 +1,10 @@
 from django.urls import path
+from .ai_connections import ai_connections
+from .agents import views as agent_views
+from .agents import skill_views
+from .agents import artifact_preview
+from .chat_ui import request_receipt, request_evidence, request_stream, request_cancel
+from .policy_simulator import policy_simulator, policy_simulator_activate
 from .views import (
     home_view, login_view, logout_view, signup_view, profile_view,
     chat_view, chat_new, chat_delete, chat_send_message, chat_download_file, chat_select_engine, chat_select_model, dashboard_view,
@@ -20,6 +26,34 @@ from .views import (
 app_name = 'front'
 
 urlpatterns = [
+    path('chat/agent/artifacts/<uuid:artifact_id>/preview/', artifact_preview.preview, name='agent_artifact_preview'),
+    path('skills/', skill_views.library, name='skills_library'),
+    path('skills/conversations/<int:conversation_id>/preference/', skill_views.preference, name='skill_preference'),
+    path('skills/catalog/<slug:candidate>/', skill_views.detail, name='skill_detail'),
+    path('skills/import/inspect/', skill_views.inspect_package, name='skill_inspect'),
+    path('skills/installations/', skill_views.installations, name='skill_install'),
+    path('skills/installations/<uuid:installation_id>/', skill_views.installed_detail, name='skill_installed_detail'),
+    path('skills/operations/<uuid:operation_id>/', skill_views.operation, name='skill_operation'),
+    path('skills/installations/<uuid:installation_id>/update/', skill_views.installations, name='skill_update'),
+    path('skills/installations/<uuid:installation_id>/<str:action>/', skill_views.mutate, name='skill_mutate'),
+    path('internal/agents/sandbox-cleanup/', agent_views.worker_sandbox_cleanup, name='agent_sandbox_cleanup'),
+    path('chat/agent/exports/<uuid:export_id>/decision/', agent_views.export_decision, name='agent_export_decision'),
+    path('chat/agent/runs/<uuid:run_id>/recover-export/', agent_views.export_recovery, name='agent_export_recovery'),
+    path('chat/agent/documents/search/', agent_views.document_search, name='agent_document_search'),
+    path('internal/agents/inference/', agent_views.inference, name='agent_inference'),
+    path('internal/agents/tool-results/', agent_views.result, name='agent_tool_result'),
+    path('internal/agents/authorize-tool/', agent_views.authorize, name='agent_authorize_tool'),
+    path('internal/agents/claim/', agent_views.worker_claim, name='agent_worker_claim'),
+    path('internal/agents/checkpoints/', agent_views.worker_checkpoints, name='agent_worker_checkpoints'),
+    path('internal/agents/run/<str:operation>/', agent_views.execution_operation, name='agent_execution_operation'),
+    path('chat/agent/runs/<uuid:run_id>/', agent_views.run_status, name='agent_run_status'),
+    path('chat/agent/runs/<uuid:run_id>/events/', agent_views.events, name='agent_events'),
+    path('chat/agent/runs/<uuid:run_id>/cancel/', agent_views.cancel_run, name='agent_cancel'),
+    path('chat/agent/runs/<uuid:run_id>/resume/', agent_views.resume_run, name='agent_resume'),
+    path('chat/agent/runs/<uuid:run_id>/operations/<int:operation_id>/', agent_views.operation_details, name='agent_operation_details'),
+    path('chat/agent/artifacts/<uuid:artifact_id>/download/', agent_views.download, name='agent_download'),
+    path('chat/agent/artifacts/<uuid:artifact_id>/pages/<int:number>/', agent_views.document_page, name='agent_document_page'),
+    path('chat/agent/artifacts/<uuid:artifact_id>/review/', agent_views.document_review, name='agent_document_review'),
     # Home
     path("", home_view, name="home"),
 
@@ -31,10 +65,16 @@ urlpatterns = [
 
     # Dashboard & Chat
     path("dashboard/", dashboard_view, name="dashboard"),
+    path("policies/simulator/", policy_simulator, name="policy_simulator"),
+    path("policies/simulator/activate/", policy_simulator_activate, name="policy_simulator_activate"),
     path("index", chat_view, name="index"),
     path("chat/", chat_view, name="chat"),
     path("chat/new/", chat_new, name="chat_new"),
     path("chat/send/", chat_send_message, name="chat_send"),
+    path("chat/requests/<uuid:request_id>/receipt/", request_receipt, name="chat_request_receipt"),
+    path("chat/requests/<uuid:request_id>/evidence/", request_evidence, name="chat_request_evidence"),
+    path("chat/requests/<uuid:request_id>/stream/", request_stream, name="chat_request_stream"),
+    path("chat/requests/<uuid:request_id>/cancel/", request_cancel, name="chat_request_cancel"),
     path("chat/select-engine/", chat_select_engine, name="chat_select_engine"),
     path("chat/select-model/", chat_select_model, name="chat_select_model"),
     path("chat/<int:conversation_id>/send/", chat_send_message, name="chat_send_conversation"),
@@ -91,6 +131,7 @@ urlpatterns = [
 
     # Company Settings
     path("settings/company/", company_settings, name="company_settings"),
+    path("settings/ai/", ai_connections, name="ai_connections"),
 
     # Department Management (Settings)
     path("settings/departments/", departments_list, name="departments_list"),

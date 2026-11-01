@@ -1,0 +1,3 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: complain letter request.   Body: Write a complain letter about not able to send confirmation email to recipient@example.invalid and ask for fixing it now

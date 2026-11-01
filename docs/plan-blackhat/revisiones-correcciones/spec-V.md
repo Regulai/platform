@@ -1,0 +1,9 @@
+# Spec V — 9549e74 contra 4400f0b
+
+No he reproducido defectos técnicos accionables ni trabajo fuera de alcance en los cambios de V. La implementación cubre alias, citas mínimas configurables, evidencia desde 1, un único fence JSON, máximo 30 afirmaciones, completitud desconocida con `finish_reason=None`, JSON y parámetros de razonamiento por capacidad explícita. Revisé también los contratos consumidores de P y los precios/capacidades de O.
+
+**Requisito parcial, pendiente documental de R:** el encargo V pide «Añade el texto de ayuda en los campos y un validador que rechace valores probablemente expresados por token […] Corrige también el documento». `docs/plan-blackhat/jev-gateway.md:13` conserva únicamente `USD 0,000000042/token`, sin la equivalencia `0,042 USD por millón` que necesita la configuración. Caso sintético reproducido: `AIConfig.model_validate` rechaza `jev.input_price='0.000000042'` mediante `front/policy.py:42–46`; acepta `'0.042'`. Copiar el número documentado causa configuración inválida. El código y la migración sí indican y validan la unidad; la actualización final de documentación aún no se ha declarado terminada. Registrar como pendiente para R, no como fallo técnico de V.
+
+Verificación observada: 29 tests focales existentes OK y tres probes independientes OK, todos con `regulai.test_settings` y SQLite en memoria. El probe externo `probe-V-spec.py` comprueba HTTP web antiguo, web asíncrono y REST; pares afirmación/extracto y fuentes completas en el estado de Jev; intención `started` persistida antes de la salida; evidencia guardada con índice y fragmento del servidor; SDK OpenAI/Anthropic reales con `httpx.MockTransport`, sin red, y el precio documental incompatible. Los transportes admiten los parámetros añadidos.
+
+Límites: estas pruebas no miden calidad semántica ni compatibilidad de modelos remotos concretos. No hice llamadas pagadas, calibración ni cambios al checkout. No leí informes de otros revisores.

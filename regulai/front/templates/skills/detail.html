@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}{{ skill.display_name|default:skill.name }} · Skills{% endblock %}
+{% block body_attributes %} class="rg-page rg-skills-page"{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=p1-skills-ux-1">{% endblock %}
+{% block shell %}
+<nav class="rg-skills-nav" aria-label="Principal"><a href="{% url 'front:chat' %}">regulAI</a><a href="{% url 'front:chat' %}" data-skill-return>Volver al chat</a><a href="{% url 'front:skills_library' %}">Skills</a></nav>
+<main class="rg-skills-main rg-skill-detail" id="skillDetail"><a class="rg-skill-back" href="{% url 'front:skills_library' %}">← Volver a Skills</a>
+<header class="rg-skills-heading"><div><h1>{{ skill.display_name|default:skill.name }}</h1><p class="rg-skill-summary">{{ skill.summary|default:skill.description }}</p><p class="rg-skill-byline">{{ skill.publisher }}{% if skill.license %} · {{ skill.license }}{% endif %}</p></div></header>
+{% if skill.is_catalog_detail and skill.installation and not skill.installation.catalog_revision %}<p class="rg-skill-revision-notice">Tu instalación usa otra revisión. <a href="/skills/installations/{{ skill.installation.id }}/">Consulta el paquete instalado</a> antes de usarlo.</p>{% endif %}
+<div class="rg-skill-actions">{% csrf_token %}<button type="button" class="rg-btn rg-primary" id="skillInstall" data-candidate="{{ skill.id }}"{% if skill.installation and not skill.runtime_enabled %} disabled aria-describedby="skillRuntimeStatus"{% endif %}>{% if skill.installation %}Usar en chat{% else %}Instalar{% endif %}</button><span id="skillInstallStatus" role="status" aria-live="polite">{% if skill.installation and not skill.runtime_enabled %}Instalada · ejecución desactivada{% elif skill.availability.available %}Lista para usar{% else %}Puede instalarse; requiere configuración para usarla.{% endif %}</span></div>
+<div id="skillRevisionActions" class="rg-skill-actions rg-skill-management" aria-label="Gestionar instalación"></div>
+{% if not skill.runtime_enabled %}<p id="skillRuntimeStatus">La ejecución de skills está desactivada. Puedes instalar y gestionar paquetes; se conservan tus instalaciones.</p>{% endif %}
+{% if skill.examples %}<section><h2>Qué puedes pedirle</h2><ul>{% for example in skill.examples %}<li>{{ example }}</li>{% endfor %}</ul></section>{% endif %}
+<section><h2>Requisitos</h2>{% if skill.availability.available %}<p>Tu perfil dispone de las herramientas necesarias. {% if 'automatic' not in skill.availability.activation_modes %}Selección manual.{% endif %}</p>{% else %}<ul>{% for requirement in skill.availability.requirement_labels|default:skill.availability.requirements %}<li>{{ requirement }}</li>{% endfor %}</ul>{% endif %}<p>Instalar una skill no cambia los permisos de tu cuenta.</p></section>
+<details><summary>Archivos incluidos ({{ skill.manifest|length }})</summary><ul class="rg-skill-files">{% for item in skill.manifest %}<li><span>{{ item.path }}</span><small>{{ item.bytes }} bytes</small></li>{% endfor %}</ul></details>
+<details><summary>Origen, versión y licencia</summary><p>{{ skill.origin }}</p><p>Revisión: {{ skill.commit }}</p><p class="rg-skill-hash">SHA-256: {{ skill.folder_sha256 }}</p><pre>{{ skill.attribution }}</pre><pre>{{ skill.license_text }}</pre></details>
+</main>
+{{ skill|json_script:"skill-data" }}
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/skills.js' %}?v=p1-skills-ux-1"></script>{% endblock %}

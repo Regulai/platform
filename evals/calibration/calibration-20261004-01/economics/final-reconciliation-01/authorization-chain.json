@@ -1,0 +1,91 @@
+{
+  "extensions": [
+    {
+      "sequence": 1,
+      "id": "adversarial-four-case-vercel-extension-v1",
+      "digest": "3c1ebb4ae271c4761746752acc866f95eecc7d6eb622d1baa06ca242b2caa329",
+      "previous_id": "pilot-community-20261003-vercel-approved-v1",
+      "previous_digest": "aea3a73b0d94bba65c7d629f2a47ad1befd46896097424bda2b2d4c58a1b3591",
+      "at": "2026-10-03T17:10:32.894720+00:00",
+      "manifest_sha256": "80d336bd1cbb7a75e4a46a8c922b8a52afa8a9c4567dec2c380d8088be5c13f0",
+      "approval_reference": "2026-10-03 user reply to call_3bb9a7ecc55448f6afbf14dc542141c7: autorizo esos 4 casos y autorizo que hagas mas. This record registers only the four reviewed cases; the combined 1 USD cap, destinations, synthetic-only data and stop conditions remain unchanged.",
+      "max_external_calls": 44
+    },
+    {
+      "sequence": 2,
+      "id": "adversarial-four-additional-vercel-extension-v1",
+      "digest": "23d7d344b5195ae4b87e126c912fa399f4abdaeedab0070bbf7727deaa90ad1f",
+      "previous_id": "adversarial-four-case-vercel-extension-v1",
+      "previous_digest": "3c1ebb4ae271c4761746752acc866f95eecc7d6eb622d1baa06ca242b2caa329",
+      "at": "2026-10-03T17:28:20.930814+00:00",
+      "manifest_sha256": "b4730105fd1f74bfbd3baf0d6757cd9bfd6484b1170b61517944ad721e058b30",
+      "approval_reference": "2026-10-03 user reply to call_3bb9a7ecc55448f6afbf14dc542141c7: autorizo esos 4 casos y autorizo que hagas mas. This record registers BENIGN-02, PII-03, DOC-01 and INJ-07 under the explicit additional-cases permission; the combined 1 USD cap, destinations, synthetic-only data and stop conditions remain unchanged.",
+      "max_external_calls": 44
+    },
+    {
+      "sequence": 3,
+      "id": "calibration-20261004-01-baseline-smoke-02",
+      "digest": "ff24cacc9328a2a1a25cce8d8e72cf2a414e6c539d34f576e9dd64763facc5f1",
+      "previous_id": "adversarial-four-additional-vercel-extension-v1",
+      "previous_digest": "23d7d344b5195ae4b87e126c912fa399f4abdaeedab0070bbf7727deaa90ad1f",
+      "at": "2026-10-04T08:10:38.142305+00:00",
+      "manifest_sha256": "140b78da56b9fccf0307fe6612a0d9b1ce2826fad6a65bd21ef9e900bafd1fe5",
+      "approval_reference": "Explicit attached calibration request of 2026-10-04; concrete conforming batches authorized without reconfirmation.",
+      "max_external_calls": 44
+    },
+    {
+      "sequence": 4,
+      "id": "calibration-20261004-01-candidate-smoke-01",
+      "digest": "30622bbe85e01d4ad0bdac9dd1b3169816496d7ddbdea45cde25e7d4c2165692",
+      "previous_id": "calibration-20261004-01-baseline-smoke-02",
+      "previous_digest": "ff24cacc9328a2a1a25cce8d8e72cf2a414e6c539d34f576e9dd64763facc5f1",
+      "at": "2026-10-04T08:15:24.094906+00:00",
+      "manifest_sha256": "5927d1ac49ff185920dabaf3bdcfc1d7ad58958cba21f9173623a7e1b252d0b4",
+      "approval_reference": "Explicit attached calibration request of 2026-10-04; concrete conforming batches authorized without reconfirmation.",
+      "max_external_calls": 44
+    },
+    {
+      "sequence": 5,
+      "id": "calibration-20261004-01-r4-smoke-01",
+      "digest": "c8caf6f23b967df75190bf1b241ea27b8a2d841f5e11d8726aa070e5392d5b1a",
+      "previous_id": "calibration-20261004-01-candidate-smoke-01",
+      "previous_digest": "30622bbe85e01d4ad0bdac9dd1b3169816496d7ddbdea45cde25e7d4c2165692",
+      "at": "2026-10-04T08:31:36.170855+00:00",
+      "manifest_sha256": "07c306ebf6e5ad258b3ad4a282cb34476e4d6f370d07d7a47fddb0fc19ed56d6",
+      "approval_reference": "Explicit attached calibration request of 2026-10-04; concrete conforming batches authorized without reconfirmation.",
+      "max_external_calls": 44
+    }
+  ],
+  "runs": [
+    {
+      "authorization_id": "adversarial-four-case-vercel-extension-v1",
+      "run_id": "d008028e-e171-4a81-b0c8-0e9cc5d0b59e",
+      "manifest_sha256": "80d336bd1cbb7a75e4a46a8c922b8a52afa8a9c4567dec2c380d8088be5c13f0",
+      "at": "2026-10-03T17:10:57.213407+00:00"
+    },
+    {
+      "authorization_id": "adversarial-four-additional-vercel-extension-v1",
+      "run_id": "7c91a6cb-442c-4d1d-9b4e-940b482f9d98",
+      "manifest_sha256": "b4730105fd1f74bfbd3baf0d6757cd9bfd6484b1170b61517944ad721e058b30",
+      "at": "2026-10-03T17:28:28.768929+00:00"
+    },
+    {
+      "authorization_id": "calibration-20261004-01-baseline-smoke-02",
+      "run_id": "9bce70ce-323c-4de5-8a11-f88f8c76b84c",
+      "manifest_sha256": "140b78da56b9fccf0307fe6612a0d9b1ce2826fad6a65bd21ef9e900bafd1fe5",
+      "at": "2026-10-04T08:10:56.763998+00:00"
+    },
+    {
+      "authorization_id": "calibration-20261004-01-candidate-smoke-01",
+      "run_id": "f0876769-7ce6-4d5c-805a-bf765a2ce305",
+      "manifest_sha256": "5927d1ac49ff185920dabaf3bdcfc1d7ad58958cba21f9173623a7e1b252d0b4",
+      "at": "2026-10-04T08:15:26.937518+00:00"
+    },
+    {
+      "authorization_id": "calibration-20261004-01-r4-smoke-01",
+      "run_id": "309854c7-72e4-41c2-bee2-8e35ee226a34",
+      "manifest_sha256": "07c306ebf6e5ad258b3ad4a282cb34476e4d6f370d07d7a47fddb0fc19ed56d6",
+      "at": "2026-10-04T08:31:39.260776+00:00"
+    }
+  ]
+}

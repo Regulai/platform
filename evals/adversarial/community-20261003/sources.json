@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-03",
+  "scope": "Fuentes de patrones y metodología; no son pruebas del producto ni autorizaciones para realizar acciones descritas por los payloads.",
+  "sources": [
+    {
+      "id": "SYNTHETIC",
+      "title": "Contenido sintético escrito para este corpus",
+      "url": null,
+      "accessed_at": "2026-10-03",
+      "source_license": "Contenido nuevo del repositorio; véase LICENSE en la raíz (BUSL-1.1). No se relicencia material de terceros.",
+      "reproduction": "Todos los valores de identidad, cuentas, credenciales, importes y documentos son artificiales, sin registros de personas reales ni consultas de asignación."
+    },
+    {
+      "id": "OWASP-PI",
+      "title": "LLM Prompt Injection Prevention Cheat Sheet",
+      "authors": "OWASP Cheat Sheets Series Team",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html",
+      "license_url": "https://github.com/OWASP/CheatSheetSeries/blob/master/LICENSE.md",
+      "source_license": "CC-BY-SA-4.0",
+      "accessed_at": "2026-10-03",
+      "source_locator": "Common Attack Types: Direct Prompt Injection; Encoding and Obfuscation Techniques; HTML and Markdown Injection",
+      "reproduction": "INJ-01 e INJ-02 reproducen dos ejemplos completos breves: 19 palabras en total, sin cambios. Los demás casos citados son adaptaciones sintéticas con marcadores y objetivos propios. Los extractos y adaptaciones de OWASP conservan CC-BY-SA-4.0 y su atribución; no quedan sujetos a restricciones adicionales del LICENSE del código."
+    },
+    {
+      "id": "MS-BIPIA",
+      "title": "BIPIA: Benchmarking and Defending Against Indirect Prompt Injection Attacks on Large Language Models",
+      "authors": "Jingwei Yi, Yueqi Xie, Bin Zhu, Keegan Hines, Emre Kiciman, Guangzhong Sun, Xing Xie y Fangzhao Wu; repositorio Microsoft",
+      "url": "https://github.com/microsoft/BIPIA",
+      "pattern_url": "https://github.com/microsoft/BIPIA/blob/main/benchmark/text_attack_test.json",
+      "paper_url": "https://arxiv.org/abs/2312.14197",
+      "license_url": "https://github.com/microsoft/BIPIA/blob/main/LICENSE",
+      "source_license": "MIT para el repositorio, con excepciones específicas de datasets descritas en LICENSE; esos datasets no se importan.",
+      "accessed_at": "2026-10-03",
+      "reproduction": "Solo se usan como referencia las tareas documentales y la alteración de salida. No se copia código, datos del benchmark, correos ni textos de terceros; cada payload de este corpus está reescrito."
+    },
+    {
+      "id": "MS-SPOTLIGHTING",
+      "title": "Defending Against Indirect Prompt Injection Attacks With Spotlighting",
+      "authors": "Keegan Hines, Gary Lopez, Matthew Hall, Federico Zarfati, Yonatan Zunger y Emre Kiciman",
+      "url": "https://www.microsoft.com/en-us/research/publication/defending-against-indirect-prompt-injection-attacks-with-spotlighting/",
+      "paper_url": "https://arxiv.org/abs/2403.14720v1",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "source_license": "CC-BY-4.0, enlace de licencia de la versión arXiv consultada; la página corporativa se cita por referencia.",
+      "accessed_at": "2026-10-03",
+      "reproduction": "Concepto de procedencia y separación de contenido; no se reproduce prosa ni payload del paper. Las etiquetas y citas falsas son ejemplos propios."
+    }
+  ],
+  "exclusions": "No se importaron datos de benchmarks con personas reales, documentos comerciales, credenciales, resultados de sistemas ajenos ni corpus Office. No hay macro, ejecutable, enlace operativo de exfiltración ni instrucción para ejecutar el corpus."
+}

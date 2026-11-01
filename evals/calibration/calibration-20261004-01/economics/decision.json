@@ -1,0 +1,22 @@
+{
+  "reviewed_at_utc": "2026-10-03T23:19:42Z",
+  "fx_date": "2026-10-02",
+  "fx_source": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+  "usd_per_eur": "1.1225",
+  "maximum_total_eur": "2.00",
+  "conservative_margin": "0.35",
+  "margin_rationale": "35% extra above token costs reserved for possible indirect taxes, payment conversion/processing and FX drift. Account-specific tax treatment is unknown; no tax exemption or free credit is assumed. No credit purchase is authorized.",
+  "formula": "floor_to_cent(2.00 * 1.1225 / 1.35)",
+  "operating_total_usd": "1.66",
+  "historical_exposure_usd": "0.038440878",
+  "historical_uncertain_usd": "0.003",
+  "new_usable_exposure_usd": "1.621559122",
+  "initial_phase_allocations_usd": {"baseline": "0.3243118244", "development": "0.6486236488", "confirmation": "0.6486236488"},
+  "models": {
+    "deepseek-flash": {"published_version": "DeepSeek-V4.1-Flash", "input_per_million_usd": "0.30", "output_per_million_usd": "1.20"},
+    "deepseek-v4-pro": {"published_version": "DeepSeek-V4-Pro-0813", "input_per_million_usd": "1.32", "output_per_million_usd": "3.96"},
+    "typesafe-ai/jev": {"published_version": "mutable alias; underlying immutable version not exposed", "input_per_million_usd": "0.042", "output_per_million_usd": "0", "context_window_catalog": 32000, "request_total_token_limit": 64000, "state_plus_longest_question_token_limit": 32000, "output_token_limit": null}
+  },
+  "tariff_policy": "DeepSeek peak uncached rates, thinking explicitly disabled, bounded output. Jev input includes state/questions/protocol; no charge assumed absent except published output zero. Bound unknown billed input by published request capacity plus conservative reserve. Recheck official snapshots/date before new batches; mismatch stops.",
+  "limitations": ["ECB reference rate is informational, not an executed currency conversion.", "Model identifiers are aliases; availability is documented but successful authenticated execution has not yet been observed in this campaign.", "Gateway token prices have no platform markup per official docs; payment fees may apply.", "Historical uncertain call remains charged to exposure and will not be repeated."]
+}

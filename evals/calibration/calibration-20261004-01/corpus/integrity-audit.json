@@ -1,0 +1,16 @@
+{
+  "arithmetic_references": 401,
+  "cases": 4004,
+  "documents": 1181,
+  "failures": {},
+  "families": 2043,
+  "kind": "schema_and_premeasurement_oracle_integrity_not_product_performance",
+  "ok": true,
+  "partitions_checked": [
+    "development",
+    "validation",
+    "reserved"
+  ],
+  "preserve_spans": 2243,
+  "redaction_spans": 2418
+}

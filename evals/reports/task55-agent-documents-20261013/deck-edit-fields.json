@@ -1,0 +1,45 @@
+{
+  "narrative": {
+    "title": "Computación cuántica y ciberseguridad",
+    "language": "es",
+    "pages": [
+      {
+        "heading": "Preparar una transición controlada",
+        "blocks": [
+          {
+            "kind": "analysis",
+            "text": "La organización necesita conocer sus dependencias criptográficas antes de comprometer una migración. El inventario debe relacionar servicios, propietarios y requisitos de confidencialidad. Las prioridades se justifican con evidencia de uso y capacidad de cambio.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      },
+      {
+        "heading": "Ensayo y recuperación",
+        "blocks": [
+          {
+            "kind": "recommendation",
+            "text": "Seleccionar un servicio representativo y medir compatibilidad, errores y recuperación en un entorno aislado. Registrar los resultados frente a una línea de base y exigir evidencia técnica a los proveedores. La aceptación del piloto debe incluir una reversión probada.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      },
+      {
+        "heading": "Decisiones y evidencia",
+        "blocks": [
+          {
+            "kind": "recommendation",
+            "text": "Asignar responsables del inventario y del piloto. Revisar dependencias pendientes y excepciones con sus evidencias. Ajustar el programa cuando cambien los resultados de las pruebas. Esta propuesta no fija presupuestos ni afirma haber evaluado los sistemas de la empresa.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      }
+    ],
+    "references": [],
+    "limitations": [
+      "No se han consultado fuentes externas. Este documento contiene análisis y recomendaciones sin verificación factual externa."
+    ]
+  }
+}

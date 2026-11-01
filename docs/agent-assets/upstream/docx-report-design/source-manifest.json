@@ -1,0 +1,38 @@
+{
+  "repo": "drharunyuksel/docx-report-skill",
+  "sha": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "99b5b2993404ad1542f1e5bbbf32e204df3b1afab18289f11dab280bae351d92"
+    },
+    {
+      "path": "README.md",
+      "sha256": "3dc5b518432998021bd301eb62a977e8a4238a906741b803a5f92dca5c44cc8f"
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "b035866fd1f57b9d602e1cf2e7c99d90fbc7f62a90efece4110efd06b1ed5bb9"
+    },
+    {
+      "path": "references/brand-config.js",
+      "sha256": "016d0d511e44874bb5d799cdcc78de374e3e8c7e60698d236aea884815a178a2"
+    },
+    {
+      "path": "references/color-palette.md",
+      "sha256": "2ff1a4d6c162bc8cfb64ae0f088d33daca50b9f09cd8992cb91f3c793b6e671d"
+    },
+    {
+      "path": "references/page-setup.js",
+      "sha256": "16497c805942be733ffc5c9f49496e19cf7f041bf09ba312b0101c16ae691043"
+    },
+    {
+      "path": "references/table-templates.js",
+      "sha256": "69cd207dea4324351790ec62cbbe75b8d992a4a63b7a26445bf63e17f7c10e37"
+    },
+    {
+      "path": "references/typography.js",
+      "sha256": "6e90532068d5eaa986d6baf8d5f10da936169e2cce610368c88223e363ff6b2b"
+    }
+  ]
+}

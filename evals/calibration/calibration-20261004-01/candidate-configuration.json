@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "candidate_id": "privacy-v5",
+  "implementation_commit": "2732be1ad42a7139b6ab6872875b436c2031cefd",
+  "base_commit": "9d7f9424a70143614c9d673e64ebed9723ff3439",
+  "runtime_sha256": {
+    "regulai/front/local_masking.py": "5d6eaa792de291c96b0d2c94c8e1697136f42594e4ef8d9344106255f2e965b6"
+  },
+  "detector_version": "regulai-local-v5",
+  "changes": [
+    "Matching-only Unicode normalization with original offsets",
+    "Bounded DNI/NIE separators",
+    "Worded email only after explicit label",
+    "Union original and normalized matches"
+  ],
+  "classification_threshold": 0.8,
+  "verification_threshold": 0.8,
+  "verification_mode": "enforce",
+  "classification_mode": "required",
+  "signal_threshold": "unchanged product default",
+  "generations_max": {
+    "economy": 1,
+    "strong": 1,
+    "router": 2
+  },
+  "selection_status": "candidate_pending_development_validation",
+  "rollback": "Restore only regulai/front/local_masking.py from baseline commit, keep evidence and rerun relevant gates."
+}

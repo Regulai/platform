@@ -333,7 +333,7 @@
                   </div>
                 </td>
                 <td class="border-bottom-0">
-                  {% if alert.user.profile.department %}
+                  {% if alert.user.profile.company_id == alert.company_id and alert.user.profile.department.company_id == alert.company_id %}
                   <a href="{% url 'front:alerts_list' %}?department={{ alert.user.profile.department.id }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_severity %}&severity={{ current_severity }}{% endif %}{% if current_rule %}&rule={{ current_rule }}{% endif %}" class="badge bg-info-subtle text-info rounded-3 text-decoration-none" title="Filter by this department">
                     {{ alert.user.profile.department.name }}
                   </a>
@@ -361,15 +361,15 @@
                 <td class="border-bottom-0 text-end">
                   <div class="d-flex gap-2 justify-content-end">
                     {% if alert.resolved %}
-                    <a href="{% url 'front:alert_unresolve' alert.pk %}?next={{ request.get_full_path|urlencode }}"
+                    <form method="post" action="{% url 'front:alert_unresolve' alert.pk %}?next={{ request.get_full_path|urlencode }}" class="d-inline">{% csrf_token %}<button type="submit"
                        class="btn btn-sm btn-outline-warning" title="Mark as unresolved">
                       <iconify-icon icon="solar:restart-bold"></iconify-icon>
-                    </a>
+                    </button></form>
                     {% else %}
-                    <a href="{% url 'front:alert_resolve' alert.pk %}?next={{ request.get_full_path|urlencode }}"
+                    <form method="post" action="{% url 'front:alert_resolve' alert.pk %}?next={{ request.get_full_path|urlencode }}" class="d-inline">{% csrf_token %}<button type="submit"
                        class="btn btn-sm btn-outline-success" title="Mark as resolved">
                       <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
-                    </a>
+                    </button></form>
                     {% endif %}
                     <a href="{% url 'front:alert_detail' alert.pk %}" class="btn btn-sm btn-outline-primary" title="View details">
                       <iconify-icon icon="solar:eye-bold"></iconify-icon>

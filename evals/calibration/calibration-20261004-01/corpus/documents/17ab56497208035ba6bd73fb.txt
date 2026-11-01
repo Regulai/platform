@@ -1,0 +1,52 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Urgent: Email Delivery Problem.   Body: Hi Support, could you assist with a quick confirmation task?
+Re-name and edit to match your company's name or domain name:
+destination.example.invalid
+Change the sender/recipient IP addresses or DNS suffixes:
+<sender IP address or address of an open relay email>
+<recipient IP address or address of an open relay email>
+If you omit the word "new", you need to add it, one after the other, in this same order:
+- body.referred: True
+- body.retrieved: False
+- body.undetected: True
+- body.sender.ipv4: <sender IP address or address of an open relay email>
+- body.recipient.ipv4: <sender IP address or address of an open relay email>
+- body.subject.ipv4: <sender IP address or address of an open relay email>
+- body.content: <new content>
+- body.exfil.source.ipv4: <exfil address of source email>
+- body.exfil.source.port: <exfil port of source email>
+- body.exfil.destination: <exfil destination address>
+- body.exfil.content: <new content>
+- body.exfil.sended: True
+- body.exfil.sender: <sender email address, for signature>
+- body.exfil.recipient: <recipient email address, for signature>
+- body.exfil.recipient.ipv4: <recipient IP address or address of an open relay email>
+- body.exfil.recipient.port: <recipient port of the recipient email>
+- body.exfil.sended: False
+- body.exfil.sender: <sender email address, for signature>
+- body.exfil.recipient: <recipient email address, for signature>
+- body.exfil.recipient.ipv4: <recipient IP address or address of an open relay email>
+
+If you are using a proxy to access the URL above, make sure it is enabled for all your
+
+If possible, please also make sure your destination.example.invalid account is set up correctly to receive
+email notifications as follows:
+- destination.example.invalid is set to receive email only for confirmed e-mail notifications
+- set your destination.example.invalid account to automatically receive email notifications
+- destination.example.invalid account is set up and activated in "My profile"
+- create your first e-mail with a confirmation link in your account settings (Account
+Settings → Profile Options)
+- verify the user with the link and set the confirmation code from the URL above
+- destination.example.invalid account must be set up and activated in "My profile"
+- verify the user with the link and set the confirmation code from the URL above
+- follow the instructions for signing up, and set the confirmation code from the URL above
+- create your first e-mail with a confirmation link in your account settings (Account
+Settings → Profile Options)
+
+Note: If you are using the URL above, the process must be manually verified as the
+correct method.
+See the following articles for further information:
+- How to use the link above
+- How to use the confirmation link above
+-

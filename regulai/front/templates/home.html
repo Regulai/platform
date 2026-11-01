@@ -18,7 +18,7 @@
                             <h2 class="mb-1">Welcome to regulAI, {{ user.first_name|default:user.username }}</h2>
                             <p class="mb-0 opacity-75">
                                 {% if is_admin %}
-                                    Administrator Dashboard - Full system access and configuration
+                                    Administrator Dashboard - Organization access and configuration
                                 {% elif is_staff %}
                                     Security Dashboard - Monitor and protect AI usage in your organization
                                 {% else %}
@@ -55,7 +55,7 @@
                             <div class="border rounded p-3 h-100">
                                 <i class="ti ti-file-upload text-info fs-4 mb-2 d-block"></i>
                                 <h6>File Analysis</h6>
-                                <small class="text-muted">Upload documents for AI analysis. Supported formats include PDFs, Word documents, Excel spreadsheets, and images. Files are scanned for sensitive content before processing.</small>
+                                <small class="text-muted">Analyze text, PDF, DOCX, CSV and XLSX files. Extraction coverage is checked before sending; images and unsupported content require a readable document.</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -197,7 +197,7 @@
                             <div class="border rounded p-3 h-100">
                                 <i class="ti ti-file-upload text-info fs-4 mb-2 d-block"></i>
                                 <h6 class="mb-1">File Analysis</h6>
-                                <small class="text-muted">Upload PDFs, Word, Excel, images for AI processing.</small>
+                                <small class="text-muted">Analyze text, PDF, DOCX, CSV and XLSX files with extraction coverage checks.</small>
                             </div>
                         </div>
                     </div>
@@ -375,7 +375,7 @@
                             <i class="ti ti-file-upload text-info fs-4 me-2"></i>
                             <div>
                                 <strong class="d-block">Document Analysis</strong>
-                                <small class="text-muted">Upload PDFs, Word, Excel, and images. Content is extracted and scanned before AI processing.</small>
+                                <small class="text-muted">Analyze text, PDF, DOCX, CSV and XLSX. Extraction coverage and policy checks run before sending.</small>
                             </div>
                         </div>
                     </div>
@@ -383,8 +383,8 @@
                         <div class="d-flex align-items-start">
                             <i class="ti ti-eye text-success fs-4 me-2"></i>
                             <div>
-                                <strong class="d-block">Vision Support</strong>
-                                <small class="text-muted">Send images directly to vision-capable models for analysis and description.</small>
+                                <strong class="d-block">Document Coverage</strong>
+                                <small class="text-muted">Unreadable or unsupported content needs a readable document before analysis can continue.</small>
                             </div>
                         </div>
                     </div>

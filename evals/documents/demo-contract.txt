@@ -1,0 +1,3 @@
+Contrato público sintético para la demostración.
+El contrato cuesta 10 euros.
+La entrega está prevista para el viernes.

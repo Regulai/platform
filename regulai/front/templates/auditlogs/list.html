@@ -125,7 +125,7 @@
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}">All Users</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}?user=system">System</a></li>
+                  {% if is_platform_operator %}<li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}?user=system">System</a></li>{% endif %}
                   {% for u in users %}
                   <li><a class="dropdown-item" href="{% url 'front:auditlogs_list' %}?user={{ u.id }}">{{ u.username }}</a></li>
                   {% endfor %}
@@ -205,7 +205,7 @@
                     {% elif 'logout' in log.action %}bg-secondary
                     {% else %}bg-primary{% endif %}
                     rounded-3 fw-semibold">
-                    {{ log.action }}
+                    {{ log.action }}{% if not log.company_id %} <span class="badge bg-secondary">Histórico</span>{% endif %}
                   </span>
                 </td>
                 <td class="border-bottom-0">
@@ -218,9 +218,9 @@
                     <a href="{% url 'front:auditlog_detail' log.pk %}" class="btn btn-sm btn-outline-primary" title="View details">
                       <iconify-icon icon="solar:eye-bold"></iconify-icon>
                     </a>
-                    <a href="{% url 'front:auditlog_delete' log.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                    {% if not log.historical %}<a href="{% url 'front:auditlog_delete' log.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
                       <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
-                    </a>
+                    </a>{% endif %}
                   </div>
                 </td>
               </tr>

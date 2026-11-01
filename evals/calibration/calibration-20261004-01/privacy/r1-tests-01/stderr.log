@@ -1,0 +1,130 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+{"timestamp": "2026-10-03T23:25:41.936364+00:00", "level": "INFO", "logger": "front.migrations.0016_encrypt_api_keys", "request_id": null, "code": "unclassified_event", "exception_type": null}
+test_every_ambiguity_notice_instructs_the_generator_to_clarify_if_needed (front.test_classification.ClassificationChatTests.test_every_ambiguity_notice_instructs_the_generator_to_clarify_if_needed) ... ok
+test_single_plausible_task_cannot_borrow_general_quality (front.test_classification.ClassificationChatTests.test_single_plausible_task_cannot_borrow_general_quality) ... {"timestamp": "2026-10-03T23:25:47.081839+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "fcd3f01f-7eed-4f3f-80e4-d247be6c58c5", "code": "quality_unavailable", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:47.083839+00:00", "level": "ERROR", "logger": "django.request", "request_id": "5bff3e57-d682-42ea-b436-8b6061ed4264", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:47.100372+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "cc2851eb-8dbc-4be7-a647-6e557a2fd984", "code": "quality_unavailable", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:47.101371+00:00", "level": "ERROR", "logger": "django.request", "request_id": "007ccdea-7583-4e4b-b825-18e24b0500fe", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:47.117885+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "0d7fc76f-4045-40e8-9b39-1660ff373253", "code": "quality_unavailable", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:47.118887+00:00", "level": "ERROR", "logger": "django.request", "request_id": "8e637012-5080-4bfd-af55-ed9aa7b45ee6", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:47.136399+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "f51a112e-542c-4df9-870f-42f1ee6fde3e", "code": "quality_unavailable", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:47.137401+00:00", "level": "ERROR", "logger": "django.request", "request_id": "4d98dc92-268b-4aaa-a639-d3dc4c090650", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:47.156425+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "e054f09a-3760-4c56-9ac1-1a75eb395ab6", "code": "quality_unavailable", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:47.157431+00:00", "level": "ERROR", "logger": "django.request", "request_id": "c777c12a-5e18-4108-82e0-1f24d6521e7d", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:47.175949+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "405655d1-2b07-49b2-819e-4557c42be27d", "code": "quality_unavailable", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:47.176449+00:00", "level": "ERROR", "logger": "django.request", "request_id": "07ea83b4-3864-48f4-9069-541ca153aa76", "code": "unclassified_event", "exception_type": null}
+ok
+test_active_mask_without_a_bound_is_rejected_before_semantic_calls (front.test_classification.ClassificationSimulatorTests.test_active_mask_without_a_bound_is_rejected_before_semantic_calls) ... {"timestamp": "2026-10-03T23:25:47.218050+00:00", "level": "WARNING", "logger": "django.request", "request_id": "febe1c6f-a1a0-470b-b933-964954fddcc0", "code": "unclassified_event", "exception_type": null}
+ok
+test_bounded_draft_cannot_authorize_semantics_with_unbounded_active_mask_policy (front.test_classification.ClassificationSimulatorTests.test_bounded_draft_cannot_authorize_semantics_with_unbounded_active_mask_policy) ... ok
+test_credentials_below_choice_threshold_still_block (front.test_classification.ClassificationSimulatorTests.test_credentials_below_choice_threshold_still_block) ... ok
+test_incoherent_confidence_fails_closed_in_http_simulation (front.test_classification.ClassificationSimulatorTests.test_incoherent_confidence_fails_closed_in_http_simulation) ... ok
+test_local_classification_ignores_semantic_category_for_routing (front.test_classification.ClassificationSimulatorTests.test_local_classification_ignores_semantic_category_for_routing) ... ok
+test_manipulation_is_distinct_from_ambiguity_in_http_simulation (front.test_classification.ClassificationSimulatorTests.test_manipulation_is_distinct_from_ambiguity_in_http_simulation) ... ok
+test_real_distribution_is_conservatively_confidential (front.test_classification.ClassificationSimulatorTests.test_real_distribution_is_conservatively_confidential) ... ok
+test_semantic_classification_never_adds_a_destination (front.test_classification.ClassificationSimulatorTests.test_semantic_classification_never_adds_a_destination) ... ok
+test_semantic_simulator_never_sends_unmasked_content_to_jev (front.test_classification.ClassificationSimulatorTests.test_semantic_simulator_never_sends_unmasked_content_to_jev) ... ok
+test_single_plausible_task_retains_its_quality_requirement (front.test_classification.ClassificationSimulatorTests.test_single_plausible_task_retains_its_quality_requirement) ... ok
+test_uncertain_task_routes_by_lowest_quality_among_plausible_tasks (front.test_classification.ClassificationSimulatorTests.test_uncertain_task_routes_by_lowest_quality_among_plausible_tasks) ... ok
+test_unmeasured_plausible_task_quality_cannot_route_even_at_zero_minimum (front.test_classification.ClassificationSimulatorTests.test_unmeasured_plausible_task_quality_cannot_route_even_at_zero_minimum) ... ok
+test_advisory_judge_unavailable_is_visible_and_excluded_from_history (front.test_pipeline.PipelineTests.test_advisory_judge_unavailable_is_visible_and_excluded_from_history) ... {"timestamp": "2026-10-03T23:25:47.760817+00:00", "level": "WARNING", "logger": "front.chat_service", "request_id": "e68a5e35-d4d1-4015-949a-f66a29e3b6b6", "code": "timeout", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:47.761319+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "e68a5e35-d4d1-4015-949a-f66a29e3b6b6", "code": "timeout", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:48.020150+00:00", "level": "WARNING", "logger": "front.chat_service", "request_id": "d7f16d09-0771-498d-98f2-1e50175c147e", "code": "timeout", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:48.020150+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "d7f16d09-0771-498d-98f2-1e50175c147e", "code": "timeout", "exception_type": "RuntimeError"}
+ok
+test_advisory_never_delivers_truncated_answer (front.test_pipeline.PipelineTests.test_advisory_never_delivers_truncated_answer) ... {"timestamp": "2026-10-03T23:25:48.272505+00:00", "level": "ERROR", "logger": "django.request", "request_id": "a3086023-493e-4cb6-9984-e51f338bd4d4", "code": "unclassified_event", "exception_type": null}
+ok
+test_all_http_entries_reach_the_real_connector_sdk_boundary (front.test_pipeline.PipelineTests.test_all_http_entries_reach_the_real_connector_sdk_boundary) ... ok
+test_classifier_timeout_never_generates_and_cost_is_incomplete (front.test_pipeline.PipelineTests.test_classifier_timeout_never_generates_and_cost_is_incomplete) ... {"timestamp": "2026-10-03T23:25:49.021157+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "7c0cb9f4-bf14-47b1-9a0e-3b4659594f0d", "code": "outcome_unknown", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:49.022156+00:00", "level": "ERROR", "logger": "django.request", "request_id": "c9d32105-14ce-4457-ab3e-ff19c8e73a88", "code": "unclassified_event", "exception_type": null}
+ok
+test_company_reconfiguration_during_classification_stops_generator (front.test_pipeline.PipelineTests.test_company_reconfiguration_during_classification_stops_generator) ... {"timestamp": "2026-10-03T23:25:49.050159+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "6d97097e-636d-4b58-8a73-3c10642e42b8", "code": "security_check_failed", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:49.051159+00:00", "level": "ERROR", "logger": "django.request", "request_id": "c5aa47bb-a91b-41ed-b4bb-b1a38c43eee5", "code": "unclassified_event", "exception_type": null}
+ok
+test_history_mutation_during_classification_prevents_next_egress (front.test_pipeline.PipelineTests.test_history_mutation_during_classification_prevents_next_egress) ... {"timestamp": "2026-10-03T23:25:49.363348+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "1ac4ae8a-0225-4e9b-ba60-e5f4ad7c1fa1", "code": "authorization_changed", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:49.365849+00:00", "level": "ERROR", "logger": "django.request", "request_id": "e308cc82-1c1a-478e-a917-90ceb50c95c6", "code": "unclassified_event", "exception_type": null}
+ok
+test_judge_cannot_receive_a_response_blocked_by_yara (front.test_pipeline.PipelineTests.test_judge_cannot_receive_a_response_blocked_by_yara) ... {"timestamp": "2026-10-03T23:25:49.628067+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "50777c0a-14c7-473a-b278-7db139176bfd", "code": "security_check_failed", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:49.629570+00:00", "level": "ERROR", "logger": "django.request", "request_id": "195c9881-d62c-44f4-9744-1e232126c736", "code": "unclassified_event", "exception_type": null}
+ok
+test_local_block_makes_no_calls_even_with_required_jev (front.test_pipeline.PipelineTests.test_local_block_makes_no_calls_even_with_required_jev) ... {"timestamp": "2026-10-03T23:25:49.641622+00:00", "level": "WARNING", "logger": "django.request", "request_id": "e82eed61-c2c6-42d7-8ef6-be1fc8e9ccf3", "code": "unclassified_event", "exception_type": null}
+ok
+test_masking_is_authorized_and_logged_per_call (front.test_pipeline.PipelineTests.test_masking_is_authorized_and_logged_per_call) ... ok
+test_required_classification_and_judge_run_on_all_three_entries (front.test_pipeline.PipelineTests.test_required_classification_and_judge_run_on_all_three_entries) ... ok
+test_required_classification_never_silently_skips_jev (front.test_pipeline.PipelineTests.test_required_classification_never_silently_skips_jev) ... {"timestamp": "2026-10-03T23:25:50.621899+00:00", "level": "WARNING", "logger": "django.request", "request_id": "70744261-3d90-492f-b9ba-a566084c615a", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:50.630900+00:00", "level": "WARNING", "logger": "django.request", "request_id": "ab41b314-4270-44a6-8d49-c94bd0d577d8", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:50.638907+00:00", "level": "WARNING", "logger": "django.request", "request_id": "7b2c493e-9eda-44c7-b4ab-e31e7b440bd2", "code": "unclassified_event", "exception_type": null}
+ok
+test_second_generation_is_verified_and_third_never_starts (front.test_pipeline.PipelineTests.test_second_generation_is_verified_and_third_never_starts) ... {"timestamp": "2026-10-03T23:25:51.167103+00:00", "level": "ERROR", "logger": "django.request", "request_id": "eef9c4a3-4ff1-4b8d-a5d8-21c4e9441b8d", "code": "unclassified_event", "exception_type": null}
+ok
+test_unknown_capacity_never_sends (front.test_pipeline.PipelineTests.test_unknown_capacity_never_sends) ... {"timestamp": "2026-10-03T23:25:51.180618+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "152b740f-0873-4888-b14a-891d18f1aec4", "code": "unknown_capacity", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:51.181619+00:00", "level": "ERROR", "logger": "django.request", "request_id": "c392b558-997a-4974-8b46-d514821a06cd", "code": "unclassified_event", "exception_type": null}
+ok
+test_unknown_price_and_judge_reserve_prevent_generation (front.test_pipeline.PipelineTests.test_unknown_price_and_judge_reserve_prevent_generation) ... {"timestamp": "2026-10-03T23:25:51.195624+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "da824912-2608-4c58-8ace-c4af1690b02d", "code": "unknown_price", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:51.196124+00:00", "level": "ERROR", "logger": "django.request", "request_id": "2c9839b7-65e1-4870-9b54-1e81e15d9d70", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:51.206132+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "637d4f4b-28ee-4281-b369-1293f71497c3", "code": "budget_exhausted", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:51.207138+00:00", "level": "ERROR", "logger": "django.request", "request_id": "be45bec1-25eb-4fc8-bfa5-a6c7fa28bc68", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:51.216146+00:00", "level": "ERROR", "logger": "front.chat_service", "request_id": "a9654489-5f6c-4fbc-b9de-2be1f46c4138", "code": "unknown_price", "exception_type": "RuntimeError"}
+{"timestamp": "2026-10-03T23:25:51.217156+00:00", "level": "ERROR", "logger": "django.request", "request_id": "f240f82e-1242-4d44-a0fa-f0cc027e1aed", "code": "unclassified_event", "exception_type": null}
+ok
+test_verified_citations_are_resolved_from_current_attachment (front.test_pipeline.PipelineTests.test_verified_citations_are_resolved_from_current_attachment) ... ok
+test_web_automatic_mode_ignores_stale_manual_session_selection (front.test_pipeline.PipelineTests.test_web_automatic_mode_ignores_stale_manual_session_selection) ... ok
+test_document_scores_below_at_and_above_limit_on_all_three_entries (front.test_semantic_threshold_boundary.SemanticThresholdBoundaryTests.test_document_scores_below_at_and_above_limit_on_all_three_entries) ... {"timestamp": "2026-10-03T23:25:53.548489+00:00", "level": "ERROR", "logger": "django.request", "request_id": "8afb087d-c53a-4199-bea2-528aea528aab", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:53.803197+00:00", "level": "ERROR", "logger": "django.request", "request_id": "0fbb7e3c-db02-4d38-b46b-aab67cedcb59", "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:25:54.056370+00:00", "level": "ERROR", "logger": "django.request", "request_id": "b305888b-441f-4889-b19f-e2db2c6d4173", "code": "unclassified_event", "exception_type": null}
+ok
+test_retry_instructions_only_name_scores_strictly_above_limit (front.test_semantic_threshold_boundary.SemanticThresholdBoundaryTests.test_retry_instructions_only_name_scores_strictly_above_limit) ... {"timestamp": "2026-10-03T23:25:54.559530+00:00", "level": "ERROR", "logger": "django.request", "request_id": "ad82b1f4-d9d9-4fbe-90d0-ddfaf921fd72", "code": "unclassified_event", "exception_type": null}
+ok
+test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) ... 
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='１２３４５６７８Ｚ') ... FAIL
+test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) ... 
+  test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (original='ＡＢＣ son letras; el precio es ４６ EUR.') ... FAIL
+test_concurrent_batches_do_not_retain_or_share_personal_values (front.test_local_masking.LocalMaskingTests.test_concurrent_batches_do_not_retain_or_share_personal_values) ... ok
+test_json_numeric_pii_and_equivalent_exponents_are_transformed (front.test_local_masking.LocalMaskingTests.test_json_numeric_pii_and_equivalent_exponents_are_transformed) ... ok
+test_json_structure_numbers_aliases_and_duplicate_keys_are_preserved (front.test_local_masking.LocalMaskingTests.test_json_structure_numbers_aliases_and_duplicate_keys_are_preserved) ... ok
+test_known_field_label_is_preserved_while_its_value_is_masked (front.test_local_masking.LocalMaskingTests.test_known_field_label_is_preserved_while_its_value_is_masked) ... ok
+test_limits_language_timeout_and_idempotence (front.test_local_masking.LocalMaskingTests.test_limits_language_timeout_and_idempotence) ... ok
+test_model_unavailable_changed_or_failed_never_returns_original (front.test_local_masking.LocalMaskingTests.test_model_unavailable_changed_or_failed_never_returns_original) ... ok
+test_non_sensitive_json_numbers_keep_exact_precision_and_bounded_exponents (front.test_local_masking.LocalMaskingTests.test_non_sensitive_json_numbers_keep_exact_precision_and_bounded_exponents) ... ok
+test_real_cpu_masks_structured_personal_data_and_secrets_without_network (front.test_local_masking.LocalMaskingTests.test_real_cpu_masks_structured_personal_data_and_secrets_without_network) ... ok
+test_budgeted_masking_needs_an_explicit_bound (front.test_classification.ClassificationConfigTests.test_budgeted_masking_needs_an_explicit_bound) ... ok
+test_legacy_short_deadline_keeps_configuration_valid (front.test_classification.ClassificationConfigTests.test_legacy_short_deadline_keeps_configuration_valid) ... ok
+test_optional_configuration_is_strict_and_timeouts_are_coherent (front.test_classification.ClassificationConfigTests.test_optional_configuration_is_strict_and_timeouts_are_coherent) ... ok
+test_prices_are_per_million_but_call_bounds_can_be_smaller (front.test_classification.ClassificationConfigTests.test_prices_are_per_million_but_call_bounds_can_be_smaller) ... ok
+test_shared_configuration_has_conservative_defaults (front.test_classification.ClassificationConfigTests.test_shared_configuration_has_conservative_defaults) ... ok
+test_incoherent_answers_fail_closed (front.test_classification.OrdinalClassificationTests.test_incoherent_answers_fail_closed) ... ok
+test_manipulation_has_its_own_block_code (front.test_classification.OrdinalClassificationTests.test_manipulation_has_its_own_block_code) ... ok
+test_sensitive_signals_restrict_from_point_two (front.test_classification.OrdinalClassificationTests.test_sensitive_signals_restrict_from_point_two) ... ok
+test_tail_mass_selects_lowest_safe_level_at_point_two_boundary (front.test_classification.OrdinalClassificationTests.test_tail_mass_selects_lowest_safe_level_at_point_two_boundary) ... ok
+test_uncertain_task_and_difficulty_use_conservative_defaults_and_plausible_tasks (front.test_classification.OrdinalClassificationTests.test_uncertain_task_and_difficulty_use_conservative_defaults_and_plausible_tasks) ... ok
+test_unknown_mass_is_configurable_and_local_floor_never_drops (front.test_classification.OrdinalClassificationTests.test_unknown_mass_is_configurable_and_local_floor_never_drops) ... ok
+test_direct_signal_and_confidence_comparisons_keep_their_boundaries (front.test_semantic_threshold_boundary.ClassificationThresholdBoundaryTests.test_direct_signal_and_confidence_comparisons_keep_their_boundaries) ... ok
+test_ordinal_tail_does_not_accept_any_mass_above_inclusive_limit (front.test_semantic_threshold_boundary.ClassificationThresholdBoundaryTests.test_ordinal_tail_does_not_accept_any_mass_above_inclusive_limit) ... ok
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='１２３４５６７８Ｚ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 34, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertIn('[[REGULAI_ID]]', masked)
+AssertionError: '[[REGULAI_ID]]' not found in 'DNI/NIE: [[REGULAI_PERSON]]: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (original='ＡＢＣ son letras; el precio es ４６ EUR.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 49, in test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes
+    self.assertEqual(mask_local_texts([original], timeout=60)[0], original)
+AssertionError: '[[REGULAI_ORGANIZATION]] son letras; el precio es ４６ EUR.' != 'ＡＢＣ son letras; el precio es ４６ EUR.'
+- [[REGULAI_ORGANIZATION]] son letras; el precio es ４６ EUR.
++ ＡＢＣ son letras; el precio es ４６ EUR.
+
+
+----------------------------------------------------------------------
+Ran 55 tests in 14.490s
+
+FAILED (failures=2)
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
