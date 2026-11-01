@@ -152,10 +152,16 @@
                     <iconify-icon icon="solar:atom-bold" class="text-info me-2"></iconify-icon>
                     Available Models
                   </h6>
-                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addModelModal{{ ce.pk }}">
-                    <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
-                    Add Model
-                  </button>
+                  <div class="btn-group btn-group-sm">
+                    <a href="{% url 'front:engine_sync_models' ce.pk %}" class="btn btn-outline-success" title="Fetch models from API">
+                      <iconify-icon icon="solar:refresh-bold" class="me-1"></iconify-icon>
+                      Sync from API
+                    </a>
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addModelModal{{ ce.pk }}">
+                      <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
+                      Add Manual
+                    </button>
+                  </div>
                 </div>
 
                 {% if ce.engine.models.exists %}

@@ -12,7 +12,7 @@ from .views import (
     users_list, user_create, user_edit, user_delete,
     company_settings,
     departments_list, department_create, department_edit, department_delete,
-    engines_list, engine_create, engine_edit, engine_delete, engine_toggle,
+    engines_list, engine_create, engine_edit, engine_delete, engine_toggle, engine_sync_models,
     model_create, model_edit, model_toggle, model_delete,
     obfuscation_list, obfuscation_create, obfuscation_edit, obfuscation_delete, obfuscation_toggle,
 )
@@ -104,6 +104,7 @@ urlpatterns = [
     path("settings/engines/<int:pk>/edit/", engine_edit, name="engine_edit"),
     path("settings/engines/<int:pk>/delete/", engine_delete, name="engine_delete"),
     path("settings/engines/<int:pk>/toggle/", engine_toggle, name="engine_toggle"),
+    path("settings/engines/<int:pk>/sync-models/", engine_sync_models, name="engine_sync_models"),
 
     # Engine Models Management
     path("settings/engines/<int:engine_pk>/models/create/", model_create, name="model_create"),

@@ -26,6 +26,16 @@ class ChatResponse:
     finish_reason: str = ""
 
 
+@dataclass
+class ModelInfo:
+    """Represents an AI model."""
+    model_id: str
+    name: str
+    description: str = ""
+    supports_vision: bool = False
+    max_tokens: int = 4096
+
+
 class BaseConnector(ABC):
     """Base class for AI provider connectors."""
 
@@ -48,6 +58,11 @@ class BaseConnector(ABC):
     @abstractmethod
     def supports_vision(self) -> bool:
         """Return whether this connector supports vision/image inputs."""
+        pass
+
+    @abstractmethod
+    def list_models(self) -> List[ModelInfo]:
+        """Fetch available models from the provider API."""
         pass
 
 
@@ -95,6 +110,30 @@ class OpenAIConnector(BaseConnector):
 
     def supports_vision(self) -> bool:
         return True
+
+    def list_models(self) -> List[ModelInfo]:
+        """Fetch available models from OpenAI API."""
+        try:
+            response = self.client.models.list()
+            models = []
+            for model in response.data:
+                # Filter to chat models only
+                model_id = model.id
+                if any(x in model_id for x in ['gpt-4', 'gpt-3.5', 'o1', 'o3']):
+                    # Determine if model supports vision
+                    supports_vision = any(x in model_id for x in ['gpt-4o', 'gpt-4-turbo', 'gpt-4-vision', 'o1', 'o3'])
+                    models.append(ModelInfo(
+                        model_id=model_id,
+                        name=model_id,
+                        description=f"OpenAI {model_id}",
+                        supports_vision=supports_vision,
+                        max_tokens=4096
+                    ))
+            # Sort by model name
+            models.sort(key=lambda x: x.model_id)
+            return models
+        except Exception as e:
+            return []
 
 
 class AnthropicConnector(BaseConnector):
@@ -217,6 +256,32 @@ class AnthropicConnector(BaseConnector):
 
     def supports_vision(self) -> bool:
         return True
+
+    def list_models(self) -> List[ModelInfo]:
+        """Fetch available models from Anthropic API."""
+        if not self._available:
+            return []
+        try:
+            response = self.client.models.list()
+            models = []
+            for model in response.data:
+                model_id = model.id
+                # All Claude 3+ models support vision
+                supports_vision = 'claude-3' in model_id or 'claude-sonnet-4' in model_id or 'claude-opus-4' in model_id
+                # Get display name
+                display_name = model.display_name if hasattr(model, 'display_name') else model_id
+                models.append(ModelInfo(
+                    model_id=model_id,
+                    name=display_name,
+                    description=f"Anthropic {display_name}",
+                    supports_vision=supports_vision,
+                    max_tokens=8192 if 'opus' in model_id or 'sonnet' in model_id else 4096
+                ))
+            # Sort by model name
+            models.sort(key=lambda x: x.model_id, reverse=True)
+            return models
+        except Exception as e:
+            return []
 
 
 def get_connector(connector_type: str, api_key: str, base_url: Optional[str] = None) -> BaseConnector:

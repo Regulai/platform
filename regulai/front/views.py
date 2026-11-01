@@ -1030,6 +1030,65 @@ def engine_toggle(request, pk):
     return redirect('front:engines_list')
 
 
+@admin_required
+def engine_sync_models(request, pk):
+    """Sync models from the provider API."""
+    company = request.user.profile.company
+    company_engine = get_object_or_404(CompanyEngine, pk=pk, company=company)
+    engine = company_engine.engine
+
+    try:
+        from front.connectors import get_connector
+
+        # Get connector with decrypted API key
+        connector = get_connector(
+            connector_type=engine.connector_type,
+            api_key=company_engine.api_key,
+            base_url=engine.base_url
+        )
+
+        # Fetch models from API
+        api_models = connector.list_models()
+
+        if not api_models:
+            messages.warning(request, f'No models returned from {engine.name} API. The API may not support model listing.')
+            return redirect('front:engines_list')
+
+        # Sync models to database
+        created_count = 0
+        updated_count = 0
+
+        for model_info in api_models:
+            engine_model, created = EngineModel.objects.update_or_create(
+                engine=engine,
+                model_id=model_info.model_id,
+                defaults={
+                    'name': model_info.name,
+                    'description': model_info.description,
+                    'supports_vision': model_info.supports_vision,
+                    'max_tokens': model_info.max_tokens,
+                    'active': True,
+                }
+            )
+            if created:
+                created_count += 1
+            else:
+                updated_count += 1
+
+        log_action(request.user, 'engine_sync_models', {
+            'engine_name': engine.name,
+            'models_created': created_count,
+            'models_updated': updated_count,
+        }, request)
+
+        messages.success(request, f'Synced {len(api_models)} models from {engine.name}. Created: {created_count}, Updated: {updated_count}.')
+
+    except Exception as e:
+        messages.error(request, f'Error syncing models: {str(e)}')
+
+    return redirect('front:engines_list')
+
+
 # ==================== ENGINE MODELS VIEWS ====================
 
 @admin_required

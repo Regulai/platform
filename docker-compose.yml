@@ -1,0 +1,32 @@
+services:
+  regulai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: regulai-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_PATH=/app/regulai/data/db.sqlite3
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@regulai.local
+      - DJANGO_SUPERUSER_PASSWORD=admin123
+    volumes:
+      # Persist database directory
+      - regulai-data:/app/regulai/data
+      # Persist media files (uploads)
+      - regulai-media:/app/regulai/media
+      # Optional: mount local_settings for customization
+      # - ./regulai/regulai/local_settings.py:/app/regulai/regulai/local_settings.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  regulai-data:
+  regulai-media:
