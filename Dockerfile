@@ -1,5 +1,5 @@
 # Dockerfile for regulAI
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -48,9 +48,9 @@ RUN mkdir -p /app/regulai/staticfiles /app/regulai/media
 # Set working directory to Django project
 WORKDIR /app/regulai
 
-# Copy entrypoint script
+# Copy entrypoint script and fix line endings (Windows compatibility)
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
 # Expose port
 EXPOSE 8000

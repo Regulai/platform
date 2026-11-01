@@ -1546,24 +1546,27 @@ def extract_file_from_ai_response(content):
     Detects structured file content in AI responses (markdown code blocks).
     Returns (file_content_bytes, file_name, mime_type) or None if not found.
     Looks for the first fenced code block with a recognized file extension language.
+
+    Security: Limited to safe MIME types and max 10MB file size.
     """
+    # Maximum file size: 10MB
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+
+    # Safe MIME types only - excludes html (XSS risk) and shell scripts (execution risk)
     LANG_TO_EXT = {
         'csv': ('csv', 'text/csv'),
         'json': ('json', 'application/json'),
         'xml': ('xml', 'application/xml'),
-        'html': ('html', 'text/html'),
         'python': ('py', 'text/x-python'),
         'py': ('py', 'text/x-python'),
-        'javascript': ('js', 'application/javascript'),
-        'js': ('js', 'application/javascript'),
+        'javascript': ('js', 'text/plain'),  # Serve as plain text, not executable
+        'js': ('js', 'text/plain'),
         'sql': ('sql', 'text/plain'),
         'yaml': ('yaml', 'text/yaml'),
         'yml': ('yaml', 'text/yaml'),
         'markdown': ('md', 'text/markdown'),
         'md': ('md', 'text/markdown'),
         'txt': ('txt', 'text/plain'),
-        'bash': ('sh', 'text/x-shellscript'),
-        'sh': ('sh', 'text/x-shellscript'),
     }
     pattern = re.compile(r'^```(\w+)\n(.*?)```', re.DOTALL | re.MULTILINE)
     match = pattern.search(content)
@@ -1574,6 +1577,15 @@ def extract_file_from_ai_response(content):
         return None
     ext, mime_type = LANG_TO_EXT[lang]
     file_content = match.group(2).encode('utf-8')
+
+    # Security: Reject files exceeding max size
+    if len(file_content) > MAX_FILE_SIZE:
+        return None
+
+    # Security: Reject empty files
+    if len(file_content) == 0:
+        return None
+
     file_name = f'response.{ext}'
     return file_content, file_name, mime_type
 

@@ -7,11 +7,14 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
+      - DEBUG=${DEBUG:-True}
       - DATABASE_PATH=/app/regulai/data/db.sqlite3
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_EMAIL=admin@regulai.local
-      - DJANGO_SUPERUSER_PASSWORD=admin123
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-admin}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@regulai.local}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-changeme}
+      # Auto-generated if not provided (stored in volume for persistence)
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+      - SECRET_KEY=${SECRET_KEY:-}
     volumes:
       # Persist database directory
       - regulai-data:/app/regulai/data

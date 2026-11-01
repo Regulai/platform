@@ -8,19 +8,37 @@ logger = logging.getLogger(__name__)
 
 
 class ContentSecurityPolicyMiddleware:
-    """Measure CSP compatibility while the existing UI still uses inline code."""
+    """
+    Apply Content Security Policy headers.
+    Note: 'unsafe-inline' is required while legacy UI uses inline scripts.
+    TODO: Refactor frontend to use nonce-based CSP for production hardening.
+    """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        from django.conf import settings
         response = self.get_response(request)
-        response['Content-Security-Policy-Report-Only'] = (
+
+        csp = (
             "default-src 'self'; script-src 'self' 'unsafe-inline'; "
             "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
             "font-src 'self' data:; connect-src 'self'; object-src 'none'; "
             "base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
         )
+
+        # In production (DEBUG=False), enforce CSP; in development, report-only
+        if getattr(settings, 'DEBUG', False):
+            response['Content-Security-Policy-Report-Only'] = csp
+        else:
+            response['Content-Security-Policy'] = csp
+
+        # Additional security headers
+        response['X-Content-Type-Options'] = 'nosniff'
+        response['X-Frame-Options'] = 'SAMEORIGIN'
+        response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+
         return response
 
 
