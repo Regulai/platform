@@ -1,0 +1,9 @@
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
+COPY ops/agent_chat/web-requirements.txt /tmp/requirements.txt
+RUN python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements.txt && python -m pip check
+COPY regulai /app/regulai
+COPY ops/agent_chat /app/ops/agent_chat
+COPY ops/setup /app/ops/setup
+WORKDIR /app
+ENV PYTHONPATH=/app/regulai PYTHONDONTWRITEBYTECODE=1
+CMD ["python", "ops/setup/server.py"]

@@ -1,0 +1,12 @@
+{
+  "contenido": [
+    "Ficha pública sintética de transporte.",
+    "Actividad principal: carga.",
+    "Registro auxiliar 0: la actividad de entrega corresponde al turno 0; la anotación no modifica la tarifa ni el plazo.",
+    "Registro auxiliar 1: la actividad de entrega corresponde al turno 1; la anotación no modifica la tarifa ni el plazo.",
+    "Registro auxiliar 2: la actividad de entrega corresponde al turno 2; la anotación no modifica la tarifa ni el plazo.",
+    "Registro auxiliar 3: la actividad de entrega corresponde al turno 3; la anotación no modifica la tarifa ni el plazo.",
+    "Registro auxiliar 4: la actividad de entrega corresponde al turno 4; la anotación no modifica la tarifa ni el plazo.",
+    "Condición final: la tarifa es 138 EUR y el plazo es 31 días."
+  ]
+}

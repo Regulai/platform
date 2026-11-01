@@ -1,0 +1,19 @@
+[
+ {"name": "m-empty", "user": "lab-user", "path": "/chat/", "width": 390, "height": 844},
+ {"name": "m-answer", "user": "lab-user", "path": "/chat/1/", "width": 390, "height": 844},
+ {"name": "m-drawer", "user": "lab-user", "path": "/chat/1/", "width": 390, "height": 844,
+  "steps": [["click", "[data-action=nav-open]"], ["wait", 500]]},
+ {"name": "m-agent", "user": "lab-user", "path": "/chat/9/", "width": 390, "height": 844, "settle": 2500},
+ {"name": "m-review", "user": "lab-user", "path": "/chat/10/", "width": 390, "height": 844, "settle": 2500},
+ {"name": "m-consent", "user": "lab-user", "path": "/chat/4/", "width": 390, "height": 844},
+ {"name": "m-model", "user": "lab-user", "path": "/chat/1/", "width": 390, "height": 844,
+  "steps": [["click", "#modelButton"], ["wait", 400]]},
+ {"name": "d-model", "user": "lab-user", "path": "/chat/1/", "width": 1440, "height": 900,
+  "steps": [["click", "#modelButton"], ["wait", 400]]},
+ {"name": "d-preview", "user": "lab-user", "path": "/chat/9/", "width": 1440, "height": 900, "settle": 2500,
+  "steps": [["eval", "[...document.querySelectorAll('.rg-deliverable-actions button')].find(b => b.textContent.includes('Vista previa'))?.click()"], ["wait", 1500]]},
+ {"name": "d-agent-mode", "user": "lab-user", "path": "/chat/", "width": 1440, "height": 900,
+  "steps": [["click", "label.rg-mode-option:nth-child(2)"], ["wait", 300]]},
+ {"name": "d-threads-hidden", "user": "lab-user", "path": "/chat/1/", "width": 1440, "height": 900,
+  "steps": [["click", ".rg-threads-head [data-action=threads-toggle]"], ["wait", 500]]}
+]

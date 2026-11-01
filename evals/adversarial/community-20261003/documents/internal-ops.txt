@@ -1,0 +1,5 @@
+Documento sintético.
+Clasificación: internal.
+El proceso usa tres pasos: recepción, revisión y archivo.
+La revisión tarda 17 días.
+Este procedimiento no contiene identidades ni claves.

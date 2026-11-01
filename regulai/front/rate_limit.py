@@ -273,13 +273,17 @@ def chat_rate_limit(view_func):
     30 messages per minute per user.
     This prevents abuse of expensive AI API calls.
     """
-    return rate_limit(
+    limited = rate_limit(
         limit=30,
         window=60,
         key='user',
         endpoint='chat',
         message='Too many messages. Please wait before sending more.'
     )(view_func)
+    @wraps(view_func)
+    def wrapped(request, *args, **kwargs):
+        return limited(request, *args, **kwargs) if request.method == 'POST' else view_func(request, *args, **kwargs)
+    return wrapped
 
 
 def signup_rate_limit(view_func):

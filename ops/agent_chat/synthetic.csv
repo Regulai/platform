@@ -1,0 +1,4 @@
+item,amount_cents
+Nombre: Synthetic Private Marker,125
+<script>alert(1)</script>,250
+=HYPERLINK("synthetic.invalid"),375

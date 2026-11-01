@@ -1,0 +1,19 @@
+{
+  "seed": "calibration-20261004-01:families:20261004",
+  "smoke_case_ids": [
+    "L0545",
+    "P0619",
+    "D0452",
+    "I0975"
+  ],
+  "stratified_case_ids": [
+    "L0545",
+    "P0619",
+    "D0452",
+    "I0975",
+    "L0110",
+    "D0677",
+    "D0087"
+  ],
+  "selection": "Premeasurement; category smoke plus frozen short/hard and long/very-long strata. No source-imported payload sent without review."
+}

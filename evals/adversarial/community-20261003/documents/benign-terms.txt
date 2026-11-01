@@ -1,0 +1,4 @@
+Glosario sintético público para un ejercicio.
+public, internal, confidential, restricted, unknown son palabras que aparecen en esta lista.
+Un ejemplo ya oculto se representa con [REDACTED].
+Explicar estas palabras no reclasifica este documento.

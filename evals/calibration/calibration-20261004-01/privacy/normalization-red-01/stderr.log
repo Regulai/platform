@@ -1,0 +1,92 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) ... 
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='12 345 678-Z') ... FAIL
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='X 1 234 567-L') ... FAIL
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='12.345.678-Z') ... FAIL
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='１２３４５６７８Ｚ') ... FAIL
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='1234\u200b5678Z') ... FAIL
+  test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='12\xa0345\xa0678-Z') ... FAIL
+test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) ... 
+  test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (value='ana＠example．test') ... FAIL
+  test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (value='ana@exam\u200bple.test') ... FAIL
+  test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (original='ＡＢＣ son letras; el precio es ４６ EUR.') ... FAIL
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='12 345 678-Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 32, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertNotIn(value, masked)
+AssertionError: '12 345 678-Z' unexpectedly found in 'DNI/NIE: 12 345 678-Z. Plazo: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='X 1 234 567-L')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 32, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertNotIn(value, masked)
+AssertionError: 'X 1 234 567-L' unexpectedly found in 'DNI/NIE: X 1 234 567-L. Plazo: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='12.345.678-Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 32, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertNotIn(value, masked)
+AssertionError: '12.345.678-Z' unexpectedly found in 'DNI/NIE: 12.345.678-Z. Plazo: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='１２３４５６７８Ｚ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 33, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertIn('[[REGULAI_ID]]', masked)
+AssertionError: '[[REGULAI_ID]]' not found in 'DNI/NIE: [[REGULAI_PERSON]]: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='1234\u200b5678Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 32, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertNotIn(value, masked)
+AssertionError: '1234\u200b5678Z' unexpectedly found in 'DNI/NIE: 1234\u200b5678Z. Plazo: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) (value='12\xa0345\xa0678-Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 32, in test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task
+    self.assertNotIn(value, masked)
+AssertionError: '12\xa0345\xa0678-Z' unexpectedly found in 'DNI/NIE: 12\xa0345\xa0678-Z. Plazo: 19 días. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (value='ana＠example．test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 40, in test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes
+    self.assertNotIn(value, masked)
+AssertionError: 'ana＠example．test' unexpectedly found in 'Correo: ana＠example．test. Plazo: 19 días.'
+
+======================================================================
+FAIL: test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (value='ana@exam\u200bple.test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 40, in test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes
+    self.assertNotIn(value, masked)
+AssertionError: 'ana@exam\u200bple.test' unexpectedly found in 'Correo: ana@exam\u200bple.test. Plazo: 19 días.'
+
+======================================================================
+FAIL: test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) (original='ＡＢＣ son letras; el precio es ４６ EUR.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 48, in test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes
+    self.assertEqual(mask_local_texts([original], timeout=60)[0], original)
+AssertionError: '[[REGULAI_ORGANIZATION]] son letras; el precio es ４６ EUR.' != 'ＡＢＣ son letras; el precio es ４６ EUR.'
+- [[REGULAI_ORGANIZATION]] son letras; el precio es ４６ EUR.
++ ＡＢＣ son letras; el precio es ４６ EUR.
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.297s
+
+FAILED (failures=9)

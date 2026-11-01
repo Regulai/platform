@@ -1,0 +1,62 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+test_definitions_and_non_address_uses_of_at_and_dot_are_preserved (front.test_calibration_privacy.CalibrationWordEmailTests.test_definitions_and_non_address_uses_of_at_and_dot_are_preserved) ... ok
+test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) ... 
+  test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='ana arroba example punto test') ... FAIL
+  test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='persona dos arroba example punto test') ... FAIL
+  test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='alice at example dot test') ... FAIL
+  test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='pruebas ventas arroba example punto org') ... FAIL
+  test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='test-team at mail dot example dot test') ... FAIL
+test_labelled_word_email_inside_json_stays_valid_and_idempotent (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_email_inside_json_stays_valid_and_idempotent) ... FAIL
+
+======================================================================
+FAIL: test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='ana arroba example punto test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 78, in test_labelled_word_addresses_are_removed_in_es_and_en
+    self.assertNotIn(value, masked)
+AssertionError: 'ana arroba example punto test' unexpectedly found in 'Correo: ana arroba example punto test. El plazo es 19 días.'
+
+======================================================================
+FAIL: test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='persona dos arroba example punto test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 78, in test_labelled_word_addresses_are_removed_in_es_and_en
+    self.assertNotIn(value, masked)
+AssertionError: 'persona dos arroba example punto test' unexpectedly found in 'Contacto ficticio: persona dos arroba example punto test. El plazo es 19 días.'
+
+======================================================================
+FAIL: test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='alice at example dot test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 78, in test_labelled_word_addresses_are_removed_in_es_and_en
+    self.assertNotIn(value, masked)
+AssertionError: 'alice at example dot test' unexpectedly found in 'Email: alice at example dot test. El plazo es 19 días.'
+
+======================================================================
+FAIL: test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='pruebas ventas arroba example punto org')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 78, in test_labelled_word_addresses_are_removed_in_es_and_en
+    self.assertNotIn(value, masked)
+AssertionError: 'pruebas ventas arroba example punto org' unexpectedly found in 'Correo electrónico: pruebas ventas arroba example punto org. El plazo es 19 días.'
+
+======================================================================
+FAIL: test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) (value='test-team at mail dot example dot test')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 78, in test_labelled_word_addresses_are_removed_in_es_and_en
+    self.assertNotIn(value, masked)
+AssertionError: 'test-team at mail dot example dot test' unexpectedly found in 'E-mail: test-team at mail dot example dot test. El plazo es 19 días.'
+
+======================================================================
+FAIL: test_labelled_word_email_inside_json_stays_valid_and_idempotent (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_email_inside_json_stays_valid_and_idempotent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 95, in test_labelled_word_email_inside_json_stays_valid_and_idempotent
+    self.assertNotIn('ana arroba example punto test', once[0])
+AssertionError: 'ana arroba example punto test' unexpectedly found in '{"content":"Correo: ana arroba example punto test. Total: 46 EUR.","id":"S1"}'
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.887s
+
+FAILED (failures=6)

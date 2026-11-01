@@ -1,0 +1,219 @@
+{
+  "_DialogTitle-BLJnxpt0.js": {
+    "file": "assets/DialogTitle-BLJnxpt0.js",
+    "name": "DialogTitle",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js"
+    ]
+  },
+  "_button-_95fEWPc.js": {
+    "file": "assets/button-_95fEWPc.js",
+    "name": "button",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js"
+    ]
+  },
+  "_dialog-Dq5FggIc.js": {
+    "file": "assets/dialog-Dq5FggIc.js",
+    "name": "dialog",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js",
+      "src/main.tsx",
+      "_DialogTitle-BLJnxpt0.js"
+    ]
+  },
+  "_format-Be6CF4nv.js": {
+    "file": "assets/format-Be6CF4nv.js",
+    "name": "format"
+  },
+  "_jsx-runtime-BX5dh3L7.js": {
+    "file": "assets/jsx-runtime-BX5dh3L7.js",
+    "name": "jsx-runtime"
+  },
+  "_popover-C5uPAiTg.js": {
+    "file": "assets/popover-C5uPAiTg.js",
+    "name": "popover",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js",
+      "src/main.tsx"
+    ]
+  },
+  "_react-DpvdKi1d.js": {
+    "file": "assets/react-DpvdKi1d.js",
+    "name": "react",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js"
+    ]
+  },
+  "_sheet-Bha3hqxa.js": {
+    "file": "assets/sheet-Bha3hqxa.js",
+    "name": "sheet",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js",
+      "src/main.tsx",
+      "_DialogTitle-BLJnxpt0.js"
+    ]
+  },
+  "_useScrollLock-LXhNc15n.js": {
+    "file": "assets/useScrollLock-LXhNc15n.js",
+    "name": "useScrollLock",
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_button-_95fEWPc.js"
+    ]
+  },
+  "src/agent/ExportProposal.tsx": {
+    "file": "assets/ExportProposal-BOSLlPaB.js",
+    "name": "ExportProposal",
+    "src": "src/agent/ExportProposal.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_button-_95fEWPc.js",
+      "_format-Be6CF4nv.js",
+      "src/main.tsx"
+    ]
+  },
+  "src/agent/Oversight.tsx": {
+    "file": "assets/Oversight-CD98s2Eo.js",
+    "name": "Oversight",
+    "src": "src/agent/Oversight.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_format-Be6CF4nv.js",
+      "src/main.tsx",
+      "src/turn/Receipt.tsx"
+    ]
+  },
+  "src/app/Drawer.tsx": {
+    "file": "assets/Drawer-Cadi3khn.js",
+    "name": "Drawer",
+    "src": "src/app/Drawer.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_sheet-Bha3hqxa.js"
+    ]
+  },
+  "src/app/motion-features.ts": {
+    "file": "assets/motion-features-B04xk92O.js",
+    "name": "motion-features",
+    "src": "src/app/motion-features.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "src/main.tsx"
+    ]
+  },
+  "src/composer/DrivePicker.tsx": {
+    "file": "assets/DrivePicker-hzfng1ay.js",
+    "name": "DrivePicker",
+    "src": "src/composer/DrivePicker.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_button-_95fEWPc.js",
+      "src/main.tsx",
+      "_popover-C5uPAiTg.js"
+    ]
+  },
+  "src/composer/SkillPicker.tsx": {
+    "file": "assets/SkillPicker-BVZ3f7Yg.js",
+    "name": "SkillPicker",
+    "src": "src/composer/SkillPicker.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js",
+      "src/main.tsx",
+      "_sheet-Bha3hqxa.js",
+      "_popover-C5uPAiTg.js"
+    ]
+  },
+  "src/main.tsx": {
+    "file": "assets/main-dMzBVf5n.js",
+    "name": "main",
+    "src": "src/main.tsx",
+    "isEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js",
+      "_format-Be6CF4nv.js"
+    ],
+    "dynamicImports": [
+      "src/composer/SkillPicker.tsx",
+      "src/composer/DrivePicker.tsx",
+      "src/viewer/ViewerPanel.tsx",
+      "src/viewer/PagesDialog.tsx",
+      "src/agent/Oversight.tsx",
+      "src/agent/ExportProposal.tsx",
+      "src/turn/Receipt.tsx",
+      "src/app/motion-features.ts",
+      "src/app/Drawer.tsx"
+    ],
+    "css": [
+      "assets/main-WMTjWYAP.css"
+    ]
+  },
+  "src/turn/Receipt.tsx": {
+    "file": "assets/Receipt-3aPFvNqc.js",
+    "name": "Receipt",
+    "src": "src/turn/Receipt.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_format-Be6CF4nv.js",
+      "src/main.tsx"
+    ]
+  },
+  "src/viewer/PagesDialog.tsx": {
+    "file": "assets/PagesDialog-DxupU07i.js",
+    "name": "PagesDialog",
+    "src": "src/viewer/PagesDialog.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_button-_95fEWPc.js",
+      "_format-Be6CF4nv.js",
+      "src/main.tsx",
+      "_dialog-Dq5FggIc.js"
+    ]
+  },
+  "src/viewer/ViewerPanel.tsx": {
+    "file": "assets/ViewerPanel-CVf5jpi-.js",
+    "name": "ViewerPanel",
+    "src": "src/viewer/ViewerPanel.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_jsx-runtime-BX5dh3L7.js",
+      "_react-DpvdKi1d.js",
+      "_useScrollLock-LXhNc15n.js",
+      "_button-_95fEWPc.js",
+      "src/main.tsx",
+      "_dialog-Dq5FggIc.js"
+    ]
+  }
+}

@@ -118,7 +118,7 @@
                       <iconify-icon icon="solar:atom-bold" class="me-1"></iconify-icon>
                       {{ ce.engine.models.count }} models
                     </span>
-                    <code class="text-muted small">{{ ce.api_key|slice:":6" }}...{{ ce.api_key|slice:"-4:" }}</code>
+
                   </div>
                 </div>
               </button>
@@ -131,10 +131,10 @@
                     <span class="text-muted">Added {{ ce.created_at|date:"M d, Y" }}</span>
                   </div>
                   <div class="btn-group btn-group-sm">
-                    <a href="{% url 'front:engine_toggle' ce.pk %}" class="btn btn-outline-{{ ce.active|yesno:'warning,success' }}" title="{{ ce.active|yesno:'Deactivate,Activate' }}">
+                    <form method="post" action="{% url 'front:engine_toggle' ce.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-outline-{{ ce.active|yesno:'warning,success' }}" title="{{ ce.active|yesno:'Deactivate,Activate' }}">
                       <iconify-icon icon="solar:{{ ce.active|yesno:'pause-bold,play-bold' }}" class="me-1"></iconify-icon>
                       {{ ce.active|yesno:'Deactivate,Activate' }}
-                    </a>
+                    </button></form>
                     <a href="{% url 'front:engine_edit' ce.pk %}" class="btn btn-outline-primary" title="Edit API Key">
                       <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
                       Edit
@@ -152,10 +152,10 @@
                     <iconify-icon icon="solar:atom-bold" class="text-info me-2"></iconify-icon>
                     Available Models
                   </h6>
-                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addModelModal{{ ce.pk }}">
+{% if is_platform_operator %}                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addModelModal{{ ce.pk }}">
                     <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon>
                     Add Model
-                  </button>
+                  </button>{% endif %}
                 </div>
 
                 {% if ce.engine.models.exists %}
@@ -202,17 +202,17 @@
                           {% endif %}
                         </td>
                         <td class="text-end">
-                          <div class="btn-group btn-group-sm">
-                            <a href="{% url 'front:model_toggle' model.pk %}" class="btn btn-outline-{{ model.active|yesno:'warning,success' }}" title="{{ model.active|yesno:'Deactivate,Activate' }}">
+{% if is_platform_operator %}                          <div class="btn-group btn-group-sm">
+                            <form method="post" action="{% url 'front:model_toggle' model.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-outline-{{ model.active|yesno:'warning,success' }}" title="{{ model.active|yesno:'Deactivate,Activate' }}">
                               <iconify-icon icon="solar:{{ model.active|yesno:'pause-bold,play-bold' }}"></iconify-icon>
-                            </a>
+                            </button></form>
                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModelModal{{ model.pk }}" title="Edit">
                               <iconify-icon icon="solar:pen-bold"></iconify-icon>
                             </button>
-                            <a href="{% url 'front:model_delete' model.pk %}" class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this model?')">
+                            <form method="post" action="{% url 'front:model_delete' model.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this model?')">
                               <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
-                            </a>
-                          </div>
+                            </button></form>
+                          </div>{% endif %}
                         </td>
                       </tr>
                       {% endfor %}
@@ -229,6 +229,7 @@
             </div>
           </div>
 
+{% if is_platform_operator %}
           <!-- Add Model Modal -->
           <div class="modal fade" id="addModelModal{{ ce.pk }}" tabindex="-1">
             <div class="modal-dialog">
@@ -356,6 +357,7 @@
           </div>
           {% endfor %}
 
+{% endif %}
           {% endfor %}
         </div>
         {% else %}

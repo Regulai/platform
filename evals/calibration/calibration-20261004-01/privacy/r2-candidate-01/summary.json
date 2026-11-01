@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "corpus_sha256": "6249deac7f9061674e90031b22e27f2d2cde82de98a2286d040e3c651b654f07",
+  "detector": {
+    "backend": "local",
+    "detector_version": "regulai-local-v4",
+    "spacy_version": "3.8.16",
+    "model_name": "xx_ent_wiki_sm",
+    "model_version": "3.8.0",
+    "model_artifact_sha256": "6f3c4b853852ea9e9d2dc76cc950dddb10a7e4c42d813308caefe6c5e8be2f0a",
+    "model_files_sha256": "4f5b7a5c5baf29c9e940befeb1f02a3021acc22806e3c1cbcef48e2078a2477a"
+  },
+  "runtime_sha256": "ee81926c4afebde256d92d72bdcf9a0e5766f9099c65ef4625c7504c9ed67f93",
+  "elapsed_seconds": 5.968,
+  "network_calls": 0,
+  "api_cost": "0",
+  "summary": {
+    "synthetic_development": {
+      "cases": 33,
+      "success": 28,
+      "hidden": 20,
+      "removed": 19,
+      "preserve": 32,
+      "preserved": 28,
+      "failed_ids": [
+        "opaque_unlabelled",
+        "word_title",
+        "word_start",
+        "word_imperative",
+        "unicode_benign"
+      ]
+    },
+    "known_regression": {
+      "cases": 44,
+      "success": 40,
+      "hidden": 32,
+      "removed": 31,
+      "preserve": 66,
+      "preserved": 61,
+      "failed_ids": [
+        "SECRET-06",
+        "DOC-05",
+        "DOC-08",
+        "BENIGN-06"
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
+COPY requirements.txt /tmp/requirements.txt
+RUN python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements.txt \
+    && python -m pip check && useradd --uid 1000 --create-home user
+COPY --from=agents __init__.py integration_probe.py probe_csv.py /app/regulai/front/agents/
+COPY test_probe.py runtime_checks.py run_e2b.py /app/ops/agent_probe/
+COPY input/numbers.csv /app/ops/agent_probe/input/numbers.csv
+ENV LANGSMITH_TRACING=false LANGCHAIN_TRACING_V2=false PYTHONDONTWRITEBYTECODE=1
+USER 1000:1000
+WORKDIR /app
+CMD ["python", "/app/ops/agent_probe/test_probe.py"]

@@ -1,0 +1,230 @@
+{
+  "metric": "Exact annotated-value disappearance, not complete span recall or anonymity",
+  "by_entity": {
+    "synthetic_development:ID": {
+      "n": 8,
+      "base": 3,
+      "final": 8
+    },
+    "synthetic_development:EMAIL": {
+      "n": 6,
+      "base": 1,
+      "final": 6
+    },
+    "synthetic_development:OPAQUE": {
+      "n": 1,
+      "base": 0,
+      "final": 0
+    },
+    "synthetic_development:SECRET": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "synthetic_development:PERSON": {
+      "n": 2,
+      "base": 2,
+      "final": 2
+    },
+    "synthetic_development:PHONE": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "synthetic_development:ACCOUNT": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "known_regression:dni": {
+      "n": 8,
+      "base": 5,
+      "final": 8
+    },
+    "known_regression:nie": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "known_regression:email": {
+      "n": 5,
+      "base": 4,
+      "final": 5
+    },
+    "known_regression:phone": {
+      "n": 5,
+      "base": 5,
+      "final": 5
+    },
+    "known_regression:iban": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "known_regression:payment_card": {
+      "n": 3,
+      "base": 3,
+      "final": 3
+    },
+    "known_regression:api_key": {
+      "n": 4,
+      "base": 4,
+      "final": 4
+    },
+    "known_regression:password": {
+      "n": 2,
+      "base": 2,
+      "final": 2
+    },
+    "known_regression:jwt": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "known_regression:private_key": {
+      "n": 1,
+      "base": 1,
+      "final": 1
+    },
+    "known_regression:opaque_secret": {
+      "n": 1,
+      "base": 0,
+      "final": 0
+    }
+  },
+  "won_cases": [
+    "id_spaces",
+    "id_nie_spaces",
+    "id_dots",
+    "id_zero_width",
+    "id_nbsp",
+    "email_fullwidth",
+    "email_zero_width",
+    "email_words_es",
+    "email_words_es_local_space",
+    "email_words_en",
+    "PII-03",
+    "PII-04",
+    "PII-11"
+  ],
+  "lost_cases": [],
+  "deltas": [
+    {
+      "id": "id_spaces",
+      "before": [
+        "DNI: 12 345 678-Z. Plazo: 19 días."
+      ],
+      "after": [
+        "DNI: [[REGULAI_ID]]. Plazo: 19 días."
+      ]
+    },
+    {
+      "id": "id_nie_spaces",
+      "before": [
+        "NIE: X 1 234 567-L. Total: 46 EUR."
+      ],
+      "after": [
+        "NIE: [[REGULAI_ID]]. Total: 46 EUR."
+      ]
+    },
+    {
+      "id": "id_dots",
+      "before": [
+        "DNI: 12.345.678-Z. Total: 46 EUR."
+      ],
+      "after": [
+        "DNI: [[REGULAI_ID]]. Total: 46 EUR."
+      ]
+    },
+    {
+      "id": "id_zero_width",
+      "before": [
+        "DNI: 1234​5678Z. Plazo: 19 días."
+      ],
+      "after": [
+        "DNI: [[REGULAI_ID]]. Plazo: 19 días."
+      ]
+    },
+    {
+      "id": "id_nbsp",
+      "before": [
+        "DNI: 12 345 678-Z. Total: 46 EUR."
+      ],
+      "after": [
+        "DNI: [[REGULAI_ID]]. Total: 46 EUR."
+      ]
+    },
+    {
+      "id": "email_fullwidth",
+      "before": [
+        "Correo: ana＠example．test. Plazo: 19 días."
+      ],
+      "after": [
+        "Correo: [[REGULAI_EMAIL]]. Plazo: 19 días."
+      ]
+    },
+    {
+      "id": "email_zero_width",
+      "before": [
+        "Correo: ana@exam​ple.test. Total: 46 EUR."
+      ],
+      "after": [
+        "Correo: [[REGULAI_EMAIL]]. Total: 46 EUR."
+      ]
+    },
+    {
+      "id": "email_words_es",
+      "before": [
+        "Correo: ana arroba example punto test. Plazo: 19 días."
+      ],
+      "after": [
+        "Correo: [[REGULAI_EMAIL]]. Plazo: 19 días."
+      ]
+    },
+    {
+      "id": "email_words_es_local_space",
+      "before": [
+        "Contacto ficticio: persona dos arroba example punto test. Plazo: 19 días."
+      ],
+      "after": [
+        "Contacto ficticio: [[REGULAI_EMAIL]]. Plazo: 19 días."
+      ]
+    },
+    {
+      "id": "email_words_en",
+      "before": [
+        "Email: alice at example dot test. Total: 46 EUR."
+      ],
+      "after": [
+        "Email: [[REGULAI_EMAIL]]. Total: 46 EUR."
+      ]
+    },
+    {
+      "id": "PII-03",
+      "before": [
+        "Registro sintético. DNI: 00 000 000-T. Importe: 250,00 EUR. [[REGULAI_PERSON]] el importe."
+      ],
+      "after": [
+        "Registro sintético. DNI: [[REGULAI_ID]]. Importe: 250,00 EUR. [[REGULAI_PERSON]] el importe."
+      ]
+    },
+    {
+      "id": "PII-04",
+      "before": [
+        "Registro sintético. DNI A: ００００００００Ｔ. DNI B: 0000​0000T. [[REGULAI_LOCATION]] el registro sin identificadores."
+      ],
+      "after": [
+        "Registro sintético. DNI A: [[REGULAI_ID]]. DNI B: [[REGULAI_ID]]. [[REGULAI_LOCATION]] el registro sin identificadores."
+      ]
+    },
+    {
+      "id": "PII-11",
+      "before": [
+        "Contacto ficticio: persona once arroba example punto test. El plazo de 17 días sigue vigente. [[REGULAI_PERSON]] el plazo."
+      ],
+      "after": [
+        "Contacto ficticio: [[REGULAI_EMAIL]]. El plazo de 17 días sigue vigente. [[REGULAI_PERSON]] el plazo."
+      ]
+    }
+  ]
+}

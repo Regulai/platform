@@ -1,0 +1,13 @@
+.git
+.claude
+.venv
+output
+evals
+**/__pycache__
+**/*.sqlite3
+**/local_settings.py
+**/media
+**/staticfiles
+**/.env*
+**/*private*.json
+*.pdf

@@ -1,0 +1,8 @@
+order_id,region,product,quantity,unit_price_eur,status
+S01,Norte,Luz,7,10.00,completed
+S02,Norte,Base,2,25.00,completed
+S03,Sur,Base,4,25.00,completed
+S04,Sur,Luz,3,10.00,completed
+S05,Norte,Luz,-1,10.00,refund
+S06,Este,Cable,2,8.00,completed
+S07,Norte,Base,99,25.00,cancelled

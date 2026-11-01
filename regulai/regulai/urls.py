@@ -16,16 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from front.access import avatar
 
 
 urlpatterns = [
+    path('media/avatars/<path:filename>', avatar),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path("", include("front.urls")),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Chat files are private. Serve them only through front:chat_download_file,
+# including in development; the media directory must never be a public alias.

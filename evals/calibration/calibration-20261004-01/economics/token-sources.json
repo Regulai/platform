@@ -1,0 +1,20 @@
+[
+  {
+    "name": "deepseek-token",
+    "url": "https://api-docs.deepseek.com/quick_start/token_usage",
+    "status": 200,
+    "sha256": "08bf766935b9ff92aee592c70bdac0908e3f44f1e3e52e93dd7aeafc9925fd1a"
+  },
+  {
+    "name": "deepseek-thinking",
+    "url": "https://api-docs.deepseek.com/guides/thinking_mode",
+    "status": 200,
+    "sha256": "35350389e59872d3733f7b7f99f5485c6cbc95f1bc2a71a47ba3ecf30bd7a060"
+  },
+  {
+    "name": "deepseek-api",
+    "url": "https://api-docs.deepseek.com/api/create-chat-completion",
+    "status": 200,
+    "sha256": "e7133a7c2a7c2662567cca2e2392b503f97c2fb583009ff85f878744e0a36ba7"
+  }
+]

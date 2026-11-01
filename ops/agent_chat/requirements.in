@@ -1,0 +1,12 @@
+# Only the spreadsheet template. Never merge the executor or web dependency sets.
+pandas==2.3.3
+openpyxl==3.1.5
+numpy==2.5.3
+python-docx==1.2.0
+lxml==6.1.0
+Pillow==12.3.0
+pypdf==6.19.0
+python-pptx==1.0.2
+XlsxWriter==3.2.9
+# Isolated read-only browser; the Python package pins its Chromium revision.
+playwright==1.64.0

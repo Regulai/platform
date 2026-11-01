@@ -1,0 +1,50 @@
+{
+  "corpus_id": "p0-conversations-20261016",
+  "files": [
+    {
+      "path": "fixtures/inventory-source.json",
+      "sha256": "0cd7f3f25540b3436f8feed0054389cb28095af6605246ca3689a76765b91b0d",
+      "size_bytes": 590
+    },
+    {
+      "path": "fixtures/inventory.xlsx",
+      "sha256": "44367f9569e7cdce7a5197106f93e3d1864d42c3668abf434d401973b33db708",
+      "size_bytes": 11699
+    },
+    {
+      "path": "fixtures/orders.csv",
+      "sha256": "83452eb8af4b0df290fdb6701e3ee37edef0621145e96729cfae2d8412c6d57f",
+      "size_bytes": 161
+    },
+    {
+      "path": "fixtures/project-brief.pdf",
+      "sha256": "b5b0ec4769ca581058adf23c80bb0c35112b9724ace3e7b8f686264861e62431",
+      "size_bytes": 2552
+    },
+    {
+      "path": "fixtures/reconciliation-inputs.zip",
+      "sha256": "e9eef6c50f115aaad6fb7dcccc489477e9ee2efdc311b6513e685c105cd6c3c1",
+      "size_bytes": 1006
+    },
+    {
+      "path": "fixtures/reconciliation.json",
+      "sha256": "bc7958cc0dd0d74dd2ad9621066770d2cad4fb44e84505de10aba274dd0a4e27",
+      "size_bytes": 613
+    },
+    {
+      "path": "fixtures/sales.csv",
+      "sha256": "97a1319b1ad1ec0e0893eca6140a1314d1fa7a46d7a404dabb6cba8a6fdf18a8",
+      "size_bytes": 277
+    },
+    {
+      "path": "fixtures/simulation.json",
+      "sha256": "06ed9f0d328cd2d01c3fb5e2a5ee01d9f24ca4439feb3ca64f9fea94ab5e31eb",
+      "size_bytes": 428
+    },
+    {
+      "path": "fixtures/site.zip",
+      "sha256": "5813abee0fe4d6c942e38277ec79fe9bf5e38327ae357fa5fd9c944990e7ba26",
+      "size_bytes": 931
+    }
+  ]
+}

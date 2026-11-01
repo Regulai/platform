@@ -1,0 +1,46 @@
+{
+  "ready_for_real": false,
+  "blockers": [
+    "new_explicit_authorization_required",
+    "explicit_scope_extension_required",
+    "authorization_expired_or_invalid_window",
+    "mutable_alias_acknowledgment_required"
+  ],
+  "manifest_sha256": "b4730105fd1f74bfbd3baf0d6757cd9bfd6484b1170b61517944ad721e058b30",
+  "source_sha256": {
+    "regulai/front/chat_service.py": "6da23876d4e248ec4518b4e73c994960a628c9152cf19c3b1a78dfed2019264a",
+    "regulai/front/policy.py": "4b95e7af709a56899220a15da4fca63db5342f4a7bb01c41d28c24746e6c5eb7",
+    "regulai/front/routing.py": "1a99ebec629a274df56678a9b21809de0c84ab978793a85646cf0c6beb7ef7f1",
+    "regulai/front/verification.py": "0342cd9c8825930ee9365386bad0479156b10fce4476c5648835587c08ecacc1",
+    "regulai/front/jev.py": "ccb0c492e402c0f987d9b27c15a8efcd2870e45b835c80e9699bda960a373cad",
+    "regulai/front/documents.py": "df74899d7adb36806a4909ea97c20ec8a5b08e96e051570314b27d798700ed26",
+    "regulai/front/masking.py": "eda1eeb98c0604da08e48052bc58d19fbfd926c40d5b94d2a01377a5dedce313",
+    "regulai/front/local_masking.py": "02ed047f71633eee74e7d5b99ff4f0381c46292c205b9ddf9e6929a090cda7cb",
+    "regulai/front/classification.py": "6167b9de82e97394b9e83095bce7fd4c5b7adb8b9028d38523ce6f6a051ea8fb",
+    "regulai/front/sources.py": "207892d7b8249a94334acd52d62d8e950995998c6f94cdfe6e744f0a57883e8b",
+    "regulai/front/connectors.py": "51ddd25977f81d2a81169aa3c797fd2a39f0d1034de9fc83ffb631b83ceb9eac",
+    "regulai/front/views.py": "41913cf4aaad75020cec0b0172d9e15d803c32c5f5218dd5aef7f6d50200a095",
+    "regulai/front/models.py": "59d22103dfd5edf36282acfcc86ef22a88d7df94238cff74918e01a0248a0300",
+    "regulai/front/evaluation.py": "d3a4b1bd3bfd3fdbd907886d8f5244eae09ffd1343f9d3f9a316499539cc9b51",
+    "regulai/front/evaluation_budget.py": "0f9df54d6c9015c481ab5c38a18bdb5254da1e3ca0de1daa0180fd62c0041e4a",
+    "regulai/front/management/commands/evaluate_ai.py": "dd8e21d2dfaa058ec17741d48aff537cda148c826c9c4f12d0541c663dc40e05",
+    "regulai/front/management/commands/smoke_ai.py": "e5dd46a8c5c2f0c2cce37bf09e575cf1e57b760ff08716d6e031e61ae2b113a7",
+    "regulai/front/management/commands/extend_pilot_authorization.py": "e4b69daa0c4570a8fe6ed44caf95cfa3388876259776c1fefc29aa67b86a7baa",
+    "requirements.txt": "947e437b58acb8d09f6e5e6d10e36b3dd63cf57b46d4441e5497249aca5aa10c"
+  },
+  "cases": 4,
+  "maximum_usd": "1.00",
+  "masking_observed": {
+    "backend": "local",
+    "detector_version": "regulai-local-v2",
+    "spacy_version": "3.8.16",
+    "model_name": "xx_ent_wiki_sm",
+    "model_version": "3.8.0",
+    "model_artifact_sha256": "6f3c4b853852ea9e9d2dc76cc950dddb10a7e4c42d813308caefe6c5e8be2f0a",
+    "model_files_sha256": "4f5b7a5c5baf29c9e940befeb1f02a3021acc22806e3c1cbcef48e2078a2477a",
+    "detect": "both",
+    "language": ""
+  },
+  "ledger": "C:\\Users\\javi\\Documents\\Codex\\regulai-platform\\.claude\\pilot-real-budget.sqlite3",
+  "network_calls": 0
+}

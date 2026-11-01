@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "provider": "synthetic HTTP transport only; not provider quality or latency",
+  "public_text": {
+    "prefix": "Madrid es la capital de España. Sus barrios conservan historia y lugares para pasear. ",
+    "repeat": 12,
+    "chunk_characters": 17,
+    "barriers": ["first_prefix_received", "before_usage_and_final"],
+    "usage": {"prompt_tokens": 20, "completion_tokens": 10, "total_tokens": 30}
+  },
+  "tool_interleaved": {
+    "calls": [
+      {"index": 0, "id": "p1-read-1", "name": "read_file", "argument_fragments": ["{\"file_", "path\":\"/workspace/a.txt\"}"]},
+      {"index": 1, "id": "p1-list-2", "name": "ls", "argument_fragments": ["{\"pa", "th\":\"/workspace\"}"]}
+    ],
+    "order": [0, 1, 0, 1],
+    "finish_reason": "tool_calls"
+  },
+  "landing": {
+    "reuse": "front.test_agent_continuity.ContinuityTests.test_madrid_file_download_reissue_and_edit_across_three_entries",
+    "steps": ["Madrid context", "create HTML", "download without inference", "change only requested color"],
+    "assertions": ["three send adapters and conversation routes", "same ID and hash on redelivery", "revision link and previous bytes preserved"]
+  },
+  "random_walk": {
+    "dimensions": [2, 3], "seed": 20261016, "walkers": 2000, "steps": 2000,
+    "generator": "PCG64", "move": "uniform among 2*d nearest neighbours",
+    "return": "first return after time zero", "output": "count and fraction by horizon",
+    "oracle": ["independent small trajectories", "fractions in [0,1]", "nondecreasing cumulative count", "returns only at even steps"],
+    "note": "New reproducible specification; distinct from deterministic inventory P0 c09. P0 does not contain this utility."
+  }
+}

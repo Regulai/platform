@@ -41,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'front.middleware.ExceptionAuditMiddleware',
+    'front.middleware.ContentSecurityPolicyMiddleware',
 ]
 
 ROOT_URLCONF = 'regulai.urls'
@@ -156,7 +157,23 @@ LOGIN_REDIRECT_URL = 'front:dashboard'
 LOGOUT_REDIRECT_URL = 'front:login'
 
 # Registration
-ALLOW_REGISTRATION = True  # Set to False to disable public registration
+ALLOW_REGISTRATION = False  # Enable explicitly to allow public registration.
+REGULAY_AGENT_ENABLED = True  # Existing account grants remain mandatory.
+# Enabled after P1 acceptance; account grants and runtime requirements still apply.
+REGULAY_SKILLS_CATALOG = True
+REGULAY_SKILLS_RUNTIME = True
+REGULAY_AGENT_TEXT_STREAM = True
+REGULAY_ARTIFACT_PREVIEW = True
+# Capabilities must come from a verified isolated runtime, never from a package.
+REGULAY_SKILL_RUNTIME_CAPABILITIES = {}
+REGULAY_AGENT_WEB_ENABLED = False
+REGULAY_AGENT_PACKAGES_ENABLED = False
+REGULAY_AGENT_BROWSER_ENABLED = False
+REGULAY_AGENT_MCP_ENABLED = False  # Managed Drive grant required; assistant connections are unrelated.
+REGULAY_AGENT_MCP_WRITES_ENABLED = False  # Requires validated pilot and separate write grant.
+# Chat frontend: 'react' (static/chat-app build) or 'legacy' (server templates and
+# IIFE scripts). One frontend per page; 'legacy' is the local rollback (task 79).
+REGULAI_CHAT_FRONTEND = os.environ.get('REGULAI_CHAT_FRONTEND', 'react')
 
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
@@ -194,7 +211,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Registration
-ALLOW_REGISTRATION = True  # Set to False to disable public registration
+ALLOW_REGISTRATION = False  # Enable explicitly to allow public registration.
 
 # SECURITY FLAGS
 #SECURE_SSL_REDIRECT = True
@@ -207,7 +224,30 @@ ALLOW_REGISTRATION = True  # Set to False to disable public registration
 #SECURE_BROWSER_XSS_FILTER = True
 #X_FRAME_OPTIONS = 'DENY'
 
+# The Excel chat branch is development-only and requires explicit synthetic
+# account/company/profile IDs. Existing accounts are never enrolled by migration.
+REGULAY_AGENT_DEVELOPMENT = False
+REGULAY_AGENT_DEV_ACCOUNTS = {}
+REGULAY_AGENT_WORKER_TOKEN = ''
+
 try:
     from .local_settings import *
 except ImportError:
     pass
+
+# Content must never be interpolated into logs, including Django HTTP errors.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {'safe_json': {'()': 'front.safe_logging.SafeJSONFormatter'}},
+    'handlers': {'safe_console': {
+        'class': 'logging.StreamHandler', 'formatter': 'safe_json',
+    }},
+    'root': {'handlers': ['safe_console'], 'level': 'INFO'},
+    'loggers': {
+        'django': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+        'django.server': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+        'gunicorn.error': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+        'gunicorn.access': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+    },
+}

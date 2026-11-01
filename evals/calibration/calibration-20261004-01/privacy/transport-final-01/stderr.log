@@ -1,0 +1,53 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+{"timestamp": "2026-10-03T23:34:53.130727+00:00", "level": "INFO", "logger": "front.migrations.0016_encrypt_api_keys", "request_id": null, "code": "unclassified_event", "exception_type": null}
+test_minimal_pairs_capture_classifier_generator_and_judge_bodies (front.test_calibration_privacy.CalibrationClassifierCaptureTests.test_minimal_pairs_capture_classifier_generator_and_judge_bodies) ... {"timestamp": "2026-10-03T23:34:56.332624+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:56.473827+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:56.608998+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:56.750623+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:56.880816+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.020318+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.162442+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.300645+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.435821+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.605710+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.744861+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:57.878514+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.009683+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.142793+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.280422+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.418097+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.551738+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.687420+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.821309+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:58.956417+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:59.093068+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:59.230708+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:59.376322+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:59.553104+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:59.723307+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:34:59.896524+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.037640+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.171736+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.306505+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.440643+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.579499+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.714700+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+{"timestamp": "2026-10-03T23:35:00.855893+00:00", "level": "INFO", "logger": "httpx", "request_id": null, "code": "unclassified_event", "exception_type": null}
+ok
+test_known_ner_limit_common_unicode_letters_are_not_an_organization (front.test_calibration_privacy.CalibrationNormalizationTests.test_known_ner_limit_common_unicode_letters_are_not_an_organization) ... expected failure
+test_known_ner_limit_overlapping_identifier_does_not_remove_field_label (front.test_calibration_privacy.CalibrationNormalizationTests.test_known_ner_limit_overlapping_identifier_does_not_remove_field_label) ... expected failure
+test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) ... ok
+test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task (front.test_calibration_privacy.CalibrationNormalizationTests.test_spaced_and_unicode_identifiers_are_removed_without_rewriting_task) ... ok
+test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes (front.test_calibration_privacy.CalibrationNormalizationTests.test_unicode_email_is_fully_removed_and_benign_unicode_keeps_exact_bytes) ... ok
+test_definitions_and_non_address_uses_of_at_and_dot_are_preserved (front.test_calibration_privacy.CalibrationWordEmailTests.test_definitions_and_non_address_uses_of_at_and_dot_are_preserved) ... ok
+test_labelled_word_addresses_are_removed_in_es_and_en (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_addresses_are_removed_in_es_and_en) ... ok
+test_labelled_word_email_inside_json_stays_valid_and_idempotent (front.test_calibration_privacy.CalibrationWordEmailTests.test_labelled_word_email_inside_json_stays_valid_and_idempotent) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 8.206s
+
+OK (expected failures=2)
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+

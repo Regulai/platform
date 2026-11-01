@@ -1,0 +1,26 @@
+[
+  {
+    "name": "ecb",
+    "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+    "status": 200,
+    "sha256": "d16ef240d4d97a953b925cbf81451c812c559cd33f2ebe07b08b51e4085709e2",
+    "bytes": 1547,
+    "retrieved_utc": "2026-10-04T00:00:50.031773+00:00"
+  },
+  {
+    "name": "deepseek",
+    "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+    "status": 200,
+    "sha256": "210f102275ccf1a6542f08a3bc9e4b4c7c83278cb74b35217bffa112df6363b2",
+    "bytes": 23982,
+    "retrieved_utc": "2026-10-04T00:00:50.450489+00:00"
+  },
+  {
+    "name": "gateway",
+    "url": "https://ai-gateway.vercel.sh/v1/models",
+    "status": 200,
+    "sha256": "9ff24b810d6f6a3810beba6a0c06ad26edafb79ffdacb898dc5392dc9115d5b1",
+    "bytes": 460898,
+    "retrieved_utc": "2026-10-04T00:00:50.813695+00:00"
+  }
+]

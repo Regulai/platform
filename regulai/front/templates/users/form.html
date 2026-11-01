@@ -10,7 +10,7 @@
       <div class="card-body">
         <div class="d-flex align-items-center justify-content-between mb-4">
           <h5 class="card-title fw-semibold mb-0">
-            <iconify-icon icon="{% if is_edit %}solar:user-pen-bold{% else %}solar:user-plus-bold{% endif %}" class="text-primary me-2"></iconify-icon>
+            <iconify-icon icon="{% if is_edit %}solar:pen-bold{% else %}solar:user-plus-bold{% endif %}" class="text-primary me-2"></iconify-icon>
             {% if is_edit %}Edit User: {{ edit_user.username }}{% else %}Create New User{% endif %}
           </h5>
           <a href="{% url 'front:users_list' %}" class="btn btn-outline-secondary btn-sm">

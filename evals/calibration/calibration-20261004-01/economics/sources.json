@@ -1,0 +1,42 @@
+[
+  {
+    "name": "ecb",
+    "url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+    "status": 200,
+    "sha256": "d16ef240d4d97a953b925cbf81451c812c559cd33f2ebe07b08b51e4085709e2",
+    "bytes": 1547,
+    "retrieved_utc": "2026-10-03T23:19:40.469809+00:00"
+  },
+  {
+    "name": "deepseek",
+    "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+    "status": 200,
+    "sha256": "210f102275ccf1a6542f08a3bc9e4b4c7c83278cb74b35217bffa112df6363b2",
+    "bytes": 23982,
+    "retrieved_utc": "2026-10-03T23:19:40.738865+00:00"
+  },
+  {
+    "name": "gateway",
+    "url": "https://ai-gateway.vercel.sh/v1/models",
+    "status": 200,
+    "sha256": "9ff24b810d6f6a3810beba6a0c06ad26edafb79ffdacb898dc5392dc9115d5b1",
+    "bytes": 460898,
+    "retrieved_utc": "2026-10-03T23:19:41.098152+00:00"
+  },
+  {
+    "name": "vercel-fees",
+    "url": "https://vercel.com/docs/ai-gateway/pricing",
+    "status": 200,
+    "sha256": "2fa185aa1ab4ada770567727618c3c8e31a2c88d8ee4d8b15fbb1c3bd023247a",
+    "bytes": 1001046,
+    "retrieved_utc": "2026-10-03T23:19:42.131912+00:00"
+  },
+  {
+    "name": "vercel-typesafe",
+    "url": "https://vercel.com/docs/ai-gateway/sdks-and-apis/typesafe",
+    "status": 200,
+    "sha256": "2ee48928202de57baa3f5dbc149df26ee159b2fd7f7a54557180056185e9c5df",
+    "bytes": 1103349,
+    "retrieved_utc": "2026-10-03T23:19:42.858354+00:00"
+  }
+]

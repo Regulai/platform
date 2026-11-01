@@ -1,0 +1,204 @@
+/* regulAI chat island. Tailwind is imported in pieces so its preflight is
+ * scoped (see preflight.css); tokens live on `.regulai-chat`, which the Django
+ * template puts on <body> and on the portal container. Nothing here targets
+ * :root/html/body, so other pages that never load this file are unaffected. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "./preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "tw-animate-css";
+@import "./vendor/shadcn-tailwind.css";
+@import "./markdown.css";
+
+@source "../";
+
+@custom-variant dark (&:where([data-bs-theme="dark"], [data-bs-theme="dark"] *));
+
+@theme inline {
+  --font-sans: var(--rg-font-sans);
+  --font-mono: var(--rg-font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.5);
+  --radius-4xl: calc(var(--radius) * 3);
+  --ease-quiet: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.25rem;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-read: 1rem;
+  --text-read--line-height: 1.65;
+}
+
+.regulai-chat {
+  --rg-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
+  --rg-font-mono: "Cascadia Code", "Cascadia Mono", Consolas, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --background: #ffffff;
+  --foreground: #101828;
+  --card: #ffffff;
+  --card-foreground: #101828;
+  --popover: #ffffff;
+  --popover-foreground: #101828;
+  --primary: #635bff;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f4f7;
+  --secondary-foreground: #101828;
+  --muted: #f2f4f7;
+  --muted-foreground: #475467;
+  --accent: #f2f4f7;
+  --accent-foreground: #101828;
+  --destructive: #b42318;
+  --border: #eaecf0;
+  --input: #d0d5dd;
+  --ring: #635bff;
+  --surface: #f9fafb;
+  --surface-2: #f2f4f7;
+  --surface-3: #eaecf0;
+  --subtle-foreground: #667085;
+  --brand: #635bff;
+  --brand-strong: #4f46e5;
+  --brand-soft: #efeeff;
+  --success: #157a4a;
+  --success-soft: #e7f6ee;
+  --warning: #8a5a00;
+  --warning-soft: #fff8e8;
+  --danger: #b42318;
+  --danger-soft: #fef3f2;
+  --color-placeholder: #667085;
+  --radius: 0.5rem;
+  /* Tailwind also emits --radius-md on :root for the components' min() radii, where
+   * --radius does not exist yet; redeclared here it resolves inside the island. */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --read: 46rem;
+  color-scheme: light;
+}
+
+.regulai-chat:where([data-bs-theme="dark"], [data-bs-theme="dark"] *),
+:where([data-bs-theme="dark"]) .regulai-chat {
+  --background: #111318;
+  --foreground: #eef0f4;
+  --card: #171a21;
+  --card-foreground: #eef0f4;
+  --popover: #1e222b;
+  --popover-foreground: #eef0f4;
+  --primary: #8a84ff;
+  --primary-foreground: #111318;
+  --secondary: #1e222b;
+  --secondary-foreground: #eef0f4;
+  --muted: #1e222b;
+  --muted-foreground: #b4bac7;
+  --accent: #272c37;
+  --accent-foreground: #eef0f4;
+  --destructive: #ff8f84;
+  --border: #272c37;
+  --input: #3a4150;
+  --ring: #8a84ff;
+  --surface: #171a21;
+  --surface-2: #1e222b;
+  --surface-3: #272c37;
+  --subtle-foreground: #98a0b0;
+  --brand: #8a84ff;
+  --brand-strong: #aaa5ff;
+  --brand-soft: #24234a;
+  --success: #5fd39a;
+  --success-soft: #13291e;
+  --warning: #f2c26b;
+  --warning-soft: #2e2412;
+  --danger: #ff8f84;
+  --danger-soft: #3a1714;
+  --color-placeholder: #98a0b0;
+  color-scheme: dark;
+}
+
+@layer base {
+  .regulai-chat {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  :where(.regulai-chat) * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  }
+  :where(.regulai-chat) ::selection {
+    background-color: color-mix(in oklab, var(--brand) 22%, transparent);
+  }
+  :where(.regulai-chat) :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  :where(.regulai-chat) [data-slot]:focus-visible {
+    outline: none;
+  }
+}
+
+/* Movement explains a change of state; with reduced motion the state stays and
+ * the travel goes. Motion components follow the same preference (MotionConfig). */
+@media (prefers-reduced-motion: reduce) {
+  :where(.regulai-chat, .regulai-chat *),
+  :where(.regulai-chat, .regulai-chat *)::before,
+  :where(.regulai-chat, .regulai-chat *)::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A list that scrolls shows a soft edge only where more content waits, without script:
+ * the covers scroll with the content and uncover the fixed shadows at either end. */
+:where(.regulai-chat) .rg-scroll-shadows {
+  background:
+    linear-gradient(var(--popover) 30%, transparent) top / 100% 1.5rem no-repeat local,
+    linear-gradient(transparent, var(--popover) 70%) bottom / 100% 1.5rem no-repeat local,
+    radial-gradient(farthest-side at 50% 0, color-mix(in oklab, var(--foreground) 14%, transparent), transparent) top / 100% 0.5rem no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, color-mix(in oklab, var(--foreground) 14%, transparent), transparent) bottom / 100% 0.5rem no-repeat scroll;
+}
+
+@media (forced-colors: active) {
+  :where(.regulai-chat) [data-slot="input-group"] { border: 1px solid CanvasText; }
+}

@@ -1,0 +1,94 @@
+{
+  "new": {
+    "sha256": "ede58c2c47f63637cf7e7fc18c6e426a3cea1e687b68bcae01bab0898590f67f",
+    "pdf_sha256": "6d4817c738140d9228bdcebe9fb2732f5c253cd3365fd54d4e453b1240b4cbd4",
+    "page_sha256": [
+      "2e8715c025af1d5dc0c915f195fd5962a512ba1c6dcd3116919cf0abb869b2e6",
+      "b261f8d2a357bdd2421f57541d5417ed874da50399de867a26ba770bb0c06211",
+      "30361901fc9007909244cca3cd4ced0cbf33d54f868c15fc931e7114e56a7698"
+    ],
+    "pages": 3,
+    "rows": 3,
+    "total_cents": 750,
+    "automated_passed": true,
+    "visual_review": "required",
+    "checks": [
+      "native_text_table_chart",
+      "embedded_workbook",
+      "source_values",
+      "canvas_bounds",
+      "pdf_text_fonts",
+      "rendered_final_bytes",
+      "new"
+    ]
+  },
+  "template": {
+    "sha256": "8436b1adbcc28d0896d69d9af16c605a3415111d09648f9a1daea1142ff59a9b",
+    "pdf_sha256": "2e34a6768d8b57a7b50b3126fb40c1e166a45de4a3d4b128776aea7df5c77e0b",
+    "page_sha256": [
+      "2e8715c025af1d5dc0c915f195fd5962a512ba1c6dcd3116919cf0abb869b2e6",
+      "c1c35c7035477acaf21f3a61ebda97887dbba0aeeacfeb81328cc2240565a41a",
+      "f9e3af5fa2254ba5d6c184fb58ba7528a9ae3b496ce794dcae17021dd97067d1"
+    ],
+    "pages": 3,
+    "rows": 3,
+    "total_cents": 750,
+    "automated_passed": true,
+    "visual_review": "required",
+    "checks": [
+      "native_text_table_chart",
+      "embedded_workbook",
+      "source_values",
+      "canvas_bounds",
+      "pdf_text_fonts",
+      "rendered_final_bytes",
+      "corporate"
+    ]
+  },
+  "long": {
+    "sha256": "02e68989a3cd80a04dcf5502b58cb8627be8d3e9bb315829e2ffaa6dec456938",
+    "pdf_sha256": "a3730aeee5ceeb952707e9c4590a7e68ad0965d6070f880e70c4d69904c8a01d",
+    "page_sha256": [
+      "2e8715c025af1d5dc0c915f195fd5962a512ba1c6dcd3116919cf0abb869b2e6",
+      "b261f8d2a357bdd2421f57541d5417ed874da50399de867a26ba770bb0c06211",
+      "e56b091cc7508dd9bb16e7ba29d9ddb201623f2b6f65964874bd71f8d800ad15"
+    ],
+    "pages": 3,
+    "rows": 3,
+    "total_cents": 750,
+    "automated_passed": true,
+    "visual_review": "required",
+    "checks": [
+      "native_text_table_chart",
+      "embedded_workbook",
+      "source_values",
+      "canvas_bounds",
+      "pdf_text_fonts",
+      "rendered_final_bytes",
+      "new"
+    ]
+  },
+  "edit": {
+    "sha256": "7c3901fb56b82d1ff1847d72b85f2f400203a0d955d29e82772124110cae3d21",
+    "pdf_sha256": "355c42955a9a50909088a6398c499cdef8b4e4aa74115d0859f60baac396297d",
+    "page_sha256": [
+      "2e8715c025af1d5dc0c915f195fd5962a512ba1c6dcd3116919cf0abb869b2e6",
+      "b261f8d2a357bdd2421f57541d5417ed874da50399de867a26ba770bb0c06211",
+      "49304b2b36bd9f95e4add96c7e509f12f13c95d73455d1515a992a8b060acf6d"
+    ],
+    "pages": 3,
+    "rows": 3,
+    "total_cents": 750,
+    "automated_passed": true,
+    "visual_review": "required",
+    "checks": [
+      "native_text_table_chart",
+      "embedded_workbook",
+      "source_values",
+      "canvas_bounds",
+      "pdf_text_fonts",
+      "rendered_final_bytes",
+      "unchanged_revision"
+    ]
+  }
+}

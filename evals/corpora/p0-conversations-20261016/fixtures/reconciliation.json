@@ -1,0 +1,27 @@
+{
+  "payments": [
+    {
+      "amount_eur": "120.00",
+      "order_id": "O1"
+    },
+    {
+      "amount_eur": "80.00",
+      "order_id": "O2"
+    },
+    {
+      "amount_eur": "50.00",
+      "order_id": "O3"
+    },
+    {
+      "amount_eur": "70.00",
+      "order_id": "O4"
+    }
+  ],
+  "reported_collections_eur": "320.00",
+  "rules": [
+    "Deduplicate identical order rows.",
+    "A conflicting duplicate amount makes that order uncertain.",
+    "Exclude cancelled orders from valid sales and valid collections.",
+    "Do not assume which of two conflicting amounts is correct."
+  ]
+}

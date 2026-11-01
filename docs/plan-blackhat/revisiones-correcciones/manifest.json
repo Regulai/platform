@@ -1,0 +1,56 @@
+[
+  {
+    "file": "standards.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "d83264dc0d4e77b18cb2aef5ce8f1afa98b0cd817ae577e0fef465eeba7b9797"
+  },
+  {
+    "file": "spec-P.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "ffe22eb7d300c37d9b4376d16028bfbae0b143b486b8647d85ad1e2a1b7dbb81"
+  },
+  {
+    "file": "spec-D.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "5783e5f23a9ce48b7cb5b9604ffc16384692b055a66eba27190b878dac718e1f"
+  },
+  {
+    "file": "spec-V.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "3564ddeba6963f6e2c0cbcec77804785bf7012d65d777e3a754ee73af2cd4da3"
+  },
+  {
+    "file": "spec-C.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "9771ce2a217ee2914c3404b156ee305af6b36c4d74143780a5c3a7c5c940d88c"
+  },
+  {
+    "file": "spec-S.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "1f86b091234f506c4686ab32ab66aaed26531a1bad7e9b664c886949a22ab15a"
+  },
+  {
+    "file": "spec-F.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "92b92dbd055423cf77df639d58421cfacacf478e4eba101d519e7e6bb8442d1b"
+  },
+  {
+    "file": "spec-O.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "ce749ba721c1eb0a9bd43412cc8e003a525bb9e30d8dcbd0d28968e7cbe2f027"
+  },
+  {
+    "file": "spec-Q.md",
+    "reviewed_base": "4400f0b",
+    "reviewed_head": "9549e74",
+    "sha256": "bbe590cf31cebf68ddf2b9e665173a72a0040ed02e104d3dc929ca3b6742c66c"
+  }
+]

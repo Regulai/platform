@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "mode": "offline",
+  "policy_version": "synthetic-policy-v1",
+  "dataset": "cases.jsonl",
+  "seed": 20261002,
+  "configurations": ["economy", "strong", "router"],
+  "model_versions": {"economy": "synthetic-economy-v1", "strong": "synthetic-strong-v1", "judge": "jev-1.13.0"},
+  "prices_per_million": {
+    "economy": {"input": "1", "output": "2"},
+    "strong": {"input": "5", "output": "10"},
+    "judge": {"input": "1", "output": "1"}
+  },
+  "price_date": "2026-10-02",
+  "currency": "USD",
+  "thresholds": {"classification": 0.8, "verification": 0.8},
+  "jev_max_call_cost": "0.02",
+  "context_window": 131072,
+  "max_generation_attempts": {"economy": 1, "strong": 1, "router": 2},
+  "verification_mode": "enforce",
+  "classification_mode": "required",
+  "quality_by_task": {"economy": 0.6, "strong": 0.95},
+  "minimum_quality": {"economy": 0.5, "balanced": 0.6, "strong": 0.9},
+  "rubrics": {"classification": "sensitivity-v2", "task": "task-v2", "verification": "verification-v1", "exact_labels": "human-synthetic-v1"},
+  "limits": {"budget": "0.50", "deadline_seconds": 90, "max_output_tokens": 1000},
+  "synthetic_usage": {"generation_input_tokens": 100, "generation_output_tokens": 20, "judge_input_tokens": 50, "judge_output_tokens": 10},
+  "group_counts": {"task": 12, "document": 10, "sensitivity": 10, "adversarial": 8, "state": 10},
+  "split_counts": {"development": 30, "reserved": 20},
+  "scope": "Preprogrammed provider and judge responses exercise real control flow. They do not measure model precision, factual accuracy or real savings. Live execution is disabled."
+}

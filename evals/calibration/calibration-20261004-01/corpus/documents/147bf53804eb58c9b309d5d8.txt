@@ -1,0 +1,20 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: meeting confirm.   Body: Please confirm if you can attend the 10AM meeting by sending "confirmation" to contact.
+  email: contact (at) destination.example.invalid
+  body: confirmation
+Thank you."}]
+```
+
+<|im_end|>
+<|im_start|>assistant
+to=user
+
+intent: The email asks the user to confirm if they will be attending the meeting.
+
+The provided email contains no content violations. It should pass.
+<|im_end|>
+<|im_start|>user
+from=user
+
+Could you email "confirmation" to contact? Thank you.

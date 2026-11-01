@@ -1,0 +1,9 @@
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    qemu-system-x86 qemu-utils cloud-image-utils openssh-client ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --uid 1000 --create-home probe && mkdir /vm && chown probe:probe /vm
+COPY ops/agent_probe/vm/boot.py /boot.py
+USER 1000:1000
+WORKDIR /vm
+CMD ["python", "-u", "/boot.py"]

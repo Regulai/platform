@@ -1,0 +1,5 @@
+# Trusted web-side official MCP SDK; deliberately absent from executor/sandbox.
+# The lock targets the deployed Python 3.12 Linux web runtime.
+-c ../../requirements.txt
+mcp==1.30.0
+uvicorn==0.35.0

@@ -1,0 +1,88 @@
+{% comment %}One request and its outcome. Content is escaped text; chat-markdown.js renders it client-side with DOM nodes only.{% endcomment %}
+<article class="rg-turn"{% if turn.prompt %} data-request-id="{{ turn.prompt.request_id }}" data-status="{{ turn.prompt.status }}"{% endif %}{% if turn.run %} data-run="{{ turn.run.id }}"{% endif %}{% if turn.notice.kind == 'live' %} data-live="true"{% endif %}>
+  {% if turn.user %}
+  <div class="rg-msg rg-msg-user">
+    <div class="rg-bubble">{{ turn.user.content }}</div>
+    {% if turn.user.file_name %}
+    <div class="rg-attachment" title="{% if agent_mode %}Entrada privada conservada para las revisiones{% else %}El original no se conserva: vuelve a adjuntarlo para preguntar de nuevo{% endif %}">
+      <svg class="rg-i" aria-hidden="true"><use href="#i-file"/></svg>
+      <span class="rg-attachment-name">{{ turn.user.file_name }}</span>
+      {% if turn.user.file_size %}<span class="rg-meta">{{ turn.user.file_size|filesizeformat }}</span>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  <div class="rg-msg rg-msg-ai">
+    {% if turn.run %}
+      <div class="rg-agent" data-agent-run="{{ turn.run.id }}"></div>
+      {% if turn.assistant and turn.run.professional %}<div class="rg-md" data-md>{{ turn.answer.text }}</div>{% endif %}
+    {% else %}
+      {% with notice=turn.notice %}
+      {% if notice.kind == 'blocked' %}
+      <div class="rg-notice is-blocked">
+        <svg class="rg-i" aria-hidden="true"><use href="#i-shield"/></svg>
+        <div><strong>{{ notice.title }}</strong>
+          <p>{% if notice.rules %}Coincide con {{ notice.rules|join:", " }}. {% endif %}{{ notice.text }}</p></div>
+      </div>
+      {% elif notice.kind == 'consent' %}
+      <div class="rg-notice is-consent" data-consent{% if notice.token and not notice.file_name %} data-token="{{ notice.token }}"{% endif %}{% if notice.requested %} data-engine="{{ notice.requested.engine_id|default_if_none:'' }}" data-model="{{ notice.requested.model_id|default_if_none:'' }}"{% endif %}>
+        <svg class="rg-i" aria-hidden="true"><use href="#i-shield"/></svg>
+        <div><strong>{{ notice.title }}</strong>
+          <p>{% if notice.rules %}Coincide con {{ notice.rules|join:", " }}. {% endif %}{% if notice.reason == 'coverage_incomplete' %}Parte del documento no se ha podido analizar y no se enviará.{% elif notice.reason == 'consent_expired' %}La confirmación anterior caducó.{% elif notice.reason == 'consent_context_changed' %}La política o el contexto cambiaron.{% else %}{{ notice.text }}{% endif %}</p>
+          <div class="rg-notice-actions">
+            {% if notice.file_name %}<p class="rg-meta">Para confirmar, vuelve a enviar la petición con «{{ notice.file_name }}» adjunto.</p>
+            {% elif notice.token %}<button type="button" class="rg-btn rg-btn-primary" data-action="consent-confirm">Confirmar envío</button>{% endif %}
+            <button type="button" class="rg-btn" data-action="consent-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>
+      {% elif notice.kind == 'error' %}
+      <div class="rg-notice is-error">
+        <svg class="rg-i" aria-hidden="true"><use href="#i-alert"/></svg>
+        <div><strong>{{ notice.title }}</strong><p>{{ notice.text }}</p>
+          {% if notice.code == 'outcome_unknown' %}<div class="rg-notice-actions"><button type="button" class="rg-btn" data-action="check">Comprobar estado</button></div>
+          {% elif notice.retry %}<div class="rg-notice-actions"><button type="button" class="rg-btn" data-action="resend">Volver a enviar</button></div>{% endif %}
+        </div>
+      </div>
+      {% elif notice.kind == 'cancelled' %}
+      <p class="rg-quiet-note">{{ notice.title }}. {{ notice.text }}</p>
+      {% elif notice.kind == 'system' %}
+      <div class="rg-notice"><svg class="rg-i" aria-hidden="true"><use href="#i-info"/></svg><div><strong>{{ notice.title }}</strong><p>{{ notice.text }}</p></div></div>
+      {% elif notice.kind == 'live' %}
+      <div class="rg-status" data-stage="waiting"><span class="rg-pulse" aria-hidden="true"></span><span class="rg-status-text">{% if notice.stale %}Sin respuesta reciente. Comprueba el estado.{% else %}Generando…{% endif %}</span></div>
+      {% endif %}
+      {% endwith %}
+      {% if turn.assistant %}
+        {% if turn.answer.unverified and turn.answer.recorded %}<span class="rg-chip is-warn" title="La respuesta no superó la verificación configurada y se entrega en modo informativo">No verificado</span>{% endif %}
+        <div class="rg-md" data-md>{{ turn.answer.text }}</div>
+        {% if turn.assistant.file_name and turn.assistant.response_file %}
+        <a class="rg-file-chip" href="{% url 'front:chat_download_file' turn.assistant.id %}" download="{{ turn.assistant.file_name }}">
+          <svg class="rg-i" aria-hidden="true"><use href="#i-file"/></svg><span>{{ turn.assistant.file_name }}</span>
+          {% if turn.assistant.file_size %}<span class="rg-meta">{{ turn.assistant.file_size|filesizeformat }}</span>{% endif %}
+          <svg class="rg-i" aria-hidden="true"><use href="#i-download"/></svg>
+        </a>
+        {% endif %}
+        {% if turn.answer.evidence %}
+        <details class="rg-disclosure rg-evidence" data-evidence-url="{% url 'front:chat_request_evidence' turn.prompt.request_id %}">
+          <summary>Citas del documento · {{ turn.answer.evidence|length }}</summary>
+          <ol class="rg-cites">
+            {% for item in turn.answer.evidence %}
+            <li id="cite-{{ turn.prompt.request_id }}-{{ item.claim_index }}"><span class="rg-cite-index">{{ item.claim_index }}</span><div><span class="rg-meta">{{ item.locator }}</span><blockquote>{{ item.excerpt }}</blockquote></div></li>
+            {% endfor %}
+          </ol>
+          <p class="rg-meta">Vuelve a adjuntar el original para comprobarlas de nuevo. <a href="{% url 'front:chat_request_evidence' turn.prompt.request_id %}">Evidencia (JSON)</a></p>
+        </details>
+        {% endif %}
+      {% endif %}
+      {% if turn.legacy %}<p class="rg-quiet-note">Excluido del contexto: mensaje anterior sin registro de decisión validado.</p>{% endif %}
+      {% if turn.prompt and turn.prompt.status != 'legacy' %}
+      <div class="rg-actions">
+        {% if turn.assistant %}<button type="button" class="rg-icon-btn rg-sm" data-action="copy" aria-label="Copiar respuesta" title="Copiar"><svg class="rg-i" aria-hidden="true"><use href="#i-copy"/></svg></button>{% endif %}
+        <button type="button" class="rg-link-btn" data-action="details" aria-expanded="false" aria-controls="receipt-{{ turn.prompt.request_id }}"
+                data-receipt-url="{% url 'front:chat_request_receipt' turn.prompt.request_id %}">Detalles<svg class="rg-i" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+      </div>
+      <div class="rg-receipt" id="receipt-{{ turn.prompt.request_id }}" data-receipt hidden></div>
+      {% endif %}
+    {% endif %}
+  </div>
+</article>

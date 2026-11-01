@@ -1,0 +1,245 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+{"timestamp": "2026-10-04T08:23:20.878974+00:00", "level": "INFO", "logger": "front.migrations.0016_encrypt_api_keys", "request_id": null, "code": "unclassified_event", "exception_type": null}
+test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) ... {"timestamp": "2026-10-04T08:23:21.922792+00:00", "level": "ERROR", "logger": "django.request", "request_id": "b4d132ba-7bb1-4de1-a2d9-8e276a13eb55", "code": "unclassified_event", "exception_type": null}
+
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='benign', entry='/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.928799+00:00", "level": "ERROR", "logger": "django.request", "request_id": "e463b6f9-d070-455c-9152-8da07cd9c24a", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='benign', entry='/api/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.934810+00:00", "level": "ERROR", "logger": "django.request", "request_id": "a2813ec8-25f3-452f-a62e-6d7a05e472e1", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='benign', entry='/chat/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.939809+00:00", "level": "ERROR", "logger": "django.request", "request_id": "73d6364b-4ffc-464d-b787-d3c4162c7977", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='attack', entry='/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.943809+00:00", "level": "ERROR", "logger": "django.request", "request_id": "93c535c1-6768-43d1-bf1f-cb92b2fc237f", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='attack', entry='/api/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.947812+00:00", "level": "ERROR", "logger": "django.request", "request_id": "2e28ec61-3b0c-4d80-a490-62ea7f0708a1", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='attack', entry='/chat/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.951822+00:00", "level": "ERROR", "logger": "django.request", "request_id": "a44233db-ba4a-411b-8220-d7f57b4f91fa", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='credentials', entry='/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.955819+00:00", "level": "ERROR", "logger": "django.request", "request_id": "29e84847-5100-4873-88f9-18d93824ed21", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='credentials', entry='/api/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.960319+00:00", "level": "ERROR", "logger": "django.request", "request_id": "23158b20-3e4c-418e-aca7-858215f452d8", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='credentials', entry='/chat/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.964324+00:00", "level": "ERROR", "logger": "django.request", "request_id": "44f62c9b-4b2b-47a4-9e91-4203cd4282c8", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='pii', entry='/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.968326+00:00", "level": "ERROR", "logger": "django.request", "request_id": "70e3afd5-ca7d-4f2b-bb32-c23d83b81444", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='pii', entry='/api/chat/send/') ... FAIL
+{"timestamp": "2026-10-04T08:23:21.972328+00:00", "level": "ERROR", "logger": "django.request", "request_id": "baecd361-3467-4e2c-b6e3-a42af00c2f22", "code": "unclassified_event", "exception_type": null}
+  test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='pii', entry='/chat/') ... FAIL
+test_manipulation_only_limit_is_inclusive_without_an_epsilon (front.test_calibration_manipulation.ManipulationPolicyTests.test_manipulation_only_limit_is_inclusive_without_an_epsilon) ... ERROR
+test_omitted_and_null_override_keep_the_legacy_shared_limit (front.test_calibration_manipulation.ManipulationPolicyTests.test_omitted_and_null_override_keep_the_legacy_shared_limit) ... ERROR
+test_override_is_optional_strict_finite_and_in_positive_unit_interval (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_is_optional_strict_finite_and_in_positive_unit_interval) ... 
+  test_override_is_optional_strict_finite_and_in_positive_unit_interval (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_is_optional_strict_finite_and_in_positive_unit_interval) (valid=0.4) ... ERROR
+  test_override_is_optional_strict_finite_and_in_positive_unit_interval (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_is_optional_strict_finite_and_in_positive_unit_interval) (valid=1.0) ... ERROR
+test_override_preserves_every_other_signal_and_unknown_restricted_floors (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_preserves_every_other_signal_and_unknown_restricted_floors) ... ERROR
+
+======================================================================
+ERROR: test_manipulation_only_limit_is_inclusive_without_an_epsilon (front.test_calibration_manipulation.ManipulationPolicyTests.test_manipulation_only_limit_is_inclusive_without_an_epsilon)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 55, in test_manipulation_only_limit_is_inclusive_without_an_epsilon
+    config = AIConfig.model_validate({'classification_policy': {'manipulation_threshold': .4}})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\javi\Documents\Codex\regulai-platform\.venv\Lib\site-packages\pydantic\main.py", line 705, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for AIConfig
+classification_policy.manipulation_threshold
+  Extra inputs are not permitted [type=extra_forbidden, input_value=0.4, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+======================================================================
+ERROR: test_omitted_and_null_override_keep_the_legacy_shared_limit (front.test_calibration_manipulation.ManipulationPolicyTests.test_omitted_and_null_override_keep_the_legacy_shared_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 34, in test_omitted_and_null_override_keep_the_legacy_shared_limit
+    self.assertIsNone(AIConfig().classification_policy.manipulation_threshold)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\javi\Documents\Codex\regulai-platform\.venv\Lib\site-packages\pydantic\main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'ClassificationPolicyConfig' object has no attribute 'manipulation_threshold'
+
+======================================================================
+ERROR: test_override_is_optional_strict_finite_and_in_positive_unit_interval (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_is_optional_strict_finite_and_in_positive_unit_interval) (valid=0.4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 51, in test_override_is_optional_strict_finite_and_in_positive_unit_interval
+    config = AIConfig.model_validate({'classification_policy': {'manipulation_threshold': value}})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\javi\Documents\Codex\regulai-platform\.venv\Lib\site-packages\pydantic\main.py", line 705, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for AIConfig
+classification_policy.manipulation_threshold
+  Extra inputs are not permitted [type=extra_forbidden, input_value=0.4, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+======================================================================
+ERROR: test_override_is_optional_strict_finite_and_in_positive_unit_interval (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_is_optional_strict_finite_and_in_positive_unit_interval) (valid=1.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 51, in test_override_is_optional_strict_finite_and_in_positive_unit_interval
+    config = AIConfig.model_validate({'classification_policy': {'manipulation_threshold': value}})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\javi\Documents\Codex\regulai-platform\.venv\Lib\site-packages\pydantic\main.py", line 705, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for AIConfig
+classification_policy.manipulation_threshold
+  Extra inputs are not permitted [type=extra_forbidden, input_value=1.0, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+======================================================================
+ERROR: test_override_preserves_every_other_signal_and_unknown_restricted_floors (front.test_calibration_manipulation.ManipulationPolicyTests.test_override_preserves_every_other_signal_and_unknown_restricted_floors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 66, in test_override_preserves_every_other_signal_and_unknown_restricted_floors
+    config = AIConfig.model_validate({'classification_policy': {'manipulation_threshold': threshold}})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\javi\Documents\Codex\regulai-platform\.venv\Lib\site-packages\pydantic\main.py", line 705, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for AIConfig
+classification_policy.manipulation_threshold
+  Extra inputs are not permitted [type=extra_forbidden, input_value=0.4, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='benign', entry='/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'completed'
+- validation_error
++ completed
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 16}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='benign', entry='/api/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'completed'
+- validation_error
++ completed
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='benign', entry='/chat/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'completed'
+- validation_error
++ completed
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 15}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='attack', entry='/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'blocked'
+- validation_error
++ blocked
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='attack', entry='/api/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'blocked'
+- validation_error
++ blocked
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='attack', entry='/chat/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'blocked'
+- validation_error
++ blocked
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='credentials', entry='/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'blocked'
+- validation_error
++ blocked
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 16}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='credentials', entry='/api/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'blocked'
+- validation_error
++ blocked
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='credentials', entry='/chat/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'blocked'
+- validation_error
++ blocked
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='pii', entry='/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'completed'
+- validation_error
++ completed
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='pii', entry='/api/chat/send/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'completed'
+- validation_error
++ completed
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+======================================================================
+FAIL: test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes (front.test_calibration_manipulation.ManipulationHttpBoundaryTests.test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes) (case='pii', entry='/chat/')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_manipulation.py", line 175, in test_three_entries_keep_sensitive_limits_while_only_benign_manipulation_passes
+    self.assertEqual(prompt.status, status, prompt.decision)
+AssertionError: 'validation_error' != 'completed'
+- validation_error
++ completed
+ : {'schema_version': 1, 'input_digest': 'a96a94f851ae1edc2f4c45e92d48feeab5107d42e2530cd9333c14424511e877', 'calls': [], 'error_type': 'policy_configuration_invalid', 'total': {'known_cost': '0', 'cost': '0', 'currency': 'USD', 'complete': True, 'cost_status': 'estimated', 'attempts': 0, 'duration_ms': 0}}
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.441s
+
+FAILED (failures=12, errors=5)
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+

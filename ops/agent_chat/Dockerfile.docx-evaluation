@@ -1,0 +1,8 @@
+FROM regulay-task50-spreadsheet:local
+# Evaluation only, before engine selection. Never selected by the chat worker.
+RUN apt-get update && apt-get install -y --no-install-recommends libreoffice-writer=4:25.2.3-2+deb13u8 libreoffice-impress=4:25.2.3-2+deb13u8 poppler-utils fonts-liberation tesseract-ocr && rm -rf /var/lib/apt/lists/*
+RUN python -m pip install --no-cache-dir python-docx==1.2.0 python-pptx==1.0.2 lxml==6.1.0 Pillow==12.3.0 pypdf==6.19.0
+COPY .task51-branddocs-source /app/.task51-branddocs-source
+COPY ops/agent_chat/document_fixture.py ops/agent_chat/evaluate_branddocs.py /app/ops/agent_chat/
+WORKDIR /app
+USER 1000:1000

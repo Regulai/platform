@@ -1,0 +1,192 @@
+{
+  "narrative": {
+    "title": "Impacto cuántico: decisiones para dirección",
+    "language": "es",
+    "pages": [
+      {
+        "heading": "Resumen ejecutivo",
+        "blocks": [
+          {
+            "kind": "fact",
+            "text": "El NIST sitúa la criptografía poscuántica como una respuesta a la amenaza futura de ordenadores cuánticos capaces de comprometer sistemas criptográficos utilizados actualmente. Su programa publicó los tres estándares principales en 2024 y recomienda que las organizaciones comiencen a aplicarlos para preparar la migración. La fuente describe un horizonte tecnológico incierto; no proporciona una fecha única a partir de la cual toda la infraestructura empresarial vaya a ser vulnerable.",
+            "sources": [
+              "nist-pqc"
+            ],
+            "justification": ""
+          },
+          {
+            "kind": "analysis",
+            "text": "Para la dirección, la decisión práctica consiste en preparar una transición controlada de las dependencias criptográficas. El alcance no se limita a sustituir una biblioteca: incluye cómo se protegen los datos, qué identidades se consideran fiables y qué servicios dependen de certificados o firmas. La prioridad debe responder al tiempo durante el que la información necesita mantenerse confidencial y a la dificultad de modificar los sistemas que la procesan. Un inventario incompleto impediría justificar el orden de intervención.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Iniciar un programa con responsables de seguridad, arquitectura, compras y continuidad. Su primer resultado debería ser un inventario contrastado con los propietarios de los servicios, acompañado de criterios para priorizar pruebas y dependencias. Antes de comprometer un presupuesto o un calendario, solicitar evidencia de compatibilidad a los proveedores y medir el comportamiento de una prueba representativa. Este informe propone decisiones y controles; no atribuye a la empresa un nivel de exposición que no se ha evaluado.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "El patrocinio de este programa debería concretarse en decisiones observables: quién mantiene el inventario, quién acepta el riesgo de una excepción y qué evidencia permite cerrar un piloto. Seguridad puede definir criterios, pero los propietarios de los servicios deben confirmar sus dependencias y condiciones de recuperación. Compras debería incorporar las respuestas de los proveedores al registro del servicio correspondiente. La evaluación del avance necesita diferenciar componentes descubiertos, componentes ensayados y componentes aceptados para operación. Esta separación evita tratar la mera disponibilidad comercial de una tecnología como prueba de preparación de la organización. El entregable inicial propuesto es un mapa de dependencias con incertidumbres asignadas a un responsable, suficiente para elegir el siguiente ensayo sin anticipar resultados.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      },
+      {
+        "heading": "Qué cambia en los mecanismos de confianza",
+        "blocks": [
+          {
+            "kind": "fact",
+            "text": "FIPS 203 especifica ML-KEM, un mecanismo de encapsulación de claves que permite establecer un secreto compartido a través de un canal público bajo determinadas condiciones. Ese secreto puede utilizarse posteriormente con algoritmos simétricos. FIPS 204 especifica ML-DSA para generar y verificar firmas digitales. FIPS 205 especifica SLH-DSA, una alternativa de firma basada en funciones hash. Encapsular claves y firmar mensajes son funciones distintas; seleccionar un mecanismo exige identificar qué función realiza cada componente.",
+            "sources": [
+              "nist-fips-203",
+              "nist-fips-204",
+              "nist-fips-205"
+            ],
+            "justification": ""
+          },
+          {
+            "kind": "analysis",
+            "text": "La separación entre intercambio de claves y firmas ayuda a evitar una sustitución indiscriminada. Una aplicación puede depender de varios mecanismos a la vez: comunicación con otros servicios, autenticación de usuarios y validación de paquetes de software. Cambiar solo una de esas dependencias no acredita que el servicio completo esté preparado. También conviene distinguir la protección de información que viaja por la red de los procesos que validan la procedencia y la integridad de un documento o una actualización.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Documentar por servicio la finalidad de cada uso criptográfico, su propietario, la implementación utilizada y la dependencia externa que condiciona su sustitución. Registrar qué pruebas demostrarían compatibilidad y cuáles demostrarían una regresión. Las conclusiones de una prueba de laboratorio deben mantenerse separadas de la aceptación operativa y de cualquier afirmación de seguridad sobre el sistema completo.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Al revisar un servicio conviene recorrer el flujo completo: quién inicia la conexión, cómo se valida la identidad de la contraparte, dónde se conserva el material criptográfico y qué ocurre cuando una credencial caduca o debe revocarse. Después se pueden contrastar esos pasos con las interfaces que ofrece cada implementación candidata. Para un proceso de firma, el ensayo debería contemplar también cómo se conserva la evidencia y cómo la comprueba un tercero. Para el establecimiento de claves, debería incluir el comportamiento de clientes incompatibles y las condiciones de negociación. Estas preguntas describen un método de evaluación; sus respuestas dependen del sistema instalado y deben obtenerse mediante documentación y pruebas propias.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      },
+      {
+        "heading": "Implicaciones para datos y operaciones",
+        "blocks": [
+          {
+            "kind": "analysis",
+            "text": "La primera dimensión de riesgo es la vida útil de la información. Un documento con obligaciones de confidencialidad prolongadas merece una evaluación distinta de un dato efímero. La organización debería identificar quién puede acceder a las copias, cómo se intercambian y qué garantías necesita conservar. Ese ejercicio no requiere inventar pérdidas económicas: requiere relacionar los datos con procesos concretos y con requisitos de conservación que ya existan en la organización.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "analysis",
+            "text": "La segunda dimensión es la capacidad de cambio. Una dependencia administrada por un proveedor puede exigir una actualización contractual o una nueva versión. Un equipo antiguo puede necesitar una alternativa operativa antes de poder sustituirse. Conviene separar los obstáculos observados de los supuestos pendientes de validar. Que un producto anuncie soporte para un estándar no demuestra que la configuración instalada, sus integraciones y su procedimiento de recuperación puedan utilizarlo correctamente.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Añadir a la evaluación de proveedores preguntas verificables sobre implementaciones soportadas, interoperabilidad, mantenimiento y procedimientos de actualización. Pedir documentación técnica y resultados reproducibles, evitando aceptar expresiones comerciales como evidencia. Registrar las respuestas junto al servicio afectado y el responsable de validarlas. En sistemas críticos, ensayar el cambio en un entorno separado y acordar una forma de volver a la configuración anterior si aparecen fallos.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Para priorizar, conviene cruzar la sensibilidad y la duración de la confidencialidad con la dificultad de modificar cada dependencia. Un servicio fácil de actualizar puede servir de piloto aunque otro requiera una atención estratégica mayor. Los casos bloqueados por equipos o contratos antiguos necesitan una decisión explícita sobre medidas temporales y fecha de revisión, sustentada en evidencia del propietario. La continuidad también merece una prueba específica: poder volver a la configuración anterior no basta si se pierde acceso a datos o si la recuperación depende de una credencial que ya no funciona. Deben conservarse resultados de restauración y registrar qué participantes y sistemas quedaron fuera del ensayo.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      },
+      {
+        "heading": "Programa de transición propuesto",
+        "blocks": [
+          {
+            "kind": "recommendation",
+            "text": "Empezar por descubrir y clasificar las dependencias. Contrastar el inventario con arquitectura, operación y propietarios del negocio; conservar evidencias que permitan resolver discrepancias. Seleccionar después un caso que combine relevancia para la organización y posibilidad de ensayo. El resultado esperado es una decisión informada sobre los siguientes pasos, acompañada de incertidumbres explícitas, y no una declaración general de que la empresa ya es resistente a amenazas cuánticas.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Diseñar pruebas que evalúen el establecimiento de conexiones, el uso de certificados, la verificación de firmas y la recuperación tras un fallo. Comparar los resultados con una línea de base registrada en el mismo entorno. Medir tiempos, consumo de recursos y errores sin fijar por adelantado mejoras que no se han observado. Revisar también los clientes y servicios que interactúan con el componente actualizado, porque la compatibilidad depende de ambos extremos.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Condicionar el avance a criterios de aceptación explícitos: responsables disponibles, evidencia de interoperabilidad, observabilidad suficiente y procedimiento de reversión ensayado. Mantener un registro de decisiones que explique por qué se prioriza cada dependencia. Ajustar la planificación cuando una prueba o una comunicación del proveedor aporte nueva información. Ningún plazo o importe de este programa debe interpretarse como comprometido: su estimación requiere el inventario y mediciones de la organización.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "La aprobación del piloto debería producir un expediente breve con alcance, configuración probada, resultados, incidencias y decisión responsable. Si una prueba no cubre un cliente relevante, esa exclusión debe aparecer junto a la conclusión. La ampliación puede organizarse por grupos de dependencias compatibles, con criterios para detener cambios cuando aparezcan errores y con responsables de atenderlos. El seguimiento debería registrar versiones y configuraciones para poder repetir el ensayo cuando cambie un componente. Antes de declarar una fase cerrada, contrastar las evidencias con los criterios acordados y resolver las excepciones. Así se conserva una relación comprobable entre el trabajo realizado y la autorización para ampliar su uso.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      },
+      {
+        "heading": "Decisiones y seguimiento",
+        "blocks": [
+          {
+            "kind": "analysis",
+            "text": "La dirección necesita visibilidad sobre las dependencias pendientes, las pruebas realizadas y las decisiones que requieren recursos. Un seguimiento útil debe enlazar cada conclusión con su evidencia y con el responsable de mantenerla. La cantidad de sistemas inventariados puede ser una señal de avance, pero por sí sola no acredita que estén preparados para una transición. Conviene revisar las excepciones y distinguir los bloqueos técnicos de las decisiones todavía pendientes.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "Aprobar el inicio del inventario y seleccionar un piloto antes de fijar un despliegue general. Pedir a los responsables un informe de resultados que incluya fallos, límites y dudas abiertas. Revisar las publicaciones primarias durante la evolución del programa y comprobar las erratas aplicables antes de elegir una implementación. Las referencias siguientes corresponden a páginas realmente consultadas para este ensayo; no equivalen a una auditoría independiente de todos los sistemas ni de cada afirmación del informe.",
+            "sources": [],
+            "justification": ""
+          },
+          {
+            "kind": "recommendation",
+            "text": "En cada revisión del programa conviene resolver decisiones pendientes concretas: aceptar el resultado del piloto, ampliar su alcance, pedir evidencia adicional o mantener una dependencia en observación. Cada decisión debería señalar las condiciones que harían necesario revisarla. Una excepción necesita un propietario y un próximo punto de revisión; sin ambos puede desaparecer del seguimiento aunque el riesgo permanezca. La documentación debe conservar las incertidumbres relevantes y separar las recomendaciones del informe de las comprobaciones realizadas por la organización. Este enfoque permite actualizar el programa sin presentar como definitivo un diagnóstico que depende de sistemas todavía no inventariados.",
+            "sources": [],
+            "justification": ""
+          }
+        ]
+      }
+    ],
+    "references": [
+      {
+        "id": "nist-fips-203",
+        "title": "FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism Standard",
+        "publisher": "NIST",
+        "url": "https://csrc.nist.gov/pubs/fips/203/final",
+        "retrieved_at": "2026-10-13T17:05:26.056356+00:00",
+        "sha256": "d38f51e9b7babeae217715a8b45a16e39e1081a1cf9855116df7d318dbad8942",
+        "excerpt": "Publications FIPS 203 Module-Lattice-Based Key-Encapsulation Mechanism Standard Share to Facebook Share to X Share to LinkedIn Share ia Email Documentation Topics Date Published: August 13, 2024 Planning Note ( 11/17/2025 ): We've identified an issue that will be corrected in a future update/revision of this publication. For details, see the \"Errata (potential updates)\" spreadsheet listed under \"Documentation.\" Author(s) National Institute of Standards and Technology Abstract A key-encapsulation mechanism (KEM) is a set of algorithms that, under certain conditions, can be used by two parties to establish a shared secret key over a public channel. A shared secret key that is securely established using a KEM can then be used with symmetric-key cryptographic algorithms to perform basic tasks in secure communications, such as encryption and authentication. This standard specifies a key-encapsulation mechanism called ML-KEM. The security of ML-KEM is related to the computational difficulty of the Module Learning with Errors problem. At present, ML-KEM is believed to be secure, even against adversaries who possess a quantum computer. This standard specifies three parameter sets for ML-KEM. In order of increasing security strength and decreasing performance, these are ML-KEM-512, ML-KEM-768, and ML-KEM-1024. A key-encapsulation mechanism (KEM) is a set of algorithms that, under certain conditions, can be used by two parties to establish a shared secret key over a public channel. A shared secret key that is securely established using a KEM can then be used with symmetric-key cryptographic algorithms to... See full abstract Keywords computer security ; cryptography ; encryption ; Federal Information Processing Standards ; key-encapsulation mechanism ; lattice-based cryptography ; post-quantum ; public-key cryptography Control Families None selected Documentation Publication: https://doi.org/10.6028/NIST.FIPS.203 Download URL Errata (potential updates) (xlsx) Supplemental Material: FAQ for PQC FIPS Federal Register Notice NIST News article PQC Standardization Project Related NIST Publications: FIPS 204 FIPS 205 SP 800-227 Document History: 08/24/23: FIPS 203 (Draft) 08/13/24: FIPS 203 (Final) Topics Security and Privacy key management , post-quantum cryptography"
+      },
+      {
+        "id": "nist-fips-204",
+        "title": "FIPS 204: Module-Lattice-Based Digital Signature Standard",
+        "publisher": "NIST",
+        "url": "https://csrc.nist.gov/pubs/fips/204/final",
+        "retrieved_at": "2026-10-13T17:05:26.808670+00:00",
+        "sha256": "74c5c4735ed0ab3b9b0d5ec58525d3b53cdf7f186e7056a9584545d7a6a5955b",
+        "excerpt": "Publications FIPS 204 Module-Lattice-Based Digital Signature Standard Share to Facebook Share to X Share to LinkedIn Share ia Email Documentation Topics Date Published: August 13, 2024 Planning Note ( 07/31/2026 ): (7/31/26) See the errata (potential updates) spreadsheet under \"Documentation\" for a list of several minor issues that will be corrected in a future update/revision of this publication. (1/31/25) An FAQ for PQC FIPS is now available. Author(s) National Institute of Standards and Technology Abstract Digital signatures are used to detect unauthorized modifications to data and to authenticate the identity of the signatory. In addition, the recipient of signed data can use a digital signature as evidence in demonstrating to a third party that the signature was, in fact, generated by the claimed signatory. This is known as non-repudiation since the signatory cannot easily repudiate the signature at a later time. This standard specifies ML-DSA, a set of algorithms that can be used to generate and verify digital signatures. ML-DSA is believed to be secure, even against adversaries in possession of a large-scale quantum computer. Digital signatures are used to detect unauthorized modifications to data and to authenticate the identity of the signatory. In addition, the recipient of signed data can use a digital signature as evidence in demonstrating to a third party that the signature was, in fact, generated by the claimed... See full abstract Keywords cryptography ; digital signatures ; Federal Information Processing Standards ; lattice ; post-quantum ; public-key cryptography Control Families None selected Documentation Publication: https://doi.org/10.6028/NIST.FIPS.204 Download URL Errata (potential updates) (xlsx) Supplemental Material: FAQ for PQC FIPS Federal Register Notice NIST News article PQC Standardization Project Related NIST Publications: FIPS 205 FIPS 203 Document History: 08/24/23: FIPS 204 (Draft) 08/13/24: FIPS 204 (Final) Topics Security and Privacy digital signatures , post-quantum cryptography"
+      },
+      {
+        "id": "nist-fips-205",
+        "title": "FIPS 205: Stateless Hash-Based Digital Signature Standard",
+        "publisher": "NIST",
+        "url": "https://csrc.nist.gov/pubs/fips/205/final",
+        "retrieved_at": "2026-10-13T17:05:27.814665+00:00",
+        "sha256": "d45c7f61588aac94ee8c94983f9b0b122e641b565452e6ec2073a231b848adfb",
+        "excerpt": "Publications FIPS 205 Stateless Hash-Based Digital Signature Standard Share to Facebook Share to X Share to LinkedIn Share ia Email Documentation Topics Date Published: August 13, 2024 Author(s) National Institute of Standards and Technology Abstract This standard specifies the stateless hash-based digital signature algorithm (SLH-DSA). Digital signatures are used to detect unauthorized modifications to data and to authenticate the identity of the signatory. In addition, the recipient of signed data can use a digital signature as evidence in demonstrating to a third party that the signature was, in fact, generated by the claimed signatory. This is known as non-repudiation since the signatory cannot easily repudiate the signature at a later time. SLH-DSA is based on SPHINCS + , which was selected for standardization as part of the NIST Post-Quantum Cryptography Standardization process. This standard specifies the stateless hash-based digital signature algorithm (SLH-DSA). Digital signatures are used to detect unauthorized modifications to data and to authenticate the identity of the signatory. In addition, the recipient of signed data can use a digital signature as evidence in... See full abstract Keywords computer security ; cryptography ; digital signatures ; Federal Information Processing Standards ; hash-based signatures ; post-quantum ; public-key cryptography Control Families None selected Documentation Publication: https://doi.org/10.6028/NIST.FIPS.205 Download URL Supplemental Material: Federal Register Notice NIST News article PQC Standardization Project Related NIST Publications: FIPS 203 FIPS 204 SP 800-230 (Draft) Document History: 08/24/23: FIPS 205 (Draft) 08/13/24: FIPS 205 (Final) Topics Security and Privacy digital signatures , post-quantum cryptography"
+      },
+      {
+        "id": "nist-pqc",
+        "title": "Post-Quantum Cryptography",
+        "publisher": "NIST",
+        "url": "https://csrc.nist.gov/projects/post-quantum-cryptography",
+        "retrieved_at": "2026-10-13T17:05:25.281278+00:00",
+        "sha256": "f6cb0a3f9030cae91bf14c2dbdb1fc456e5c13d1b03f5521b20a87a37f8aa442",
+        "excerpt": "Short URL: https://www.nist.gov/pqcrypto For a plain-language introduction to post-quantum cryptography, see What Is Post-Quantum Cryptography? PQC Standards | Migration to PQC | Ongoing PQC Standardization Process NIST’s Post-Quantum Cryptography (PQC) project leads the national and global effort to secure electronic information against the future threat of quantum computers—machines that may be years or decades away but could eventually break many of today’s widely used cryptographic systems. Through a multi-year international competition involving industry, academia, and governments, NIST released the principal three PQC standards in 2024 and is developing additional standards to serve as backups or alternatives. Organizations should begin applying these standards now to migrate their systems to quantum-resistant cryptography. Alongside these standards, NIST conducts foundational cryptographic research; collaborates with industry and federal partners to guide organizations preparing for PQC migration; and administers the Cryptographic Module Validation Program to promote validated, trustworthy cryptography. These efforts both protect data and information systems and sustain U.S. leadership in quantum information science and cryptographic innovation. PQC Standards In August 2024, NIST released its principal PQC standards (as Federal Information Processing Standards, or FIPS), specifying key establishment and digital signature schemes based on candidates evaluated and selected through this multi-year process. FIPS 203 Module-Lattice-Based Key-Encapsulation Mechanism Standard (ML-KEM) FIPS 204 Module-Lattice-Based Digital Signature Standard (ML-DSA) FIPS 205 Stateless Hash-Based Digital Signature Standard (SLH-DSA) Migration to PQC With the release of the first three final PQC standards, organizations should begin migrating their systems to quantum-resistant cryptography. Cybersecurity products, services, and protocols will need updates, and organizations must identify where vulnerable algorithms are used and plan to replace or update them. Under the transition timeline in NIST IR 8547 , NIST will deprecate and ultimately remove quantum-vulnerable algorithms from its standards by 2035, with high-risk systems transitioning much earlier. The Migration to Post-Quantum Project at the National Cybersecurity Center of Excellence is working with industry, academia, and federal partners to accelerate this shift by demonstrating tools to find and prioritize vulnerable systems, supporting interoperable solutions, and developing migration guidance. Ongoing PQC Standardization Process NIST expects that the two digital signature standards (ML-DSA and SLH-DSA) and key-encapsulation mechanism standard (ML-KEM) will provide the foundation for most deployments of post-quantum cryptography. They can and should be put into use now. NIST continues to evaluate the security and performance of innovative algorithms in order to identify additional candidates for standardization. In addition to the three algorithms specified in the initial FIPS standards, the Falcon digital signature algorithm and HQC key encapsulation mechanism were selected for ongoing standardization; that process is underway. This process continues with a longer-term effort that solicited additional algorithms for digital signature schemes that could serve as a backup to ML-DSA or that could address unique use cases. Learn more on the Additional Digital Signature Schemes page."
+      }
+    ],
+    "limitations": []
+  }
+}
