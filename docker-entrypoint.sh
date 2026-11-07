@@ -37,16 +37,42 @@ fi
 echo "==> Creating local_settings.py..."
 cat > /app/regulai/regulai/local_settings.py << EOLSETTINGS
 import os
+
+# Security Keys
 ENCRYPTION_KEY = os.environ.get('ENCRYPTION_KEY', '$ENCRYPTION_KEY')
 SECRET_KEY = os.environ.get('SECRET_KEY', '$SECRET_KEY')
 ENCRYPTION_KEY_FALLBACKS = []
 SECRET_KEY_FALLBACKS = []
+
+# Debug
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "*"]
+
+# Allowed Hosts
+_allowed = os.environ.get('ALLOWED_HOSTS', '')
+if _allowed:
+    ALLOWED_HOSTS = [h.strip() for h in _allowed.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '*']
+
+# CSRF Configuration for reverse proxy (required for HTTPS)
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
+
+# Proxy SSL Header (required when behind nginx with HTTPS)
+if os.environ.get('SECURE_PROXY_SSL_HEADER', '').lower() in ('true', '1', 'yes'):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Security settings
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+SECURE_SSL_REDIRECT = False  # Nginx handles redirect
 CORS_ALLOW_CREDENTIALS = True
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
 EOLSETTINGS
 echo "    Created local_settings.py"
 
