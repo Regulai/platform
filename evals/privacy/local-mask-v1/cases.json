@@ -1,0 +1,20 @@
+[
+  {"id":"email","text":"Correo: ana.perez@example.test","redact":["ana.perez@example.test"],"preserve":["Correo:"]},
+  {"id":"dni","text":"DNI: 12345678Z","redact":["12345678Z"],"preserve":["DNI:"]},
+  {"id":"nie","text":"NIE: X1234567L","redact":["X1234567L"],"preserve":["NIE:"]},
+  {"id":"iban","text":"IBAN: ES91 2100 0418 4502 0005 1332","redact":["ES91 2100 0418 4502 0005 1332"],"preserve":[]},
+  {"id":"phone","text":"Teléfono: +34 612 345 678","redact":["+34 612 345 678"],"preserve":[]},
+  {"id":"card","text":"Tarjeta: 4111 1111 1111 1111","redact":["4111 1111 1111 1111"],"preserve":["Tarjeta:"]},
+  {"id":"named-secret","text":"api_key=unprefixed_synthetic_value_ABC123","redact":["unprefixed_synthetic_value_ABC123"],"preserve":["api_key="]},
+  {"id":"provider-key","text":"Usar sk-proj-SYNTHETIC0123456789abcdef","redact":["sk-proj-SYNTHETIC0123456789abcdef"],"preserve":["Usar"]},
+  {"id":"pem","text":"-----BEGIN PRIVATE KEY-----\nSYNTHETIC-KEY-NOT-VALID\n-----END PRIVATE KEY-----","redact":["SYNTHETIC-KEY-NOT-VALID"],"preserve":[]},
+  {"id":"spanish-name","text":"Mi nombre es María García y vivo en Madrid.","redact":["María García","Madrid"],"preserve":["Mi nombre es"]},
+  {"id":"english-name","text":"John Smith lives in London.","redact":["John Smith","London"],"preserve":["lives in"]},
+  {"id":"labelled-lowercase","text":"Nombre: ana pérez. Pago: 10 euros.","redact":["ana pérez"],"preserve":["10 euros"]},
+  {"id":"plain-lowercase-challenge","text":"ana pérez confirmó el pago de 10 euros.","redact":["ana pérez"],"preserve":["10 euros"],"challenge":true},
+  {"id":"unlabelled-secret-challenge","text":"Usa jD73mL29pQr42Zt81 como valor temporal.","redact":["jD73mL29pQr42Zt81"],"preserve":["valor temporal"],"challenge":true},
+  {"id":"split-email-challenge","text":"Contacto: ana [arroba] ejemplo [punto] com","redact":["ana [arroba] ejemplo [punto] com"],"preserve":[],"challenge":true},
+  {"id":"contract-numbers","text":"El precio es 10 euros y el plazo es 17 días. Cláusula 3.","redact":[],"preserve":["10 euros","17 días","Cláusula 3."]},
+  {"id":"json-citation","text":"{\"claims\":[{\"text\":\"Contacto ana@example.test\",\"citations\":[{\"source_id\":\"F1\",\"quote\":\"Contacto ana@example.test\"}]}]}","redact":["ana@example.test"],"preserve":["\"source_id\":\"F1\"","\"claims\"","\"citations\"","\"quote\""]},
+  {"id":"json-credential","text":"{\"password\":123456,\"amount\":17.005,\"done\":true}","redact":["123456"],"preserve":["17.005","true"]}
+]

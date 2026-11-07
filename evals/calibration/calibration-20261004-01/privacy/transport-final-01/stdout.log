@@ -1,0 +1,62 @@
+Found 9 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: corsheaders, messages, rest_framework, staticfiles
+  Apply all migrations: admin, auth, authtoken, contenttypes, front, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying authtoken.0001_initial... OK
+  Applying authtoken.0002_auto_20160226_1747... OK
+  Applying authtoken.0003_tokenproxy... OK
+  Applying authtoken.0004_alter_tokenproxy_options... OK
+  Applying front.0001_initial... OK
+  Applying front.0002_engine_companyengine... OK
+  Applying front.0003_add_severity_to_rule... OK
+  Applying front.0004_add_conversation_and_message... OK
+  Applying front.0005_add_applies_to_rule... OK
+  Applying front.0006_add_file_to_message... OK
+  Applying front.0007_add_department_model... OK
+  Applying front.0008_add_avatar_to_profile... OK
+  Applying front.0009_add_default_engine_to_profile... OK
+  Applying front.0010_add_engine_models... OK
+  Applying front.0011_add_connector_type_to_engine... OK
+  Applying front.0012_seed_default_engines... OK
+  Applying front.0013_add_name_to_companyengine... OK
+  Applying front.0015_add_file_hashes_to_prompt... OK
+  Applying front.0016_encrypt_api_keys... OK
+  Applying front.0017_alter_companyengine_api_key... OK
+  Applying front.0018_remove_companyengine_unique_together... OK
+  Applying front.0019_add_rule_action_field... OK
+  Applying front.0020_seed_default_rules_groups... OK
+  Applying front.0021_obfuscationconfig... OK
+  Applying front.0022_alert_source... OK
+  Applying front.0023_company_department_system_prompt... OK
+  Applying front.0024_seed_mistral_engine... OK
+  Applying front.0025_message_response_file... OK
+  Applying front.0026_authorized_chat_state... OK
+  Applying front.0027_enginemodel_context_window_enginemodel_currency_and_more... OK
+  Applying front.0028_auditlog_company... OK
+  Applying front.0029_model_price_units... OK
+  Applying front.0030_enginemodel_reasoning... OK
+  Applying front.0031_infer_historical_prompt_company... OK
+  Applying front.0032_obfuscationconfig_backend... OK
+  Applying sessions.0001_initial... OK
+System check identified no issues (0 silenced).

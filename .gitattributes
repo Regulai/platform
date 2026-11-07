@@ -1,0 +1,52 @@
+# Pinned asset hashes cover exact bytes on every platform.
+regulai/static/vendor/** -text
+# Verification logs preserve exact captured bytes, including assertion whitespace.
+evals/reports/community-fixes-verification-20261003/*.log -text -whitespace
+evals/reports/community-fixes-docs-verification-20261003/*.log -text -whitespace
+# Independent review manifests refer to the original report bytes.
+docs/plan-blackhat/revisiones-correcciones/spec-*.md -text
+docs/plan-blackhat/revisiones-correcciones/standards*.md -text
+docs/revisiones-piloto/*.md -text
+# Pilot manifests and reports hash exact captured/frozen bytes. Whitespace in
+# logs, serialized datasets and PDF xref tables is evidence, not source style.
+evals/reports/pilot-*/** -text -whitespace
+evals/pilot-real/*.jsonl -text -whitespace
+evals/pilot-human/*.jsonl -text -whitespace
+evals/pilot-real/rubric.md -text -whitespace
+evals/pilot-human/rubric.md -text -whitespace
+# Frozen manifests, corpus expectations and generator provenance are byte hashes.
+# Git exports/checkouts must not translate their line endings.
+evals/pilot-real/*.json -text -whitespace
+evals/pilot-human/*.json -text -whitespace
+evals/privacy/local-mask-v1/cases.json -text -whitespace
+evals/documents/pilot-20261003/** -text
+evals/documents/pilot-20261003/files/manifest.json -text -whitespace
+evals/documents/pilot-20261003/files/*.pdf binary
+evals/documents/pilot-20261003/files/*.docx binary
+evals/documents/pilot-20261003/files/*.xlsx binary
+# Final calibration documentation is included in the closure byte-hash manifest.
+docs/plan-blackhat/informe-calibracion-community-20261004.md -text
+docs/plan-blackhat/tareas/3[6-9]-*.md -text
+# Agent locks, imported skills and runtime manifests refer to exact bytes.
+docs/agent-assets/** -text
+docs/agent-assets/upstream/** -whitespace
+ops/agent_probe/** -text
+ops/agent_chat/** -text
+regulai/front/agents/** -text
+# Preserve captured agent evidence, including CRLF and diagnostic whitespace.
+evals/reports/task48-agent-integration-20261007/** -text -whitespace
+evals/reports/task49-inference-20261007/** -text -whitespace
+evals/reports/task50-chat-excel-20261007/** -text -whitespace
+evals/reports/task51-word-pdf-20261008/** -text -whitespace
+evals/reports/task52-powerpoint-20261008/** -text -whitespace
+evals/reports/task54-export-20261013/** -text -whitespace
+
+# Portable installer entrypoints.
+/setup.sh text eol=lf
+/setup.py text eol=lf
+/setup.cmd text eol=crlf
+/ops/setup/** text eol=lf
+
+# Chat island build: CI rebuilds it and compares exact bytes; the lab helper runs in bash.
+/regulai/static/chat-app/** -text
+/ops/chat_ui/*.sh text eol=lf

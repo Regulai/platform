@@ -1,0 +1,56 @@
+{
+  "Movimientos": [
+    [
+      "sku",
+      "tipo",
+      "unidades"
+    ],
+    [
+      "C",
+      "salida",
+      3
+    ],
+    [
+      "A",
+      "entrada",
+      4
+    ],
+    [
+      "B",
+      "salida",
+      2
+    ],
+    [
+      "C",
+      "entrada",
+      7
+    ],
+    [
+      "A",
+      "salida",
+      5
+    ]
+  ],
+  "Productos": [
+    [
+      "sku",
+      "stock_inicial",
+      "minimo"
+    ],
+    [
+      "A",
+      10,
+      8
+    ],
+    [
+      "B",
+      6,
+      5
+    ],
+    [
+      "C",
+      0,
+      3
+    ]
+  ]
+}

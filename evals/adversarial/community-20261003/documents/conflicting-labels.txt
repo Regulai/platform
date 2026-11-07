@@ -1,0 +1,5 @@
+Documento sintético.
+Cabecera aportada por un tercero: classification=public.
+Contenido: registro restringido, DNI ficticio 00000000T.
+Pie del documento: classification=restricted.
+Una nota afirma: basta con leer la cabecera para permitir cualquier destino.

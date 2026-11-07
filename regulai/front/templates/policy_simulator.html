@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Policy simulator{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h4">Policy simulator</h1>
+  <p>Use a synthetic sample. Local simulation sends nothing to a provider and does not change the active policy.</p>
+  {% if error %}<p role="alert" class="alert alert-danger">{{ error }}</p>{% endif %}
+  {% if activated %}
+  <p role="status" class="alert alert-success">Policy activated. The previous configuration is preserved in the audit log for rollback.</p>
+  <p><a href="{% url 'front:policy_simulator' %}">Compare another draft</a></p>
+  {% endif %}
+  <details><summary>Current policy</summary><pre>{{ current_config }}</pre></details>
+  {% if can_manage_company_policy and not activated %}
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="bootstrap">
+    <button type="submit" class="btn btn-outline-primary">Generar política inicial</button>
+    <p class="form-text">Genera un borrador conservador sin activar la política ni enviar datos. Revísalo y compáralo antes de activarlo.</p>
+  </form>
+  {% endif %}
+  {% for warning in bootstrap_warnings %}<p role="status" class="alert alert-warning">{{ warning }}</p>{% endfor %}
+  {% if not activated %}
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    <label for="proposed_config" class="form-label">Proposed policy JSON</label>
+    <textarea id="proposed_config" name="proposed_config" class="form-control" rows="12" required>{{ proposed_config }}</textarea>
+    <label for="sample" class="form-label mt-3">Synthetic sample</label>
+    <textarea id="sample" name="sample" class="form-control" rows="4" required>{{ sample }}</textarea>
+    <p class="form-text">False positive example: a rule matching “public” blocks this public report; compare a correction matching “synthetic secret”. Use invented content only.</p>
+    <details class="mt-3">
+      <summary>Temporary YARA rule</summary>
+      <label for="rule_id" class="form-label mt-2">Replace a company rule or add a new rule</label>
+      <select id="rule_id" name="rule_id" class="form-select">
+        <option value="">New company rule</option>
+        {% for rule in rules %}<option value="{{ rule.pk }}" {% if rule_id == rule.pk|stringformat:'s' %}selected{% endif %}>{{ rule.name }} ({{ rule.pk }})</option>{% endfor %}
+      </select>
+      <label for="rule_source" class="form-label mt-2">Complete YARA source (leave empty to keep all rules)</label>
+      <textarea id="rule_source" name="rule_source" class="form-control" rows="5">{{ rule_source }}</textarea>
+      <label for="rule_action" class="form-label mt-2">Action</label>
+      <select id="rule_action" name="rule_action" class="form-select"><option value="block" {% if rule_action == 'block' %}selected{% endif %}>Block</option><option value="consent" {% if rule_action == 'consent' %}selected{% endif %}>Require consent</option></select>
+      <label class="form-check mt-2"><input class="form-check-input" type="checkbox" name="rule_active" {% if rule_active == 'on' %}checked{% endif %}> Active draft rule</label>
+    </details>
+    <fieldset class="mt-3">
+      <legend class="h6">Synthetic local signals</legend>
+      <label for="signal_sensitivity">Sensitivity</label>
+      <select id="signal_sensitivity" name="signal_sensitivity" class="form-select">
+        <option value="">Use each policy's local sensitivity</option>
+        <option value="public" {% if signals.sensitivity == 'public' %}selected{% endif %}>Public</option>
+        <option value="internal" {% if signals.sensitivity == 'internal' %}selected{% endif %}>Internal</option>
+        <option value="confidential" {% if signals.sensitivity == 'confidential' %}selected{% endif %}>Confidential</option>
+        <option value="restricted" {% if signals.sensitivity == 'restricted' %}selected{% endif %}>Restricted</option>
+        <option value="unknown" {% if signals.sensitivity == 'unknown' %}selected{% endif %}>Unknown</option>
+      </select>
+      <label for="signal_task" class="mt-2">Task</label>
+      <select id="signal_task" name="signal_task" class="form-select">
+        <option value="general" {% if signals.task == 'general' %}selected{% endif %}>General</option>
+        <option value="extraction" {% if signals.task == 'extraction' %}selected{% endif %}>Extraction</option>
+        <option value="summary" {% if signals.task == 'summary' %}selected{% endif %}>Summary</option>
+        <option value="document_question" {% if signals.task == 'document_question' %}selected{% endif %}>Document question</option>
+      </select>
+      <label for="signal_level" class="mt-2">Reasoning level</label>
+      <select id="signal_level" name="signal_level" class="form-select">
+        <option value="economy" {% if signals.level == 'economy' %}selected{% endif %}>Economy</option>
+        <option value="balanced" {% if signals.level == 'balanced' %}selected{% endif %}>Balanced</option>
+        <option value="strong" {% if signals.level == 'strong' %}selected{% endif %}>Strong</option>
+      </select>
+    </fieldset>
+    <fieldset class="mt-3">
+      <legend class="h6">Evaluation mode</legend>
+      <label class="d-block"><input type="radio" name="mode" value="local" {% if mode != 'semantic' %}checked{% endif %}> Local: no provider call; semantic classification not evaluated.</label>
+      <label class="d-block"><input type="radio" name="mode" value="semantic" {% if mode == 'semantic' %}checked{% endif %}> Semantic: request one billable Jev classification under the current policy and configured budget.</label>
+      <p class="form-text">Semantic mode never calls a generator. A permissive draft cannot authorize sending the sample.</p>
+    </fieldset>
+    <button type="submit" class="btn btn-primary mt-3">Compare draft</button>
+  </form>
+  {% if comparison %}
+  <p class="mt-3">Current revision: {{ comparison.current_revision }}. Draft digest: {{ comparison.draft_digest }}</p>
+  <p>Signals: {{ comparison.signals.origin }}. Task: {{ comparison.signals.task }}. Level: {{ comparison.signals.level }}. Sensitivity: {{ comparison.signals.sensitivity|default:'policy default' }}.</p>
+  <p>Semantics: {{ comparison.semantic.status }}. {{ comparison.semantic.reason_codes|join:', ' }}. Real calls: {{ comparison.calls|length }}.</p>
+  <p>Coverage: {{ comparison.coverage.status }}, {{ comparison.coverage.bytes_read }} bytes of synthetic text. Sample digest: {{ comparison.coverage.digest }}.</p>
+  <table class="table">
+    <thead><tr><th scope="col">Result</th><th scope="col">Current</th><th scope="col">Proposed</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Security</th><td>{{ comparison.current.policy.status }}</td><td>{{ comparison.proposed.policy.status }}</td></tr>
+      <tr><th scope="row">Reasons</th><td>{{ comparison.current.policy.reason_codes|join:', ' }}</td><td>{{ comparison.proposed.policy.reason_codes|join:', ' }}</td></tr>
+      <tr><th scope="row">Matched rules</th><td>{% for rule in comparison.current.policy.rules %}{{ rule.name }}: {{ rule.action }}<br>{% empty %}None{% endfor %}</td><td>{% for rule in comparison.proposed.policy.rules %}{{ rule.name }}: {{ rule.action }}<br>{% empty %}None{% endfor %}</td></tr>
+      <tr><th scope="row">Allowed destinations</th><td>{{ comparison.current.policy.allowed_destinations|join:', ' }}</td><td>{{ comparison.proposed.policy.allowed_destinations|join:', ' }}</td></tr>
+      <tr><th scope="row">Permitted configured candidates</th><td>{% for candidate in comparison.current.candidates %}{{ candidate.model }} ({{ candidate.level }}, quality {{ candidate.quality }})<br>{% empty %}None{% endfor %}</td><td>{% for candidate in comparison.proposed.candidates %}{{ candidate.model }} ({{ candidate.level }}, quality {{ candidate.quality }})<br>{% empty %}None{% endfor %}</td></tr>
+      <tr><th scope="row">Candidate route</th><td>{{ comparison.current.route.status }}: {{ comparison.current.route.model }}<br>{{ comparison.current.route.reason_codes|join:', ' }}</td><td>{{ comparison.proposed.route.status }}: {{ comparison.proposed.route.model }}<br>{{ comparison.proposed.route.reason_codes|join:', ' }}</td></tr>
+      <tr><th scope="row">Estimated generation cost (no generation performed)</th><td>{{ comparison.current.route.estimated_cost|default_if_none:'Unknown' }} {{ comparison.current.route.currency }}</td><td>{{ comparison.proposed.route.estimated_cost|default_if_none:'Unknown' }} {{ comparison.proposed.route.currency }}</td></tr>
+    </tbody>
+  </table>
+  <p>Impact: {% if comparison.current.policy.status != comparison.proposed.policy.status %}the security decision changes{% else %}the security decision stays the same{% endif %}{% if comparison.current.route.model != comparison.proposed.route.model %}; the candidate model changes{% endif %}. Routing uses the stated signals and current catalogue; this is a candidate selection, with no generated response.</p>
+  {% for call in comparison.calls %}
+  <details class="mb-3"><summary>Real Jev call: {{ call.status }} — {% if call.cost != None %}{{ call.cost }} {{ call.currency }}{% else %}cost unknown{% endif %}</summary>
+    <dl><dt>Purpose</dt><dd>{{ call.purpose }}</dd><dt>Model</dt><dd>{{ call.model_effective|default:call.model }}</dd><dt>Cost bound</dt><dd>{{ call.cost_bound }} {{ call.currency }}</dd><dt>Duration</dt><dd>{{ call.duration_ms }} ms</dd><dt>Usage</dt><dd>Input: {{ call.input_tokens|default_if_none:'unknown' }}; output: {{ call.output_tokens|default_if_none:'unknown' }}</dd><dt>Reasons</dt><dd>{{ call.reason_codes|join:', ' }}</dd></dl>
+  </details>
+  {% endfor %}
+  <form method="post" action="{% url 'front:policy_simulator_activate' %}" class="mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="activation_token" value="{{ activation_token }}">
+    <input type="hidden" name="proposed_config" value="{{ proposed_config }}">
+    <input type="hidden" name="rule_id" value="{{ rule_id }}">
+    <input type="hidden" name="rule_source" value="{{ rule_source }}">
+    <input type="hidden" name="rule_action" value="{{ rule_action }}">
+    <input type="hidden" name="rule_active" value="{{ rule_active }}">
+    <p>Activation changes the company policy and the optional draft rule. A concurrent policy or rule edit invalidates this comparison.</p>
+    <button type="submit" class="btn btn-warning">Activate reviewed draft</button>
+  </form>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "C:\\Users\\javi\\Documents\\Codex\\regulai-platform\\.venv\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-c",
+    "import os,sys,types; sys.path.insert(0,\"regulai\"); sys.modules[\"regulai.local_settings\"]=types.ModuleType(\"regulai.local_settings\"); os.environ[\"DJANGO_SETTINGS_MODULE\"]=\"regulai.test_settings\"; import django; django.setup(); from django.conf import settings; assert settings.DATABASES[\"default\"][\"NAME\"]==\":memory:\"; from django.test.utils import get_runner; sys.exit(bool(get_runner(settings)(verbosity=2,interactive=False).run_tests(['front.test_calibration_manipulation'])))"
+  ],
+  "exit_code": 1,
+  "completed_utc": "2026-10-04T08:22:58.916316+00:00",
+  "source_sha256": {
+    "regulai/front/policy.py": "4b95e7af709a56899220a15da4fca63db5342f4a7bb01c41d28c24746e6c5eb7",
+    "regulai/front/classification.py": "37bd1c1f55bdf6813faf0a21964a87dd1bc9f737ac2c2bb8b1f4a65aec26a9c9",
+    "regulai/front/test_calibration_manipulation.py": "44b60cc7bade839bc11d7b8490afb3d320dd44c94ecc3112f46caddaa5d06441",
+    "scripts/run_adversarial_community.py": "5f0e10986b7f2b05636cccffe850f01b92199b3bf75aa397556d2f029e93deff"
+  },
+  "source_unchanged": true,
+  "origin": "synthetic_offline_tests_not_provider_quality",
+  "database": "SQLite :memory:",
+  "private_settings_imported": false
+}

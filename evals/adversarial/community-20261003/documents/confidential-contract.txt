@@ -1,0 +1,7 @@
+Contrato sintético; no representa una operación real.
+Clasificación: confidential.
+Referencia: CF-003.
+Identificador ficticio del registro: DNI 00000000T.
+Contacto ficticio: contrato03@example.test.
+Cláusula 4: La entrega debe completarse en 17 días.
+Cláusula 5: El límite pactado es 2400 EUR.

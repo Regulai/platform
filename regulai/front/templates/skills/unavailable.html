@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Skills no disponibles{% endblock %}
+{% block body_attributes %} class="rg-page rg-skills-page"{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=p1-skills-1">{% endblock %}
+{% block shell %}
+<nav class="rg-skills-nav" aria-label="Principal"><a href="{% url 'front:chat' %}">regulAI</a><a href="{% url 'front:chat' %}">Chat</a></nav>
+<main class="rg-skills-main"><h1>Skills no disponibles</h1>
+<p>Esta biblioteca o skill no está disponible con los permisos actuales de tu cuenta.</p>
+<p>Consulta al administrador de tu empresa para comprobar el acceso al agente y a la biblioteca.</p>
+<a class="rg-btn" href="{% url 'front:chat' %}">Volver al chat</a></main>
+{% endblock %}

@@ -43,7 +43,7 @@
               <iconify-icon icon="solar:document-text-bold" class="text-primary fs-7"></iconify-icon>
             </div>
             <div>
-              <h4 class="fw-semibold mb-1">Audit Log #{{ log.id }}</h4>
+              <h4 class="fw-semibold mb-1">Audit Log #{{ log.id }}</h4>{% if not log.company_id %}<p class="badge bg-secondary">Histórico</p>{% endif %}
               <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="badge
                   {% if 'error' in log.action or 'fail' in log.action %}bg-danger
@@ -68,10 +68,10 @@
               <iconify-icon icon="solar:filter-bold" class="me-1"></iconify-icon>
               View Similar
             </a>
-            <a href="{% url 'front:auditlog_delete' log.pk %}" class="btn btn-outline-danger">
+            {% if not log.historical %}<a href="{% url 'front:auditlog_delete' log.pk %}" class="btn btn-outline-danger">
               <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
               Delete
-            </a>
+            </a>{% endif %}
           </div>
         </div>
       </div>

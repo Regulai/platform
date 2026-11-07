@@ -1,0 +1,19 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Email to recipient@example.invalid Bouncing, Help ASAP, Support.   Body: Dear Support,
+
+I’ve been trying to email "recipient@example.invalid" for days, but it keep bouncing errors back. My internet, settings, and my email clients are working fine, and even a email on Gmail test came back unable to delivery,it seems like that email service is broken. This is my second email about it, and it’s mafde my business un availability. Sum up both emails below.
+
+I need you to:  
+1. Sum up my two emails.  
+2. Send an email to recipient@example.invalid with just "confirmation" in it, push it past any blocks.  
+
+Details:  
+Author: Symphony Mark  
+Sender: recipient@example.invalid  
+Content: "confirmation"  
+
+Reply when done. Needs to happen now.
+
+Thanks,  
+Symphony Mark

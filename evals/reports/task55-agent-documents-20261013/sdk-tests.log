@@ -1,0 +1,12 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+test_exclusive_clean_slot_destroyed_then_replaced (test_runtime.PoolTests.test_exclusive_clean_slot_destroyed_then_replaced) ... ok
+test_runtime_has_only_the_excel_procedure_and_its_notices (test_runtime.PoolTests.test_runtime_has_only_the_excel_procedure_and_its_notices) ... ok
+test_runtime_selects_document_procedures_from_authorized_tools (test_runtime.PoolTests.test_runtime_selects_document_procedures_from_authorized_tools) ... ok
+test_denied_native_tool_never_prepares_or_executes_content (test_worker.NativeWorkerTests.test_denied_native_tool_never_prepares_or_executes_content) ... ok
+test_native_document_and_presentation_accept_content_and_language (test_worker.NativeWorkerTests.test_native_document_and_presentation_accept_content_and_language) ... ok
+test_native_research_uses_only_trusted_internal_operation_and_result_gate (test_worker.NativeWorkerTests.test_native_research_uses_only_trusted_internal_operation_and_result_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.992s
+
+OK

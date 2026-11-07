@@ -1,0 +1,20 @@
+[
+ {"name": "truncated", "user": "lab-user", "path": "/chat/5/", "width": 1440, "height": 900},
+ {"name": "provider-error", "user": "lab-user", "path": "/chat/6/", "width": 1440, "height": 900},
+ {"name": "document-answer", "user": "lab-user", "path": "/chat/7/", "width": 1440, "height": 900,
+  "steps": [["eval", "document.querySelector('.rg-evidence') && (document.querySelector('.rg-evidence').open = true)"], ["wait", 300]]},
+ {"name": "legacy", "user": "lab-user", "path": "/chat/8/", "width": 1440, "height": 900},
+ {"name": "long", "user": "lab-user", "path": "/chat/2/", "width": 1440, "height": 900},
+ {"name": "agent-expanded", "user": "lab-user", "path": "/chat/9/", "width": 1440, "height": 900, "settle": 2500, "full": true,
+  "steps": [["click", ".rg-activity-head"], ["eval", "[...document.querySelectorAll('.rg-agent-actions button')].find(b => b.textContent.includes('Detalles'))?.click()"], ["wait", 500]]},
+ {"name": "professional-expanded", "user": "lab-pro", "path": "/chat/13/", "width": 1440, "height": 900, "settle": 2500, "full": true,
+  "steps": [["click", ".rg-activity-head"], ["wait", 400]]},
+ {"name": "preview-dialog", "user": "lab-user", "path": "/chat/9/", "width": 1440, "height": 900, "settle": 2500,
+  "steps": [["eval", "[...document.querySelectorAll('.rg-deliverable-actions button')].find(b => b.textContent.includes('Vista previa'))?.click()"], ["wait", 1500]]},
+ {"name": "m-empty", "user": "lab-user", "path": "/chat/", "width": 390, "height": 844},
+ {"name": "m-answer", "user": "lab-user", "path": "/chat/1/", "width": 390, "height": 844},
+ {"name": "m-drawer", "user": "lab-user", "path": "/chat/1/", "width": 390, "height": 844,
+  "steps": [["click", "[data-action=nav-open]"], ["wait", 500]]},
+ {"name": "m-agent", "user": "lab-user", "path": "/chat/9/", "width": 390, "height": 844, "settle": 2500},
+ {"name": "m-review", "user": "lab-user", "path": "/chat/10/", "width": 390, "height": 844, "settle": 2500, "full": true}
+]

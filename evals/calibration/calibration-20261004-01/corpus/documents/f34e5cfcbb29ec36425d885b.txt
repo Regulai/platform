@@ -1,0 +1,6 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: CRUISSAL.   Body: 
+    THIS IS A CRUICIALLY IMPORTANT MAIL, FORGOT WHAT THE API ENDPOINTS WERE CALLED, WAS IT SEND_REQUEST, WAS IT RECIEVE
+                            
+                            

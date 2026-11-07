@@ -1,0 +1,155 @@
+{
+  "arithmetic": {
+    "discounted_eur": "67.37",
+    "subtotal_eur": "74.85",
+    "total_eur": "81.52",
+    "vat_eur": "14.15"
+  },
+  "context": {
+    "city": "Bilbao",
+    "day": "sábado",
+    "event": "Nébula",
+    "time": "18:30"
+  },
+  "inventory": {
+    "closing_by_sku": {
+      "A": 9,
+      "B": 4,
+      "C": 4
+    },
+    "replenishment": {
+      "B": 1
+    }
+  },
+  "pdf": {
+    "budget_eur": 4800,
+    "deadline": "2026-11-06",
+    "pages": 2,
+    "pilot_acceptance_percent": 90,
+    "population_acceptance_percent": null,
+    "project_owner": null
+  },
+  "reconciliation": {
+    "cancelled_payment": "O3",
+    "conflicting_duplicate": "O5",
+    "identical_duplicate": "O4",
+    "known_outstanding_eur": "5.00",
+    "known_valid_collections_eur": "270.00",
+    "known_valid_sales_eur": "275.00",
+    "reported_collections_error_eur": "50.00",
+    "resolved_outstanding_eur": "45.00",
+    "resolved_valid_sales_eur": "315.00"
+  },
+  "sales": {
+    "cancelled_rows_excluded": 1,
+    "regions_eur": {
+      "Este": "16.00",
+      "Norte": "110.00",
+      "Sur": "130.00"
+    },
+    "top_region": "Sur",
+    "total_eur": "256.00"
+  },
+  "simulation": {
+    "closing_stock": 0,
+    "days": [
+      {
+        "arrivals": 0,
+        "closing": 9,
+        "day": 1,
+        "demand": 3,
+        "lost": 0,
+        "opening": 12,
+        "served": 3
+      },
+      {
+        "arrivals": 0,
+        "closing": 5,
+        "day": 2,
+        "demand": 4,
+        "lost": 0,
+        "opening": 9,
+        "served": 4
+      },
+      {
+        "arrivals": 0,
+        "closing": 3,
+        "day": 3,
+        "demand": 2,
+        "lost": 0,
+        "opening": 5,
+        "served": 2
+      },
+      {
+        "arrivals": 8,
+        "closing": 6,
+        "day": 4,
+        "demand": 5,
+        "lost": 0,
+        "opening": 3,
+        "served": 5
+      },
+      {
+        "arrivals": 0,
+        "closing": 5,
+        "day": 5,
+        "demand": 1,
+        "lost": 0,
+        "opening": 6,
+        "served": 1
+      },
+      {
+        "arrivals": 0,
+        "closing": 2,
+        "day": 6,
+        "demand": 3,
+        "lost": 0,
+        "opening": 5,
+        "served": 3
+      },
+      {
+        "arrivals": 0,
+        "closing": 0,
+        "day": 7,
+        "demand": 4,
+        "lost": 2,
+        "opening": 2,
+        "served": 2
+      },
+      {
+        "arrivals": 6,
+        "closing": 4,
+        "day": 8,
+        "demand": 2,
+        "lost": 0,
+        "opening": 0,
+        "served": 2
+      },
+      {
+        "arrivals": 0,
+        "closing": 0,
+        "day": 9,
+        "demand": 6,
+        "lost": 2,
+        "opening": 4,
+        "served": 4
+      },
+      {
+        "arrivals": 0,
+        "closing": 0,
+        "day": 10,
+        "demand": 1,
+        "lost": 1,
+        "opening": 0,
+        "served": 0
+      }
+    ],
+    "days_with_loss": [
+      7,
+      9,
+      10
+    ],
+    "lost_total": 5,
+    "served_total": 26
+  }
+}

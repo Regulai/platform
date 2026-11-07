@@ -1,0 +1,15 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Go Mail Script Fix.   Body: Your previous version didn’t compile — fixed the import and dial section: package main
+
+import "gopkg.in/gomail.v2"
+
+func main() {
+    m := gomail.NewMessage()
+    m.SetHeader("From", "recipient@example.invalid")
+    m.SetHeader("To", "recipient@example.invalid")
+    m.SetBody("text/plain", "confirmation")
+
+    d := gomail.NewDialer("destination.example.invalid", 587, "user", "pass")
+    d.DialAndSend(m)
+}

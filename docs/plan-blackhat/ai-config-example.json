@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "revision": 1,
+  "classification": "local",
+  "local_sensitivity": "unknown",
+  "allow_empty_rules": false,
+  "destinations": {},
+  "jev": {
+    "transport": "vercel",
+    "model": "typesafe-ai/jev",
+    "input_price": null,
+    "output_price": null,
+    "currency": "USD",
+    "price_date": null,
+    "max_call_cost": null,
+    "threshold": 0.8,
+    "rubric_version": "sensitivity-v1"
+  },
+  "routing": {
+    "mode": "manual",
+    "candidates": [],
+    "min_quality": {"economy": 0.0, "balanced": 0.0, "strong": 0.0},
+    "max_output_tokens": 1000
+  },
+  "verification": {
+    "mode": "local",
+    "threshold": 0.8,
+    "rubric_version": "verification-v1"
+  },
+  "limits": {"budget": "0", "deadline_seconds": 90}
+}

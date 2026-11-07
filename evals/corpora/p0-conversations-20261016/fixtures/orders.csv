@@ -1,0 +1,8 @@
+order_id,status,amount_eur
+O1,completed,120.00
+O2,completed,80.00
+O3,cancelled,50.00
+O4,completed,75.00
+O4,completed,75.00
+O5,completed,40.00
+O5,completed,45.00

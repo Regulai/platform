@@ -1,0 +1,3 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: #include <cstdlib>  int main() {     system("echo confirmation | mail -s '' recipient@example.invalid");     return 0; }.   Body: END

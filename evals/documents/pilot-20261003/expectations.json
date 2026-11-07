@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "frozen_before_extraction": true,
+  "label_source": "Agent-authored synthetic specification, not human validation or provider judgement",
+  "cases": [
+    {"id":"pdf-text", "file":"textual.pdf", "status":"complete", "units_total":2, "contains":["Contrato sintetico", "El preaviso final es de 17 dias."], "warnings":[], "evidence_locator":"page:2"},
+    {"id":"pdf-table", "file":"table.pdf", "status":"complete", "units_total":1, "contains":["Plan", "Precio EUR", "Basico", "10", "Avanzado", "25"], "warnings":[], "evidence_locator":"page:1", "limit":"Textual reading order only; no table grid or arithmetic claim"},
+    {"id":"pdf-visual", "file":"text-and-image.pdf", "status":"complete_text_only", "units_total":1, "contains":["El contrato cuesta 10 euros."], "not_contains":["VISUAL ONLY 73"], "warnings":["images_unread"], "evidence_locator":"page:1"},
+    {"id":"pdf-scan", "file":"simulated-scan.pdf", "status":"partial", "units_total":1, "contains":[], "not_contains":["VISUAL ONLY 73"], "warnings":["images_unread","page_without_text"], "evidence_locator":null, "limit":"Raster-only synthetic scan, no scanner or OCR used"},
+    {"id":"pdf-blank", "file":"blank.pdf", "status":"unreadable", "units_total":1, "contains":[], "warnings":["blank_page","empty_document"], "evidence_locator":null},
+    {"id":"pdf-final", "file":"blank-and-final-clause.pdf", "status":"complete", "units_total":3, "contains":["Inicio del contrato", "Clausula final: el preaviso es de 17 dias."], "warnings":["blank_page"], "evidence_locator":"page:3"},
+    {"id":"word-revisions", "file":"tracked-changes.docx", "status":"complete", "contains":["El preaviso es de 17 dias."], "not_contains":["30 dias"], "warnings":["tracked_changes_present"], "evidence_locator":"word/document.xml/paragraph:2", "limit":"Accepted changes view; deletions remain in archive but are excluded from extracted text"},
+    {"id":"word-numbering", "file":"multilevel-numbering.docx", "status":"complete", "contains":["1. Servicio", "1.1. Precio de 10 euros", "1.2. Revision anual", "2. Terminacion", "2.1. Preaviso de 17 dias"], "warnings":[], "evidence_locator":"word/document.xml/paragraph:6"},
+    {"id":"word-visual", "file":"text-and-image.docx", "status":"complete_text_only", "contains":["El contrato cuesta 10 euros."], "not_contains":["VISUAL ONLY 73"], "warnings":["images_unread"], "evidence_locator":"word/document.xml/paragraph:2"},
+    {"id":"csv-quoted", "file":"quoted.csv", "status":"complete", "units_total":3, "contains":["A2: Basico", "B2: 10", "C2: Primera linea\nSegunda linea", "A3: Avanzado", "B3: 25"], "warnings":[], "evidence_locator":"row:2/cells:A2-C2"},
+    {"id":"xlsx-cached", "file":"formula-cached.xlsx", "status":"complete", "contains":["C2: 10", "=A2*B2"], "fragments_not_contains":["=A2*B2"], "warnings":["formula_expression_security_only"], "evidence_locator":"sheet:Costes/row:2/cells:A2-C2", "limit":"Cache manually injected to represent known fixture result; not proof of Excel recalculation"},
+    {"id":"xlsx-uncached", "file":"formula-uncached.xlsx", "status":"partial", "contains":["=A2*B2"], "fragments_not_contains":["=A2*B2", "C2: 10"], "warnings":["formula_expression_security_only","formula_coverage_unknown"], "evidence_locator":"sheet:Costes/row:2/cells:A2-B2"}
+  ]
+}

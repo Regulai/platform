@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-08",
+  "status": "scoped_synthetic_runtime_excel_docx_pdf_pptx_default_off",
+  "harness": "Deep Agents",
+  "validation": {
+    "source_and_license_review": true,
+    "runtime_integration_tested": true,
+    "skills_executed": true,
+    "quality_parity_with_claude_demonstrated": false,
+    "paid_model_calls_made": false,
+    "runtime_scope": "Tasks 48-52; real SDK/E2B with simulated model. Four PPTX corpus cases, native editable data and final-byte visual review. No real-model quality comparison."
+  },
+  "original_assets": [
+    {
+      "path": "prompts/system.md",
+      "authorship": "Regulay: original instructions from product requirements",
+      "is_anthropic_system_prompt": false
+    },
+    {
+      "path": "prompts/documents.md",
+      "authorship": "Regulay: original document requirements",
+      "is_anthropic_skill": false
+    }
+  ],
+  "claude_references": [
+    {
+      "id": "core-prompts",
+      "url": "https://platform.claude.com/docs/en/release-notes/system-prompts/overview",
+      "publisher": "Anthropic",
+      "scope": "Published core behavior prompts; not a complete Desktop/Cowork harness",
+      "local_treatment": "reference_only",
+      "redistribution_permission": "not_identified"
+    },
+    {
+      "id": "core-opus-5-5",
+      "url": "https://platform.claude.com/docs/en/release-notes/system-prompts/claude-opus-5-5",
+      "publisher": "Anthropic",
+      "published_version_date": "2026-09-22",
+      "scope": "Core behavior block; text mentions desktop interface",
+      "local_treatment": "reference_only",
+      "redistribution_permission": "not_identified"
+    },
+    {
+      "id": "desktop-product",
+      "url": "https://support.claude.com/en/articles/10065433-install-claude-desktop",
+      "publisher": "Anthropic",
+      "scope": "Official product documentation; distinguishes Chat, Code and Cowork",
+      "local_treatment": "reference_only"
+    },
+    {
+      "id": "constitution",
+      "url": "https://www.anthropic.com/constitution",
+      "publisher": "Anthropic",
+      "license": "CC0-1.0",
+      "scope": "Constitution; not the Desktop system prompt",
+      "local_treatment": "reference_only"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "brand-docs",
+      "repo": "ferdinandobons/brand-docs",
+      "sha": "97a6e384cb0664cd44ba8113c0b80c9761700670",
+      "date": "2026-07-10T09:14:00Z",
+      "url": "https://github.com/ferdinandobons/brand-docs/commit/97a6e384cb0664cd44ba8113c0b80c9761700670",
+      "license_declared": "MIT",
+      "license_path": "LICENSE",
+      "notice_path": "NOTICE",
+      "skill_paths": [
+        "skills/brand-docx/SKILL.md",
+        "skills/brand-xlsx/SKILL.md",
+        "skills/brand-pptx/SKILL.md"
+      ],
+      "decision": "Task 51 strict DOCX evaluation rejected: template residue, duplicate title, blank page. Bounded python-docx/template procedure selected; not loaded in runtime. Task 52 comparison only for native editable chart: embedded workbook succeeds; remains evaluation-only because the selected OfficeCLI adapter covers this bounded gap and preserves localized edits.",
+      "installed": false,
+      "evaluation_evidence": "evals/reports/task51-word-pdf-20261008/branddocs-linux/result.json"
+    },
+    {
+      "id": "officecli",
+      "repo": "iOfficeAI/OfficeCLI",
+      "sha": "8d079c777ed6bea35b922c3d893758d3c2081137",
+      "date": "2026-10-06T06:23:47Z",
+      "url": "https://github.com/iOfficeAI/OfficeCLI/commit/8d079c777ed6bea35b922c3d893758d3c2081137",
+      "license_declared": "Apache-2.0",
+      "license_path": "LICENSE",
+      "notice_path": "THIRD-PARTY-NOTICES.txt",
+      "skill_paths": [
+        "SKILL.md",
+        "skills/officecli-docx/SKILL.md",
+        "skills/officecli-xlsx/SKILL.md",
+        "skills/officecli-pptx/SKILL.md"
+      ],
+      "decision": "Selected for bounded PPTX creation and localized edits. Adapter preserves immutable ZIP parts and completes native chart with embedded XLSX; final PPTX is reopened, rendered and independently verified. No resident process, plugins or runtime installation.",
+      "installed": true,
+      "version": "1.0.155",
+      "binary_sha256": "1a5da5cb7e9d995db7a6560beb7466760c79617648f72e65f4ce55897c407f67",
+      "runtime_path": "regulai/front/agents/runtime/skills/pptx/SKILL.md",
+      "evaluation_evidence": "evals/reports/task52-powerpoint-20261008/"
+    },
+    {
+      "id": "openai-pdf",
+      "repo": "openai/skills",
+      "sha": "49f948faa9258a0c61caceaf225e179651397431",
+      "date": "2026-06-24T02:36:12Z",
+      "url": "https://github.com/openai/skills/commit/49f948faa9258a0c61caceaf225e179651397431",
+      "license_declared": "Apache-2.0",
+      "license_path": "skills/.curated/pdf/LICENSE.txt",
+      "skill_paths": [
+        "skills/.curated/pdf/SKILL.md"
+      ],
+      "decision": "Adapted and verified in task 51; single runtime source, offline converters and private hash-bound visual review.",
+      "installed": true,
+      "runtime_path": "regulai/front/agents/runtime/skills/pdf/SKILL.md"
+    },
+    {
+      "id": "dom-to-pptx",
+      "repo": "atharva9167j/dom-to-pptx",
+      "sha": "939ef79f00db8f9f5f4f75b590e83e380abce197",
+      "date": "2026-09-14T12:09:29Z",
+      "url": "https://github.com/atharva9167j/dom-to-pptx/commit/939ef79f00db8f9f5f4f75b590e83e380abce197",
+      "license_declared": "MIT",
+      "license_path": "LICENSE",
+      "skill_paths": [
+        "packages/dom-to-pptx-skills/skills/dom-to-pptx-skill/SKILL.md"
+      ],
+      "decision": "Alternative for new presentations from HTML; benchmark export fidelity",
+      "installed": false
+    },
+    {
+      "id": "genoffice",
+      "repo": "genspark-ai/genoffice",
+      "sha": "2490e20db8a9e89feb95a6914211c9aad3b34a2b",
+      "date": "2026-10-06T23:14:30Z",
+      "url": "https://github.com/genspark-ai/genoffice/commit/2490e20db8a9e89feb95a6914211c9aad3b34a2b",
+      "license_declared": "Apache-2.0",
+      "license_path": "LICENSE",
+      "notice_path": "NOTICE",
+      "skill_paths": [
+        "skills/genoffice/SKILL.md"
+      ],
+      "decision": "Reserve; validate headless packaging and provider separation",
+      "installed": false
+    },
+    {
+      "id": "univer",
+      "repo": "dream-num/skills",
+      "sha": "9cdf69c82dbdaea21c3bca004a4cffa9387cd58b",
+      "date": "2026-08-31T13:25:00Z",
+      "url": "https://github.com/dream-num/skills/commit/9cdf69c82dbdaea21c3bca004a4cffa9387cd58b",
+      "license_declared": "Apache-2.0 per README for skills repository",
+      "license_path": "LICENSE",
+      "skill_paths": [
+        "skills/univer-pro-integrate/SKILL.md"
+      ],
+      "decision": "Not selected: Office exchange documented under licensed Pro functionality",
+      "installed": false
+    },
+    {
+      "id": "anthropic-document-skills",
+      "repo": "anthropics/skills",
+      "sha": "683bc88e56f3e09ba94f7055977f3d3aa499f202",
+      "date": "2026-10-05T13:46:42Z",
+      "url": "https://github.com/anthropics/skills/commit/683bc88e56f3e09ba94f7055977f3d3aa499f202",
+      "license_declared": "Proprietary source-available, per-skill LICENSE.txt",
+      "skill_paths": [
+        "skills/docx/SKILL.md",
+        "skills/xlsx/SKILL.md",
+        "skills/pptx/SKILL.md",
+        "skills/pdf/SKILL.md"
+      ],
+      "decision": "Reference only; no files copied",
+      "installed": false
+    },
+    {
+      "id": "docx-report-design",
+      "repo": "drharunyuksel/docx-report-skill",
+      "sha": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "url": "https://github.com/drharunyuksel/docx-report-skill/commit/efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "license_declared": "MIT",
+      "license_path": "LICENSE",
+      "skill_paths": [
+        "SKILL.md"
+      ],
+      "installed": false,
+      "decision": "Reference criteria for typography, restrained colors and table layout. Original bounded python-docx procedure and versioned templates implement the design; upstream Node helpers are not executed or loaded.",
+      "runtime_path": "regulai/front/agents/runtime/design.md",
+      "source_manifest": "docs/agent-assets/upstream/docx-report-design/source-manifest.json"
+    }
+  ],
+  "imported_files": [
+    {
+      "path": "upstream/openai-pdf/SKILL.md",
+      "repo": "openai/skills",
+      "ref": "49f948faa9258a0c61caceaf225e179651397431",
+      "source_path": "skills/.curated/pdf/SKILL.md",
+      "modified": false,
+      "sha256": "d108cf2b36355ab37eb5962933f4d09785ec002f3105c506129320209306b9d2"
+    },
+    {
+      "path": "upstream/openai-pdf/LICENSE.txt",
+      "repo": "openai/skills",
+      "ref": "49f948faa9258a0c61caceaf225e179651397431",
+      "source_path": "skills/.curated/pdf/LICENSE.txt",
+      "modified": false,
+      "sha256": "4dd13869245e356246a5b770723247bbb80a8f07a181d1d3d873a1734297cdb9"
+    },
+    {
+      "path": "upstream/officecli-pptx/SKILL.md",
+      "repo": "iOfficeAI/OfficeCLI",
+      "ref": "8d079c777ed6bea35b922c3d893758d3c2081137",
+      "source_path": "SKILL.md",
+      "modified": false,
+      "sha256": "c950d285ce60021712b4753fb2d9f592308d5622bab776229061dfecb1ce55d4"
+    },
+    {
+      "path": "upstream/officecli-pptx/skills/officecli-pptx/SKILL.md",
+      "repo": "iOfficeAI/OfficeCLI",
+      "ref": "8d079c777ed6bea35b922c3d893758d3c2081137",
+      "source_path": "skills/officecli-pptx/SKILL.md",
+      "modified": false,
+      "sha256": "0d53192751d5770984f16f3c34f9923377651555c667150d7f96e16e8c9757b3"
+    },
+    {
+      "path": "upstream/officecli-pptx/LICENSE",
+      "repo": "iOfficeAI/OfficeCLI",
+      "ref": "8d079c777ed6bea35b922c3d893758d3c2081137",
+      "source_path": "LICENSE",
+      "modified": false,
+      "sha256": "7e282402a5a6db33995fe638bb3fe79013f9884d8f7d15a42e481c1e86aadda1"
+    },
+    {
+      "path": "upstream/officecli-pptx/THIRD-PARTY-NOTICES.txt",
+      "repo": "iOfficeAI/OfficeCLI",
+      "ref": "8d079c777ed6bea35b922c3d893758d3c2081137",
+      "source_path": "THIRD-PARTY-NOTICES.txt",
+      "modified": false,
+      "sha256": "7e79e54cddf05f25681198429eb42e1401c1c53a3b29bf63744dc09411c029d8"
+    },
+    {
+      "path": "upstream/officecli-pptx/SHA256SUMS",
+      "repo": "iOfficeAI/OfficeCLI",
+      "ref": "8d079c777ed6bea35b922c3d893758d3c2081137",
+      "source_path": "SHA256SUMS",
+      "modified": false,
+      "sha256": "61dd1e51f7e316b946f53dd8aae221734c84947bc3cc4f559552facdc77cb377"
+    },
+    {
+      "path": "upstream/docx-report-design/LICENSE",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "LICENSE",
+      "modified": false,
+      "sha256": "99b5b2993404ad1542f1e5bbbf32e204df3b1afab18289f11dab280bae351d92"
+    },
+    {
+      "path": "upstream/docx-report-design/README.md",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "README.md",
+      "modified": false,
+      "sha256": "3dc5b518432998021bd301eb62a977e8a4238a906741b803a5f92dca5c44cc8f"
+    },
+    {
+      "path": "upstream/docx-report-design/SKILL.md",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "SKILL.md",
+      "modified": false,
+      "sha256": "b035866fd1f57b9d602e1cf2e7c99d90fbc7f62a90efece4110efd06b1ed5bb9"
+    },
+    {
+      "path": "upstream/docx-report-design/references/brand-config.js",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "references/brand-config.js",
+      "modified": false,
+      "sha256": "016d0d511e44874bb5d799cdcc78de374e3e8c7e60698d236aea884815a178a2"
+    },
+    {
+      "path": "upstream/docx-report-design/references/color-palette.md",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "references/color-palette.md",
+      "modified": false,
+      "sha256": "2ff1a4d6c162bc8cfb64ae0f088d33daca50b9f09cd8992cb91f3c793b6e671d"
+    },
+    {
+      "path": "upstream/docx-report-design/references/page-setup.js",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "references/page-setup.js",
+      "modified": false,
+      "sha256": "16497c805942be733ffc5c9f49496e19cf7f041bf09ba312b0101c16ae691043"
+    },
+    {
+      "path": "upstream/docx-report-design/references/table-templates.js",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "references/table-templates.js",
+      "modified": false,
+      "sha256": "69cd207dea4324351790ec62cbbe75b8d992a4a63b7a26445bf63e17f7c10e37"
+    },
+    {
+      "path": "upstream/docx-report-design/references/typography.js",
+      "repo": "drharunyuksel/docx-report-skill",
+      "ref": "efbd76eecad7e1aa070a8ca17dffc51a685833d7",
+      "source_path": "references/typography.js",
+      "modified": false,
+      "sha256": "6e90532068d5eaa986d6baf8d5f10da936169e2cce610368c88223e363ff6b2b"
+    }
+  ],
+  "scope_note": "Only reviewed offline procedures are active for explicit synthetic development profiles. BrandDocs remains evaluation-only; docx-report-skill is design reference-only. No installers run during conversations. No real-model quality comparison, paid calls, connectors from task 53 or existing-account activation."
+}

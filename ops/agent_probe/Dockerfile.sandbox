@@ -1,0 +1,14 @@
+# Minimal E2B template candidate, also exercised as a local filesystem fixture.
+# A Docker/runc test of this image does NOT validate E2B/Firecracker isolation.
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
+RUN useradd --uid 1000 --create-home user \
+    && mkdir -p /workspace/input /workspace/work /workspace/output /conversation_history /large_tool_results \
+    && chown user:user /workspace/work /workspace/output /conversation_history /large_tool_results \
+    && find / -xdev -type f -perm /6000 -exec chmod a-s {} +
+COPY input/numbers.csv /workspace/input/numbers.csv
+COPY runtime_checks.py /probe/runtime_checks.py
+COPY --from=agents probe_csv.py /probe/probe_csv.py
+RUN chmod 0555 /workspace/input && chmod 0444 /workspace/input/numbers.csv
+USER 1000:1000
+WORKDIR /workspace/work
+CMD ["python", "-I", "/probe/runtime_checks.py", "contract"]

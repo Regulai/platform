@@ -1,6 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .encrypted_fields import EncryptedCharField
+from .agents.records import (AgentAccessGrant, AgentOperation, AgentArtifact, AgentEvent, AgentExecution, AgentInference, AgentInput, AgentModelProfile,
+                            AgentToolResult, ConversationAlias, AgentDocumentConnection, AgentDocumentReference, AgentExport,
+                            AgentSkillInstallation, AgentSkillRevision, AgentSkillInstallOperation)
+from .policy import validate_ai_config, validate_yara
+from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from decimal import Decimal
+import uuid
+
+
+def validate_price_per_million(value):
+    if 0 < value < Decimal('0.0001'):
+        raise ValidationError('Configure USD prices per million tokens, not per token.')
 
 
 class Company(models.Model):
@@ -12,6 +25,9 @@ class Company(models.Model):
         help_text="General context sent to all engines in every conversation."
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    ai_config = models.JSONField(default=dict, blank=True, validators=[validate_ai_config])
+    jev_api_key = EncryptedCharField(max_length=512, blank=True, default='')
 
     def __str__(self):
         return self.name
@@ -126,7 +142,7 @@ class Rule(models.Model):
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    yara_rule = models.TextField(help_text="Define the YARA rule here")
+    yara_rule = models.TextField(help_text="Define the YARA rule here", validators=[validate_yara])
     rules_group = models.ForeignKey(RulesGroup, on_delete=models.CASCADE, related_name="rules")
     severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default="medium")
     applies_to = models.CharField(max_length=20, choices=APPLIES_TO_CHOICES, default="both")
@@ -142,6 +158,8 @@ class Conversation(models.Model):
     """Conversación que agrupa múltiples mensajes."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations")
     title = models.CharField(max_length=255, blank=True)
+    mode = models.CharField(max_length=12, default='chat', choices=[('chat', 'Chat'), ('agent', 'Agent')])
+    auto_skills = models.BooleanField(default=True, db_default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -195,6 +213,16 @@ class Prompt(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     model_used = models.CharField(max_length=100, default="gpt-4o-mini")
     filtered = models.BooleanField(default=False)
+    request_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    historical_company_id = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    user_message = models.OneToOneField(Message, on_delete=models.SET_NULL, null=True, blank=True, related_name='request_record')
+    status = models.CharField(max_length=24, default='legacy')
+    decision = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'request_id'], name='unique_user_request')]
 
     # File information (if a file was attached)
     file_name = models.CharField(max_length=255, null=True, blank=True, help_text="Name of attached file")
@@ -206,6 +234,10 @@ class Prompt(models.Model):
     def __str__(self):
         return f"Prompt by {self.user.username} at {self.created_at}"
 
+    @property
+    def historical(self):
+        return self.status == 'legacy' or self.historical_company_id is not None
+
 
 class Response(models.Model):
     """Respuestas recibidas de los LLMs."""
@@ -213,6 +245,8 @@ class Response(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     tokens_used = models.IntegerField(default=0)
+    assistant_message = models.OneToOneField(Message, on_delete=models.SET_NULL, null=True, blank=True, related_name='response_record')
+    evidence = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"Response to Prompt {self.prompt.id}"
@@ -220,6 +254,7 @@ class Response(models.Model):
 
 class AuditLog(models.Model):
     """Auditoría detallada de la interacción usuario-IA."""
+    company = models.ForeignKey('Company', null=True, blank=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=100)  # ej: "prompt_sent", "response_received", "alert_triggered"
     details = models.TextField(blank=True, null=True)
@@ -227,6 +262,10 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"[{self.timestamp}] {self.user} - {self.action}"
+
+    @property
+    def historical(self):
+        return self.company_id is None and self.user_id is not None
 
 
 class Alert(models.Model):
@@ -262,6 +301,7 @@ class Engine(models.Model):
         ('openai', 'OpenAI SDK'),
         ('anthropic', 'Anthropic SDK'),
         ('openai_compatible', 'OpenAI Compatible (Custom URL)'),
+        ('vercel_gateway', 'Vercel AI Gateway'),
     ]
 
     name = models.CharField(max_length=100, unique=True)
@@ -292,6 +332,13 @@ class EngineModel(models.Model):
     description = models.TextField(blank=True, null=True)
     supports_vision = models.BooleanField(default=False)  # Can process images
     max_tokens = models.IntegerField(default=4096)
+    context_window = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+    supports_json = models.BooleanField(default=False)
+    reasoning = models.BooleanField(default=False)
+    input_price = models.DecimalField(max_digits=18, decimal_places=8, null=True, blank=True, validators=[MinValueValidator(0), validate_price_per_million], help_text='USD per million input tokens; 0 means free, blank means unknown.')
+    output_price = models.DecimalField(max_digits=18, decimal_places=8, null=True, blank=True, validators=[MinValueValidator(0), validate_price_per_million], help_text='USD per million output tokens; 0 means free, blank means unknown.')
+    currency = models.CharField(max_length=3, default='USD')
+    price_date = models.DateField(null=True, blank=True)
     order = models.IntegerField(default=0)  # For ordering in UI
     active = models.BooleanField(default=True)
 
@@ -322,7 +369,8 @@ class CompanyEngine(models.Model):
 
 
 class ObfuscationConfig(models.Model):
-    """Configuración de ofuscación para una empresa (integración con PasteGuard)."""
+    """Barrera de privacidad local o HTTP autorizada por una empresa."""
+    BACKEND_CHOICES = [("local", "Local detector"), ("http", "PasteGuard HTTP")]
     DETECT_CHOICES = [
         ("pii", "PII"),
         ("secrets", "Secrets"),
@@ -331,7 +379,8 @@ class ObfuscationConfig(models.Model):
 
     name = models.CharField(max_length=255)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="obfuscation_configs")
-    api_url = models.URLField(help_text="Base URL del servicio PasteGuard (ej: https://pasteguard.com)")
+    backend = models.CharField(max_length=10, choices=BACKEND_CHOICES, default="http")
+    api_url = models.URLField(blank=True, help_text="Base URL del servicio PasteGuard; obligatoria solo para HTTP.")
     detect = models.CharField(max_length=20, choices=DETECT_CHOICES, default="both")
     language = models.CharField(max_length=10, blank=True, default="", help_text="Idioma para detección (vacío=auto-detectar)")
     active = models.BooleanField(default=True)
@@ -339,6 +388,20 @@ class ObfuscationConfig(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    def clean(self):
+        super().clean()
+        if self.backend == 'http':
+            from urllib.parse import urlsplit
+            try:
+                endpoint = urlsplit(self.api_url)
+                valid = endpoint.scheme in {'http', 'https'} and endpoint.netloc and not endpoint.username and not endpoint.password
+            except ValueError:
+                valid = False
+            if not valid:
+                raise ValidationError({'api_url': 'HTTP requires a valid HTTP(S) URL without embedded credentials.'})
+        elif self.backend == 'local' and self.language not in {'', 'es', 'en'}:
+            raise ValidationError({'language': 'The local detector supports Spanish and English; use es, en or leave empty.'})
 
     def __str__(self):
         return f"{self.name} ({self.company.name})"

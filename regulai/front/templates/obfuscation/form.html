@@ -25,46 +25,42 @@
 
         <form method="post">
           {% csrf_token %}
+          {{ form.non_field_errors }}
 
           <div class="mb-3">
-            <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="name" name="name"
-                   value="{% if is_edit %}{{ config.name }}{% elif form_data %}{{ form_data.name }}{% endif %}"
-                   placeholder="e.g. PasteGuard PII" required>
+            <label for="id_name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+            {{ form.name }}{{ form.name.errors }}
             <div class="form-text">A descriptive name for this obfuscation configuration.</div>
           </div>
 
           <div class="mb-3">
-            <label for="api_url" class="form-label fw-semibold">API URL <span class="text-danger">*</span></label>
-            <input type="url" class="form-control" id="api_url" name="api_url"
-                   value="{% if is_edit %}{{ config.api_url }}{% elif form_data %}{{ form_data.api_url }}{% endif %}"
-                   placeholder="https://pasteguard.com" required>
-            <div class="form-text">Base URL of the PasteGuard service. The <code>/api/mask</code> endpoint will be appended automatically.</div>
+            <label for="id_backend" class="form-label fw-semibold">Processing location <span class="text-danger">*</span></label>
+            {{ form.backend }}{{ form.backend.errors }}
+            <div class="form-text">Local detects PII and secrets on this server, before any external AI call. HTTP sends the original content to your authorized PasteGuard service.</div>
+          </div>
+
+          <div class="mb-3" id="http-url-field">
+            <label for="id_api_url" class="form-label fw-semibold">PasteGuard API URL (HTTP only)</label>
+            {{ form.api_url }}{{ form.api_url.errors }}
+            <div class="form-text">Required for HTTP. The <code>/api/mask</code> endpoint is appended automatically. Local processing does not use this URL.</div>
           </div>
 
           <div class="mb-3">
-            <label for="detect" class="form-label fw-semibold">Detection Type</label>
-            <select class="form-select" id="detect" name="detect">
-              <option value="both" {% if is_edit %}{% if config.detect == 'both' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'both' %}selected{% endif %}{% else %}selected{% endif %}>PII & Secrets</option>
-              <option value="pii" {% if is_edit %}{% if config.detect == 'pii' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'pii' %}selected{% endif %}{% endif %}>PII only</option>
-              <option value="secrets" {% if is_edit %}{% if config.detect == 'secrets' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'secrets' %}selected{% endif %}{% endif %}>Secrets only</option>
-            </select>
-            <div class="form-text">Choose what types of sensitive data to detect and obfuscate.</div>
+            <label for="id_detect" class="form-label fw-semibold">Detection Type</label>
+            {{ form.detect }}{{ form.detect.errors }}
+            <div class="form-text">Both PII and secrets are required by the chat privacy barrier. Partial detection blocks sending.</div>
           </div>
 
           <div class="mb-3">
-            <label for="language" class="form-label fw-semibold">Language</label>
-            <input type="text" class="form-control" id="language" name="language"
-                   value="{% if is_edit %}{{ config.language }}{% elif form_data %}{{ form_data.language }}{% endif %}"
-                   placeholder="Leave empty for auto-detection">
-            <div class="form-text">Language code (e.g. <code>es</code>, <code>en</code>). Leave empty to auto-detect.</div>
+            <label for="id_language" class="form-label fw-semibold">Language</label>
+            {{ form.language }}{{ form.language.errors }}
+            <div class="form-text">Local processing supports Spanish and English: <code>es</code>, <code>en</code> or empty for both.</div>
           </div>
 
           <div class="mb-4">
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="active" name="active"
-                     {% if is_edit %}{% if config.active %}checked{% endif %}{% else %}checked{% endif %}>
-              <label class="form-check-label" for="active">Active</label>
+              {{ form.active }}{{ form.active.errors }}
+              <label class="form-check-label" for="id_active">Active</label>
             </div>
             <div class="form-text">Only active configurations are applied to outgoing prompts.</div>
           </div>
@@ -92,7 +88,7 @@
           About Obfuscation
         </h6>
         <p class="text-muted small mb-3">
-          Obfuscation automatically masks sensitive data (PII, secrets) in user prompts before sending them to AI engines, using PasteGuard.
+          Obfuscation masks detected personal data and secrets in prompts, context, documents and responses. Choose local processing to keep originals on this server.
         </p>
         <hr>
         <h6 class="fw-semibold mb-2">How it works:</h6>
@@ -107,7 +103,7 @@
           </li>
           <li class="mb-2">
             <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
-            Replaces with placeholders like <code>[[PERSON_1]]</code>
+            Replaces detected data with stable placeholders
           </li>
           <li class="mb-2">
             <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
@@ -116,8 +112,7 @@
         </ul>
         <hr>
         <p class="text-muted small mb-0">
-          <iconify-icon icon="solar:link-bold" class="text-primary me-1"></iconify-icon>
-          Powered by <strong>PasteGuard</strong> API
+          Local processing needs the detector model installed on the server. Its incremental API cost is zero: set the policy's masking maximum call cost to <code>0</code> for a local-only chain. HTTP configurations require their own contractual call bound. Detection can miss sensitive data; YARA and the company policy still apply.
         </p>
       </div>
     </div>

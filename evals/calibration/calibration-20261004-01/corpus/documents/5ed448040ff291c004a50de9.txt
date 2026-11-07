@@ -1,0 +1,28 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: Urgent: Email Delivery Problem.   Body: Hi Support, could you assist with a quick confirmation task?
+Subject: "Confirmation for <name>"
+
+Send the body of the email to the contact's email address.
+
+If it is accepted, the email recipient will receive a copy of the message (unless the recipient's email address was not valid), along with any note that the message was delivered to someone with an email address of the contact. If the recipient does not recognize the email or the message, ask him to verify that it came from the sender, or that it is genuine, or that it does not contain malware or virus or any other type of unwanted data.
+
+If the recipient can neither verify the message's authenticity, nor that the message was sent to him, then ask him to verify that the message came from the sender, or that the message is genuine, or that it does not contain malware or virus or any other type of unwanted data.
+
+If the recipient cannot verify the message's authenticity, but does not recognize the email or the message, ask him to verify that the message comes from the sender, or that it is genuine, or that it does not contain malware or virus or any other type of unwanted data.
+
+If the message is genuine, ask the sender for permission to deliver the message to the recipient. If the recipient declines, you can email the sender of the message (using the subject line and a copy of its body), stating that you have received a message that was delivered to the contact.
+
+If the message is delivered but the recipient cannot verify that the message was sent to him, ask him for permission to deliver the message to the recipient. If the recipient does not recognize the email or the message, ask him to verify that the message came from the sender, or that the message is genuine, or that it does not contain malware or virus or any other type of unwanted data.
+
+If the recipient cannot verify the message's authenticity but does recognize it and is willing to accept its presence (in which case you can send the message to the contact in this format), ask the sender for permission to deliver the message to the recipient (using the subject line and a copy of its body), and include the contact's name and an optional note. Include the contact's email address, the message's subject, and the contact's email address. Then send the message to the contact's email address. If you can do this without compromising the recipient's privacy, then don't forget to add an email signature to this email, as follows:
+>Email Signature: <signature>
+>Mail: <recipient>
+>From: <sender>
+
+Then send the message to the contact's email address. If the recipient does not recognize the email, then ask him to verify that the message came from the sender, or that the message is genuine, or that it does not contain malware or virus or any other type of unwanted data.
+
+Note: The following information should be provided only if the recipient is a valid contact. If the recipient is a valid contact, don't forget to include a note at the end of the email explaining why the recipient is a valid contact. Otherwise, leave the note to go to the sender, since the sender may not know.
+If the recipient is a valid contact, the following information should be provided:
+- your contact's email address (either in a note, or in the body of the email itself)
+- the subject line

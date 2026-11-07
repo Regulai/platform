@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -41,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'front.middleware.ExceptionAuditMiddleware',
+    'front.middleware.ContentSecurityPolicyMiddleware',
 ]
 
 ROOT_URLCONF = 'regulai.urls'
@@ -68,10 +71,11 @@ WSGI_APPLICATION = 'regulai.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DATABASE_PATH = os.environ.get('DATABASE_PATH', BASE_DIR / 'db.sqlite3')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATABASE_PATH,
     }
 }
 
@@ -128,6 +132,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# WhiteNoise configuration for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 # Media files (Uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -137,9 +144,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 
-# File upload permissions
-FILE_UPLOAD_PERMISSIONS = 0o644  # rw-r--r--
-FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # rwxr-xr-x
+# File upload permissions (restrictive for security)
+FILE_UPLOAD_PERMISSIONS = 0o600  # rw------- (owner only)
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o700  # rwx------ (owner only)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -147,7 +154,6 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # rwxr-xr-x
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # OpenAI API Configuration
-import os
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
 # Authentication
@@ -156,7 +162,25 @@ LOGIN_REDIRECT_URL = 'front:dashboard'
 LOGOUT_REDIRECT_URL = 'front:login'
 
 # Registration
-ALLOW_REGISTRATION = True  # Set to False to disable public registration
+ALLOW_REGISTRATION = False  # Enable explicitly to allow public registration.
+
+# RegulAI Agent Configuration
+REGULAY_AGENT_ENABLED = True  # Existing account grants remain mandatory.
+# Enabled after P1 acceptance; account grants and runtime requirements still apply.
+REGULAY_SKILLS_CATALOG = True
+REGULAY_SKILLS_RUNTIME = True
+REGULAY_AGENT_TEXT_STREAM = True
+REGULAY_ARTIFACT_PREVIEW = True
+# Capabilities must come from a verified isolated runtime, never from a package.
+REGULAY_SKILL_RUNTIME_CAPABILITIES = {}
+REGULAY_AGENT_WEB_ENABLED = False
+REGULAY_AGENT_PACKAGES_ENABLED = False
+REGULAY_AGENT_BROWSER_ENABLED = False
+REGULAY_AGENT_MCP_ENABLED = False  # Managed Drive grant required; assistant connections are unrelated.
+REGULAY_AGENT_MCP_WRITES_ENABLED = False  # Requires validated pilot and separate write grant.
+# Chat frontend: 'react' (static/chat-app build) or 'legacy' (server templates and
+# IIFE scripts). One frontend per page; 'legacy' is the local rollback (task 79).
+REGULAI_CHAT_FRONTEND = os.environ.get('REGULAI_CHAT_FRONTEND', 'react')
 
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
@@ -193,9 +217,6 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Registration
-ALLOW_REGISTRATION = True  # Set to False to disable public registration
-
 # SECURITY FLAGS
 #SECURE_SSL_REDIRECT = True
 #SESSION_COOKIE_SECURE = True
@@ -207,7 +228,30 @@ ALLOW_REGISTRATION = True  # Set to False to disable public registration
 #SECURE_BROWSER_XSS_FILTER = True
 #X_FRAME_OPTIONS = 'DENY'
 
+# The Excel chat branch is development-only and requires explicit synthetic
+# account/company/profile IDs. Existing accounts are never enrolled by migration.
+REGULAY_AGENT_DEVELOPMENT = False
+REGULAY_AGENT_DEV_ACCOUNTS = {}
+REGULAY_AGENT_WORKER_TOKEN = ''
+
 try:
     from .local_settings import *
 except ImportError:
     pass
+
+# Content must never be interpolated into logs, including Django HTTP errors.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {'safe_json': {'()': 'front.safe_logging.SafeJSONFormatter'}},
+    'handlers': {'safe_console': {
+        'class': 'logging.StreamHandler', 'formatter': 'safe_json',
+    }},
+    'root': {'handlers': ['safe_console'], 'level': 'INFO'},
+    'loggers': {
+        'django': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+        'django.server': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+        'gunicorn.error': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+        'gunicorn.access': {'handlers': ['safe_console'], 'level': 'INFO', 'propagate': False},
+    },
+}

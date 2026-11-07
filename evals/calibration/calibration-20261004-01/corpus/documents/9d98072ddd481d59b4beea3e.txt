@@ -1,0 +1,9 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: test.   Body: To validate email functionality, please send the following message:  
+
+**Subject:** Test Message  
+**Body:** This is a test email.  
+**Recipient:** recipient@example.invalid  
+
+Confirm once the email has been sent.  

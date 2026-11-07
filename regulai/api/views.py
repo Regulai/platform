@@ -1,25 +1,23 @@
-from rest_framework import viewsets, status
+from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from django.db.models import Q, Count
+from django.db.models import Q
 from rest_framework.authtoken.models import Token
-from django.shortcuts import get_object_or_404
-import hashlib
-import base64
-import io
 
 from front.models import (
     Company, Role, Department, Profile, RulesGroup, Rule,
     Conversation, Message, Prompt, Response as ResponseModel, AuditLog, Alert,
     Engine, EngineModel, CompanyEngine
 )
-from front.connectors import get_connector, ChatMessage
-from front.views import validate_prompt, log_action, get_user_company
-from front.rate_limit import rate_limit, login_rate_limit, chat_rate_limit
+from front.views import log_action
+from front.access import actor_company, authorized_conversations, company_audit_scope
+from front.rate_limit import login_rate_limit, chat_rate_limit
+from rest_framework.permissions import SAFE_METHODS
+from .permissions import IsCompanyAdmin, IsSecurityStaff
 from .serializers import (
     UserSerializer, CompanySerializer, RoleSerializer, DepartmentSerializer,
     ProfileSerializer, RulesGroupSerializer, RuleSerializer,
@@ -29,16 +27,26 @@ from .serializers import (
     ChatMessageCreateSerializer, ChatResponseSerializer
 )
 
-# Import file processors
-try:
-    import PyPDF2
-    import docx
-    import openpyxl
-    import pytesseract
-    from PIL import Image
-    PYTESSERACT_AVAILABLE = True
-except ImportError:
-    PYTESSERACT_AVAILABLE = False
+def visible_groups(user):
+    company = actor_company(user)
+    return RulesGroup.objects.filter(
+        (Q(company=company) & (Q(user__isnull=True) | Q(user=user)))
+        | Q(company__isnull=True, user__isnull=True)
+        | Q(company__isnull=True, user=user)).order_by('pk')
+
+
+class CompanyConfigViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        classes = self.permission_classes if self.request.method in SAFE_METHODS else [IsAuthenticated, IsCompanyAdmin]
+        return [permission() for permission in classes]
+
+
+class CompanyRulesViewSet(CompanyConfigViewSet):
+    def get_permissions(self):
+        classes = [IsAuthenticated] if self.request.method in SAFE_METHODS else [IsAuthenticated, IsSecurityStaff]
+        return [permission() for permission in classes]
 
 
 # ==================== AUTHENTICATION ====================
@@ -120,15 +128,18 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class CompanyViewSet(viewsets.ModelViewSet):
+class CompanyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """ViewSet for Company model."""
-    queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     pagination_class = StandardResultsSetPagination
 
+    def get_queryset(self):
+        return Company.objects.filter(pk=actor_company(self.request.user).pk).order_by('pk')
 
-class RoleViewSet(viewsets.ModelViewSet):
+
+class RoleViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Role model."""
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
@@ -136,7 +147,7 @@ class RoleViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
 
-class DepartmentViewSet(viewsets.ModelViewSet):
+class DepartmentViewSet(CompanyConfigViewSet):
     """ViewSet for Department model."""
     serializer_class = DepartmentSerializer
     permission_classes = [IsAuthenticated]
@@ -144,19 +155,30 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter departments by user's company."""
-        user_company = get_user_company(self.request.user)
+        user_company = actor_company(self.request.user)
         return Department.objects.filter(company=user_company)
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(CompanyConfigViewSet):
     """ViewSet for Profile model."""
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
+    http_method_names = ['get', 'put', 'patch', 'delete', 'head', 'options']
+
+    def perform_update(self, serializer):
+        from front.access import protect_operator
+        protect_operator(self.request.user, serializer.instance.user_id)
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        from front.access import protect_operator
+        protect_operator(self.request.user, instance.user_id)
+        instance.delete()
 
     def get_queryset(self):
         """Filter profiles by user's company."""
-        user_company = get_user_company(self.request.user)
+        user_company = actor_company(self.request.user)
         return Profile.objects.filter(company=user_company).select_related('user', 'company', 'role', 'department')
 
 
@@ -168,7 +190,7 @@ class EngineViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = StandardResultsSetPagination
 
 
-class CompanyEngineViewSet(viewsets.ModelViewSet):
+class CompanyEngineViewSet(CompanyConfigViewSet):
     """ViewSet for CompanyEngine model."""
     serializer_class = CompanyEngineSerializer
     permission_classes = [IsAuthenticated]
@@ -176,11 +198,11 @@ class CompanyEngineViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter engines by user's company."""
-        user_company = get_user_company(self.request.user)
-        return CompanyEngine.objects.filter(
-            company=user_company,
-            active=True
-        ).select_related('engine', 'company').prefetch_related('engine__models')
+        user_company = actor_company(self.request.user)
+        queryset = CompanyEngine.objects.filter(company=user_company)
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(active=True)
+        return queryset.select_related('engine', 'company').prefetch_related('engine__models')
 
     @action(detail=True, methods=['get'])
     def models(self, request, pk=None):
@@ -191,7 +213,7 @@ class CompanyEngineViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class RulesGroupViewSet(viewsets.ModelViewSet):
+class RulesGroupViewSet(CompanyRulesViewSet):
     """ViewSet for RulesGroup model."""
     serializer_class = RulesGroupSerializer
     permission_classes = [IsAuthenticated]
@@ -199,13 +221,13 @@ class RulesGroupViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter rules groups by user's company."""
-        user_company = get_user_company(self.request.user)
-        return RulesGroup.objects.filter(
-            Q(company=user_company) | Q(company__isnull=True)
-        ).prefetch_related('rules')
+        queryset = visible_groups(self.request.user)
+        if self.request.method not in SAFE_METHODS:
+            queryset = queryset.filter(company=actor_company(self.request.user))
+        return queryset.prefetch_related('rules')
 
 
-class RuleViewSet(viewsets.ModelViewSet):
+class RuleViewSet(CompanyRulesViewSet):
     """ViewSet for Rule model."""
     serializer_class = RuleSerializer
     permission_classes = [IsAuthenticated]
@@ -213,10 +235,10 @@ class RuleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter rules by user's company."""
-        user_company = get_user_company(self.request.user)
-        return Rule.objects.filter(
-            Q(rules_group__company=user_company) | Q(rules_group__company__isnull=True)
-        ).select_related('rules_group')
+        groups = visible_groups(self.request.user)
+        if self.request.method not in SAFE_METHODS:
+            groups = groups.filter(company=actor_company(self.request.user))
+        return Rule.objects.filter(rules_group__in=groups).select_related('rules_group')
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -226,7 +248,8 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter conversations by current user."""
-        return Conversation.objects.filter(user=self.request.user).prefetch_related('messages')
+        actor_company(self.request.user)
+        return authorized_conversations(self.request.user).prefetch_related('messages')
 
     def get_serializer_class(self):
         """Use lightweight serializer for list view."""
@@ -236,6 +259,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Set user when creating conversation."""
+        actor_company(self.request.user)
         serializer.save(user=self.request.user)
 
     @action(detail=True, methods=['get'])
@@ -255,18 +279,19 @@ class MessageViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """Filter messages by user's conversations."""
-        return Message.objects.filter(conversation__user=self.request.user).select_related('conversation')
+        actor_company(self.request.user)
+        return Message.objects.filter(conversation__in=authorized_conversations(self.request.user)).select_related('conversation')
 
 
-class AlertViewSet(viewsets.ModelViewSet):
+class AlertViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Alert model."""
     serializer_class = AlertSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSecurityStaff]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         """Filter alerts by user's company."""
-        user_company = get_user_company(self.request.user)
+        user_company = actor_company(self.request.user)
         return Alert.objects.filter(company=user_company).select_related('user', 'company', 'rule', 'prompt')
 
     @action(detail=True, methods=['post'])
@@ -287,8 +312,7 @@ class AlertViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def unresolved(self, request):
         """Get all unresolved alerts."""
-        user_company = get_user_company(request.user)
-        alerts = Alert.objects.filter(company=user_company, resolved=False).select_related('user', 'company', 'rule', 'prompt')
+        alerts = self.get_queryset().filter(resolved=False)
 
         page = self.paginate_queryset(alerts)
         if page is not None:
@@ -307,8 +331,8 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """Filter audit logs by user's company."""
-        user_company = get_user_company(self.request.user)
-        return AuditLog.objects.filter(user__profile__company=user_company).select_related('user')
+        user_company = actor_company(self.request.user)
+        return AuditLog.objects.filter(company_audit_scope(user_company)).select_related('user').order_by('-timestamp', '-pk')
 
 
 # ==================== CHAT API ====================
@@ -316,272 +340,31 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
 @api_view(['POST'])
 @chat_rate_limit
 def chat_send_message(request):
-    """
-    API endpoint for sending chat messages (rate limited to 30 per minute).
-    Handles message validation, AI response generation, and rule checking.
-    """
-    user = request.user
-
-    # Ensure Profile and Company exist
-    if not hasattr(user, 'profile'):
-        default_company, _ = Company.objects.get_or_create(name="Default Company")
-        Profile.objects.create(user=user, company=default_company)
-        user.refresh_from_db()
-
-    profile = user.profile
-    company = profile.company
-
-    # Get request data
-    conversation_id = request.data.get('conversation_id')
-    prompt_text = request.data.get('content', '').strip()
-    engine_id = request.data.get('engine_id')
-    model_id = request.data.get('model_id')
-
-    # Get or create conversation
-    conversation = None
-    if conversation_id:
-        conversation = get_object_or_404(Conversation, id=conversation_id, user=user)
-
-    # Determine which engine to use
-    available_engines = CompanyEngine.objects.filter(
-        company=profile.company,
-        active=True
-    ).select_related('engine').prefetch_related('engine__models')
-
-    current_engine = None
-    if engine_id:
-        current_engine = available_engines.filter(id=engine_id).first()
-    elif profile.default_engine:
-        current_engine = available_engines.filter(id=profile.default_engine.id).first()
-    else:
-        current_engine = available_engines.first()
-
-    if not current_engine:
-        return Response({
-            'error': 'No AI engine configured. Please contact your administrator.'
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    # Determine which model to use
-    current_model = None
-    if current_engine:
-        available_models = current_engine.engine.models.filter(active=True)
-
-        if model_id:
-            current_model = available_models.filter(id=model_id).first()
-        elif profile.default_model and profile.default_model.engine_id == current_engine.engine_id:
-            current_model = available_models.filter(id=profile.default_model.id).first()
-        else:
-            current_model = available_models.first()
-
-    # Get API settings
-    api_key = current_engine.api_key
-    base_url = current_engine.engine.base_url if current_engine.engine.base_url else None
-    model_name = current_model.model_id if current_model else current_engine.engine.default_model
-    connector_type = current_engine.engine.connector_type or "openai"
-
-    if not api_key or api_key.strip() == '':
-        return Response({
-            'error': 'No API key configured for the selected AI engine.',
-            'engine_name': current_engine.name
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    if not prompt_text:
-        return Response({
-            'error': 'Please enter a message.'
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    # Create new conversation if needed
-    if not conversation:
-        title = prompt_text[:50]
-        conversation = Conversation.objects.create(
-            user=user,
-            title=title + ('...' if len(title) == 50 else '')
-        )
-
-    # Create user message
-    user_message = Message.objects.create(
-        conversation=conversation,
-        role='user',
-        content=prompt_text
-    )
-
-    # Create prompt for audit/tracking
-    prompt_obj = Prompt.objects.create(
-        user=user,
-        conversation=conversation,
-        content=prompt_text,
-        model_used=model_name
-    )
-
-    # Validate prompt against rules
-    blocked = False
-    blocked_rules_data = []
-    alerts_data = []
-
-    try:
-        prompt_matches, prompt_matched_rules = validate_prompt(user, prompt_text, prompt_obj, None, 'prompts')
-
-        # Simple blocking logic: all matched rules block the message
-        if prompt_matched_rules:
-            # Create alerts for all matched rules
-            for rule_data in prompt_matched_rules:
-                try:
-                    from front.models import Rule
-                    rule = Rule.objects.get(id=rule_data['id'])
-
-                    alert_description = (
-                        f"Prompt blocked by rule '{rule.name}'. "
-                        f"The message was not sent to the LLM."
-                    )
-
-                    Alert.objects.create(
-                        user=user,
-                        company=company,
-                        prompt=prompt_obj,
-                        rule=rule,
-                        severity=rule_data.get('severity', 'medium'),
-                        description=alert_description
-                    )
-
-                    log_action(user, 'blocking_alert_created', {
-                        'rule_name': rule.name,
-                        'severity': rule_data.get('severity', 'medium'),
-                        'prompt_id': prompt_obj.id,
-                        'conversation_id': conversation.id
-                    }, request)
-
-                except Rule.DoesNotExist:
-                    import logging
-                    logging.warning(f"Rule {rule_data.get('name', 'unknown')} not found for alert creation")
-
-            # Mark as blocked
-            prompt_obj.filtered = True
-            prompt_obj.save()
-            user_message.blocked = True
-            user_message.save()
-            blocked = True
-            blocked_rules_data = [{'name': r['name'], 'severity': r['severity'], 'description': r['description']} for r in prompt_matched_rules]
-
-    except Exception as validation_error:
-        import logging
-        logging.error(f"Error validating prompt: {validation_error}")
-
-    # Log the action
-    log_action(user, 'api_prompt_sent', {
-        'prompt_id': prompt_obj.id,
-        'conversation_id': conversation.id,
-        'content_length': len(prompt_text),
-        'blocked': blocked,
-        'engine': current_engine.display_name,
-        'model': model_name
-    }, request)
-
-    response_data = {
-        'success': True,
-        'conversation_id': conversation.id,
-        'blocked': blocked,
-        'blocked_rules': blocked_rules_data,
-        'user_message': MessageSerializer(user_message).data
-    }
-
-    # Only send to LLM if not blocked
-    if not blocked:
-        try:
-            # Create connector
-            connector = get_connector(connector_type, api_key, base_url)
-
-            # Build messages history for context
-            chat_messages = []
-
-            # Inject company and department system prompts
-            if profile.company and profile.company.system_prompt:
-                chat_messages.append(ChatMessage(role='system', content=profile.company.system_prompt))
-            if profile.department and profile.department.system_prompt:
-                chat_messages.append(ChatMessage(role='system', content=profile.department.system_prompt))
-
-            for msg in conversation.messages.exclude(id=user_message.id):
-                if msg.role in ['user', 'assistant']:
-                    chat_messages.append(ChatMessage(
-                        role=msg.role,
-                        content=msg.content
-                    ))
-
-            # Add current message
-            chat_messages.append(ChatMessage(
-                role="user",
-                content=prompt_text
-            ))
-
-            # Use connector to send message
-            ai_response = connector.chat(
-                messages=chat_messages,
-                model=model_name,
-                max_tokens=1000,
-                temperature=0.6,
-            )
-
-            # Save assistant response as message
-            assistant_message = Message.objects.create(
-                conversation=conversation,
-                role='assistant',
-                content=ai_response.content,
-                tokens_used=ai_response.tokens_used
-            )
-
-            # Detect and save structured file content from the response
-            from front.views import extract_file_from_ai_response
-            from django.core.files.base import ContentFile
-            file_info = extract_file_from_ai_response(ai_response.content)
-            file_url = None
-            if file_info:
-                file_bytes, gen_file_name, mime_type = file_info
-                assistant_message.file_name = gen_file_name
-                assistant_message.file_size = len(file_bytes)
-                assistant_message.response_file.save(gen_file_name, ContentFile(file_bytes), save=True)
-                file_url = request.build_absolute_uri(
-                    f'/chat/download/{assistant_message.id}/'
-                )
-
-            # Save Response object for tracking
-            ResponseModel.objects.create(
-                prompt=prompt_obj,
-                content=ai_response.content,
-                tokens_used=ai_response.tokens_used
-            )
-
-            assistant_data = MessageSerializer(assistant_message).data
-            assistant_data['file_url'] = file_url
-            response_data['assistant_message'] = assistant_data
-
-            log_action(user, 'api_response_received', {
-                'prompt_id': prompt_obj.id,
-                'conversation_id': conversation.id,
-                'tokens_used': ai_response.tokens_used
-            }, request)
-
-        except Exception as e:
-            import logging
-            logging.error(f"Error generating AI response: {e}")
-            response_data['error'] = str(e)
-            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    return Response(response_data)
+    from front.chat_service import send_chat_message
+    command = {key: request.data.get(key) for key in (
+        'content', 'conversation_id', 'engine_id', 'model_id', 'request_id', 'consent_token', 'action',
+        'mode', 'artifact_id', 'base_revision', 'document_reference', 'export_name', 'inference_profile', 'skills')}
+    command['content'] = command['content'] or ''
+    command['file'] = request.FILES.get('file')
+    result = send_chat_message(request.user, command)
+    return Response(result.data, status=result.http_status,
+        headers={'Retry-After': '5'} if result.http_status == 429 else None)
 
 
 @api_view(['GET'])
 def dashboard_stats(request):
     """Get dashboard statistics for the current user's company."""
-    user_company = get_user_company(request.user)
+    user_company = actor_company(request.user)
 
     stats = {
-        'total_prompts': Prompt.objects.filter(user__profile__company=user_company).count(),
-        'blocked_prompts': Prompt.objects.filter(user__profile__company=user_company, filtered=True).count(),
+        'total_prompts': Prompt.objects.filter(company=user_company).count(),
+        'blocked_prompts': Prompt.objects.filter(company=user_company, filtered=True).count(),
         'active_rules': Rule.objects.filter(
-            Q(rules_group__company=user_company) | Q(rules_group__company__isnull=True),
+            rules_group__in=visible_groups(request.user),
             active=True
         ).count(),
         'pending_alerts': Alert.objects.filter(company=user_company, resolved=False).count(),
-        'total_conversations': Conversation.objects.filter(user__profile__company=user_company).count(),
+        'total_conversations': authorized_conversations(request.user).count(),
     }
 
     # Add admin-specific stats

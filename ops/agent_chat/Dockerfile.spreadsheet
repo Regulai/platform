@@ -1,0 +1,25 @@
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
+# General compute image. Conversation packages enter through the broker only.
+RUN apt-get update && apt-get install -y --no-install-recommends bubblewrap=0.12.0-1~deb13u1 libreoffice-calc=4:25.2.3-2+deb13u8 libreoffice-writer=4:25.2.3-2+deb13u8 libreoffice-impress=4:25.2.3-2+deb13u8 poppler-utils=25.03.0-5+deb13u4 fonts-liberation=1:2.1.5-3 && rm -rf /var/lib/apt/lists/*
+ADD --checksum=sha256:1a5da5cb7e9d995db7a6560beb7466760c79617648f72e65f4ce55897c407f67 --chmod=0555 https://github.com/iOfficeAI/OfficeCLI/releases/download/v1.0.155/officecli-linux-x64 /usr/local/bin/officecli
+ENV OFFICECLI_NO_AUTO_RESIDENT=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+COPY ops/agent_chat/requirements.txt /tmp/spreadsheet-requirements.txt
+RUN python -m pip install --no-cache-dir --require-hashes -r /tmp/spreadsheet-requirements.txt && python -m pip check
+ADD --checksum=sha256:fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6 https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-x64.tar.xz /tmp/node.tar.xz
+RUN python -c "import tarfile,shutil; t=tarfile.open('/tmp/node.tar.xz'); t.extractall('/tmp/node',filter='data'); shutil.copytree('/tmp/node/node-v24.21.0-linux-x64','/usr/local',dirs_exist_ok=True,symlinks=True)" && rm -rf /tmp/node /tmp/node.tar.xz
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN python -m playwright install --with-deps chromium
+RUN useradd --uid 1000 --create-home user && mkdir -p /skills /workspace/input /workspace/work /workspace/output /conversation_history /large_tool_results && chown user:user /workspace/work /workspace/output /conversation_history /large_tool_results
+COPY --chmod=0444 regulai/front/agents/sandbox_runner.py regulai/front/agents/browser_runner.py regulai/front/agents/checkpoint_runner.py regulai/front/agents/artifact_render.py /skills/
+COPY --chmod=0444 regulai/front/agents/workspace_mutation.py /skills/workspace_mutation.py
+COPY --chmod=0555 ops/agent_chat/browser_chromium.sh /skills/browser_chromium.sh
+RUN python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); open('/skills/chromium-path','w').write(p.chromium.executable_path); p.stop()" && dpkg-query -W > /skills/runtime-versions.txt && python -m pip freeze >> /skills/runtime-versions.txt && node --version >> /skills/runtime-versions.txt
+COPY --chmod=0444 regulai/front/agents/spreadsheet_program.py /skills/spreadsheet_program.py
+COPY --chmod=0444 regulai/front/agents/document_program.py /skills/document_program.py
+COPY --chmod=0444 regulai/front/agents/narrative_program.py /skills/narrative_program.py
+COPY --chmod=0444 regulai/front/agents/runtime/templates/corporate.docx /skills/corporate.docx
+COPY --chmod=0444 regulai/front/agents/presentation_program.py /skills/presentation_program.py
+COPY --chmod=0444 regulai/front/agents/runtime/templates/corporate.pptx /skills/corporate.pptx
+COPY --chmod=0444 regulai/front/agents/runtime/skills/pptx/LICENSE.txt regulai/front/agents/runtime/skills/pptx/THIRD-PARTY-NOTICES.txt /usr/share/doc/officecli/
+RUN chmod 0555 /skills
+WORKDIR /workspace/work

@@ -1,0 +1,9 @@
+{
+  "kind": "structural_source_deduplication_not_product_performance",
+  "source_originals": 1972,
+  "cross_source_pairs_jaccard_gte_045": {},
+  "previous_oracles_unchanged": true,
+  "previous_inputs_unchanged": true,
+  "previous_development_remains_development": true,
+  "semantic_independence_adjudicated": false
+}

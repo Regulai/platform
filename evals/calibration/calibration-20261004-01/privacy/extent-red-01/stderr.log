@@ -1,0 +1,43 @@
+[rtk] /!\ No hook installed — run `rtk init -g` for automatic token savings
+test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) ... 
+  test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='，') ... FAIL
+  test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='；') ... FAIL
+  test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='｝') ... FAIL
+  test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='＂') ... FAIL
+
+======================================================================
+FAIL: test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='，')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 57, in test_original_secret_extent_is_not_shortened_by_unicode_normalization
+    self.assertNotIn('efgh', masked)
+AssertionError: 'efgh' unexpectedly found in 'password=[[REGULAI_SECRET]]，efgh. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='；')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 57, in test_original_secret_extent_is_not_shortened_by_unicode_normalization
+    self.assertNotIn('efgh', masked)
+AssertionError: 'efgh' unexpectedly found in 'password=[[REGULAI_SECRET]]；efgh. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='｝')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 57, in test_original_secret_extent_is_not_shortened_by_unicode_normalization
+    self.assertNotIn('efgh', masked)
+AssertionError: 'efgh' unexpectedly found in 'password=[[REGULAI_SECRET]]｝efgh. Total: 46 EUR.'
+
+======================================================================
+FAIL: test_original_secret_extent_is_not_shortened_by_unicode_normalization (front.test_calibration_privacy.CalibrationNormalizationTests.test_original_secret_extent_is_not_shortened_by_unicode_normalization) (separator='＂')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\javi\Documents\Codex\regulai-platform\regulai\front\test_calibration_privacy.py", line 57, in test_original_secret_extent_is_not_shortened_by_unicode_normalization
+    self.assertNotIn('efgh', masked)
+AssertionError: 'efgh' unexpectedly found in 'password=[[REGULAI_SECRET]]＂efgh. Total: 46 EUR.'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.760s
+
+FAILED (failures=4)

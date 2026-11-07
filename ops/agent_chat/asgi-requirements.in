@@ -1,0 +1,2 @@
+# Development ASGI process only; task 48 SDK dependencies stay unchanged.
+uvicorn==0.35.0

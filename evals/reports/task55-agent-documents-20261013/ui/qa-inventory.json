@@ -1,0 +1,32 @@
+{
+  "simulation": true,
+  "database": false,
+  "provider_calls": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "checks": [
+    "empty agent mode",
+    "real user compose/send to synthetic run",
+    "active progress and cancellation",
+    "review all pages and confirm visual review",
+    "Word/PDF downloads exact fixture bytes",
+    "14 inference calls collapsed; requested/effective/fallback/cost visible on expansion",
+    "Jev real-state categories and no invented reasons",
+    "five separate artifact checks",
+    "completed report and presentation cards",
+    "error with unknown total cost",
+    "sidebar toggle full cycle including mobile overlay",
+    "keyboard focus and details",
+    "long title overflow",
+    "Drive empty results",
+    "broken page keeps approval disabled"
+  ]
+}

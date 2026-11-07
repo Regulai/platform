@@ -1,0 +1,4 @@
+# Small extension to the unchanged task48 base image. All other pins come from it.
+langgraph-checkpoint-sqlite==3.0.3
+aiosqlite==0.22.1
+sqlite-vec==0.1.9

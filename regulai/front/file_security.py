@@ -120,6 +120,16 @@ def validate_file_extension(filename: str, allowed_types: str = 'all') -> None:
         )
 
 
+def has_file_signature(file_content: bytes, mime_type: str) -> bool:
+    if mime_type == 'image/bmp':
+        # Two printable letters alone are not a bitmap header.
+        return (len(file_content) >= 26 and file_content.startswith(b'BM')
+                and int.from_bytes(file_content[2:6], 'little') == len(file_content)
+                and 26 <= int.from_bytes(file_content[10:14], 'little') <= len(file_content)
+                and int.from_bytes(file_content[14:18], 'little') in (12, 40, 52, 56, 108, 124))
+    return any(file_content.startswith(signature) for signature in FILE_SIGNATURES[mime_type])
+
+
 def detect_mime_type(file_content: bytes, filename: str) -> str:
     """
     Detect MIME type by checking file signature (magic numbers).
@@ -134,9 +144,8 @@ def detect_mime_type(file_content: bytes, filename: str) -> str:
     """
     # Check magic numbers first
     for mime_type, signatures in FILE_SIGNATURES.items():
-        for signature in signatures:
-            if file_content.startswith(signature):
-                return mime_type
+        if has_file_signature(file_content, mime_type):
+            return mime_type
 
     # Special handling for WEBP (needs to check both RIFF and WEBP)
     if file_content.startswith(b'RIFF') and b'WEBP' in file_content[:20]:

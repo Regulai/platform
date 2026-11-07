@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "candidate_id": "privacy-v5-legacy-policy",
+  "candidate_commit": "b3fea6a63761c06ef66695fee26377d23786c347",
+  "baseline_commit": "9d7f9424a70143614c9d673e64ebed9723ff3439",
+  "detector_version": "regulai-local-v5",
+  "detector_sha256": "5d6eaa792de291c96b0d2c94c8e1697136f42594e4ef8d9344106255f2e965b6",
+  "policy": {
+    "version": 1,
+    "revision": 1,
+    "classification": "required",
+    "classification_policy": {"signal_threshold": 0.2, "manipulation_threshold": null, "unknown_level": "confidential", "on_ambiguity": "warn"},
+    "jev_threshold": 0.8,
+    "verification_mode": "enforce",
+    "verification_threshold": 0.8,
+    "masking": "mandatory",
+    "yara": "mandatory before external egress"
+  },
+  "generations_max": {"economy": 1, "strong": 1, "router": 2},
+  "new_manipulation_override": "Implemented as an optional compatible field; R4 .40 is experimental and NOT selected or applied to user policy.",
+  "selection_status": "Provisional privacy correction; semantic configuration retains baseline after remote campaign stopped on uncertain provider response.",
+  "rollback": "Restore only regulai/front/local_masking.py from the frozen baseline commit and rerun relevant controls. To revert an experimental policy override, omit manipulation_threshold; no stored user policy was changed. Keep all campaign evidence."
+}

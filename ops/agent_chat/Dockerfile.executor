@@ -1,0 +1,21 @@
+FROM python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f
+COPY ops/agent_probe/requirements.txt /tmp/base-requirements.txt
+RUN pip install --no-cache-dir --require-hashes -r /tmp/base-requirements.txt && pip check \
+    && useradd --uid 1000 --create-home user
+COPY ops/agent_chat/executor-requirements.txt /tmp/executor-requirements.txt
+RUN pip install --no-deps --require-hashes -r /tmp/executor-requirements.txt && pip check
+# Only SDK-side modules. No application models, database driver or alias registry.
+COPY regulai/front/agents/adapter.py regulai/front/agents/protocol.py regulai/front/agents/runtime_contract.py regulai/front/agents/worker.py regulai/front/agents/sandbox_pool.py /app/regulai/front/agents/
+COPY regulai/front/agents/sandbox_runner.py regulai/front/agents/checkpoint_runner.py /app/regulai/front/agents/
+COPY regulai/front/agents/workspace_mutation.py /app/regulai/front/agents/workspace_mutation.py
+COPY regulai/front/agents/professional_worker.py regulai/front/agents/workspace_backend.py regulai/front/agents/browser_worker.py /app/regulai/front/agents/
+COPY regulai/front/agents/skill_backend.py /app/regulai/front/agents/skill_backend.py
+COPY regulai/front/agents/runtime /app/regulai/front/agents/runtime
+COPY regulai/front/agents/spreadsheet_program.py /app/regulai/front/agents/spreadsheet_program.py
+COPY ops/agent_chat/requirements.txt ops/agent_chat/build_template.py /app/ops/agent_chat/
+COPY ops/agent_chat/network_probe.py /app/ops/agent_chat/
+ENV PYTHONPATH=/app/regulai
+ENV LANGSMITH_TRACING=false LANGCHAIN_TRACING_V2=false PYTHONDONTWRITEBYTECODE=1
+USER 1000:1000
+WORKDIR /app
+CMD ["python", "-m", "front.agents.worker", "--config", "/run/task50/config.json"]

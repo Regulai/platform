@@ -249,7 +249,7 @@
                   </div>
                 </td>
                 <td class="border-bottom-0">
-                  {% if prompt.user.profile.department %}
+                  {% if prompt.user.profile.company_id == prompt.company_id and prompt.user.profile.department.company_id == prompt.company_id %}
                   <span class="badge bg-info-subtle text-info rounded-3">{{ prompt.user.profile.department.name }}</span>
                   {% else %}
                   <span class="text-muted">-</span>

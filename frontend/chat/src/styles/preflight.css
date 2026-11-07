@@ -1,0 +1,70 @@
+/* Tailwind CSS 4.3.3 preflight (MIT), scoped to the chat island.
+ * Every selector applies only inside `.regulai-chat`, so the reset can never
+ * reach a Django page that does not mount the island. :where() keeps the
+ * original zero/element specificity, so utilities still win. */
+
+:where(.regulai-chat, .regulai-chat *),
+:where(.regulai-chat, .regulai-chat *)::after,
+:where(.regulai-chat, .regulai-chat *)::before,
+:where(.regulai-chat, .regulai-chat *)::backdrop,
+:where(.regulai-chat, .regulai-chat *)::file-selector-button {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+
+:where(.regulai-chat) {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  font-family: var(--rg-font-sans);
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(.regulai-chat) hr { height: 0; color: inherit; border-top-width: 1px; }
+:where(.regulai-chat) abbr:where([title]) { text-decoration: underline dotted; }
+:where(.regulai-chat) :where(h1, h2, h3, h4, h5, h6) { font-size: inherit; font-weight: inherit; }
+:where(.regulai-chat) a { color: inherit; text-decoration: inherit; }
+:where(.regulai-chat) :where(b, strong) { font-weight: bolder; }
+:where(.regulai-chat) :where(code, kbd, samp, pre) {
+  font-family: var(--rg-font-mono);
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  font-size: 1em;
+}
+:where(.regulai-chat) small { font-size: 80%; }
+:where(.regulai-chat) :where(sub, sup) { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+:where(.regulai-chat) sub { bottom: -0.25em; }
+:where(.regulai-chat) sup { top: -0.5em; }
+:where(.regulai-chat) table { text-indent: 0; border-color: inherit; border-collapse: collapse; }
+:where(.regulai-chat) :-moz-focusring:where(:not(iframe)) { outline: auto; }
+:where(.regulai-chat) progress { vertical-align: baseline; }
+:where(.regulai-chat) summary { display: list-item; }
+:where(.regulai-chat) :where(ol, ul, menu) { list-style: none; }
+:where(.regulai-chat) :where(img, svg, video, canvas, audio, iframe, embed, object) { display: block; vertical-align: middle; }
+:where(.regulai-chat) :where(img, video) { max-width: 100%; height: auto; }
+:where(.regulai-chat) :where(button, input, select, optgroup, textarea),
+:where(.regulai-chat) ::file-selector-button {
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  border-radius: 0;
+  background-color: transparent;
+  opacity: 1;
+}
+:where(.regulai-chat) :where(select:is([multiple], [size])) optgroup { font-weight: bolder; }
+:where(.regulai-chat) :where(select:is([multiple], [size])) optgroup option { padding-inline-start: 20px; }
+:where(.regulai-chat) ::file-selector-button { margin-inline-end: 4px; }
+:where(.regulai-chat) ::placeholder { opacity: 1; color: var(--color-placeholder); }
+:where(.regulai-chat) textarea { resize: vertical; }
+:where(.regulai-chat) ::-webkit-search-decoration { -webkit-appearance: none; }
+:where(.regulai-chat) :where(button, input:where([type='button'], [type='reset'], [type='submit'])),
+:where(.regulai-chat) ::file-selector-button { appearance: button; }
+:where(.regulai-chat) ::-webkit-inner-spin-button,
+:where(.regulai-chat) ::-webkit-outer-spin-button { height: auto; }
+:where(.regulai-chat) [hidden]:where(:not([hidden='until-found'])) { display: none !important; }

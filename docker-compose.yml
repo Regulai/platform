@@ -1,0 +1,39 @@
+services:
+  regulai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: regulai-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - DATABASE_PATH=/app/regulai/data/db.sqlite3
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-admin}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@regulai.local}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-changeme}
+      # Production: Set these for HTTPS behind reverse proxy
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-}
+      - SECURE_PROXY_SSL_HEADER=${SECURE_PROXY_SSL_HEADER:-}
+      # Auto-generated if not provided (stored in volume for persistence)
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+      - SECRET_KEY=${SECRET_KEY:-}
+    volumes:
+      # Persist database directory
+      - regulai-data:/app/regulai/data
+      # Persist media files (uploads)
+      - regulai-media:/app/regulai/media
+      # Optional: mount local_settings for customization
+      # - ./regulai/regulai/local_settings.py:/app/regulai/regulai/local_settings.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  regulai-data:
+  regulai-media:

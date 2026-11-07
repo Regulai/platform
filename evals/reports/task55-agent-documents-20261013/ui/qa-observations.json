@@ -1,0 +1,125 @@
+{
+  "created_at": "2026-10-13T17:32:35.729Z",
+  "scope": "Actual Django chat template, production agent JS/CSS and base sidebar; loopback synthetic endpoints only.",
+  "simulation": {
+    "database": false,
+    "real_accounts": false,
+    "provider_calls": false,
+    "paid_api_calls": false,
+    "external_browser_requests": "blocked by context route; only 127.0.0.1 allowed",
+    "server": "ops/agent_chat/preview_document_ui.py",
+    "production_authentication_tested": false
+  },
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "checks": {
+    "empty_state": "passed; agent mode selected, viewport fits and composer visible",
+    "user_request_to_active": "passed; actual form fill/send against simulated response, primary progress and zero generic receipt duplication",
+    "cancel": "passed; simulated active run becomes cancelled",
+    "completed": "passed; title, DOCX/PDF, five pages, revision two and download links visible",
+    "verification_categories": "passed; integrity/instructions/layout/sources/security independent, sources not_performed visible",
+    "jevevidence": "passed; explicit consulted/not_consulted/failed states, absent textual reasons disclosed, local decision separated",
+    "inference_details": "passed; 14 calls collapsed by default, sequence preserved; requested/effective model, route, fallback, duration and cost provenance visible on expansion",
+    "costs": "passed; estimates labelled and unknown totals not zero",
+    "visual_review": "passed; five actual page images load before enabling review, confirmation sends explicit simulated approval; missing page disables approval and downloads remain absent",
+    "previews": "passed; desktop two columns, mobile one column; full-size page opens same-origin image",
+    "deck": "passed UI only; three actual slide images load and PPTX exact download",
+    "error": "passed; precise terminal error shown separately when different from event progress; role alert",
+    "drive_empty": "passed; local simulated empty result message and search reenabled",
+    "long_title": "passed; no horizontal overflow at 390px, title wraps and remains scrollable",
+    "navigation": "passed; both sidebars show/hide, desktop and mobile; global close uses Enter and restores focus to header toggle",
+    "keyboard": "passed for conversation/global toggles, native details expansion and close focus return",
+    "loading": "passed role=status aria-live=polite and cancellation visible",
+    "restored_receipt": "passed current request generic receipt omitted; separate Django regression retains historical receipt"
+  },
+  "layout": {
+    "desktop_page_height": 1000,
+    "desktop_viewport_height": 1000,
+    "mobile_page_height": 844,
+    "mobile_page_width": 390,
+    "mobile_viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mobile_download_buttons": {
+      "bottom": 639.05,
+      "chat_bottom": 656.2
+    },
+    "mobile_long_title_overflow": false
+  },
+  "downloads": [
+    {
+      "format": "DOCX",
+      "bytes": 42389,
+      "sha256": "689e9aff11462383fa954c77e9bdeac54d272d17a53dfa4a985f9c8feb14a668",
+      "matchesFixture": true
+    },
+    {
+      "format": "PDF",
+      "bytes": 68816,
+      "sha256": "7ea8b19e6cd53293083a2aacf3c55e31996002f88675f33c9de7810c0a98686f",
+      "matchesFixture": true
+    },
+    {
+      "format": "PPTX",
+      "bytes": 31568,
+      "sha256": "5e313be014a40e5de2656767f0aa48309f497acb2c4e6d9ecb09a69fd7a236d6",
+      "matchesFixture": true
+    }
+  ],
+  "browser_page_errors": [],
+  "automated": {
+    "command": "rtk proxy .venv\\Scripts\\python.exe regulai\\manage.py test front.test_agent_frontend front.test_frontend_chat front.test_chat_ui --settings=regulai.test_settings --verbosity=1",
+    "tests": 24,
+    "passed": 24,
+    "node_syntax": "passed",
+    "diff_check": "passed"
+  },
+  "visual_fixes": [
+    "Scoped global container top padding so composer fits desktop and mobile viewport.",
+    "Made mobile global sidebar close a keyboard button with accessible name and focus return.",
+    "Kept download actions visible when terminal snapshot arrives.",
+    "Added terminal result error alert and de-duplicated current restored receipt.",
+    "Labelled estimated aggregate costs."
+  ],
+  "final_evidence": [
+    "desktop-agent-empty-final.png",
+    "mobile-agent-empty-final.png",
+    "desktop-completed-final.png",
+    "mobile-completed-final.png",
+    "desktop-error-final.png",
+    "mobile-error-final.png",
+    "desktop-review-pages.png",
+    "desktop-review-pages-3-4.png",
+    "desktop-review-page-5.png",
+    "desktop-deck-preview.png",
+    "desktop-review-broken-page.png",
+    "mobile-review-preview.png",
+    "mobile-checks.png",
+    "mobile-checks-bottom.png",
+    "mobile-jev-details.png",
+    "mobile-long-title.png",
+    "desktop-drive-empty.png",
+    "desktop-inference-sequence.png"
+  ],
+  "limitations": [
+    "Snapshots, classifications, progress, reviews and monetary values are simulations.",
+    "No live worker/provider/authentication integration was performed in browser; separate backend tests cover those boundaries.",
+    "XLSX spreadsheet preview was not rendered during this browser QA; existing data workflow remains covered separately.",
+    "No automated WCAG/assistive-technology certification; specific keyboard, focus and ARIA behaviors were checked.",
+    "Artifact design and factual validation are separate from UI QA. Deck images shown here are sparse; this is source content, not UI clipping.",
+    "Files named initial and earlier intermediate screenshots retain before-fix evidence; final screenshots are listed above."
+  ],
+  "cleanup": {
+    "browser_closed": true,
+    "loopback_server_stopped": true
+  }
+}

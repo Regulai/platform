@@ -1,0 +1,11 @@
+Nota pública: el plazo del trámite es 17 días.
+
+Subject of the email: 季度合规检查.   Body: 团队好，
+
+请完成以下步骤：
+1. 验证财务控制
+2. 发送确认至 recipient@example.invalid
+3. 正文使用："confirmation"
+
+此致
+审计部
