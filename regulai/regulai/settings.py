@@ -88,9 +88,6 @@ if REDIS_URL:
         'default': {
             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
             'LOCATION': REDIS_URL,
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django.core.cache.backends.redis.RedisCache',
-            }
         }
     }
 else:
