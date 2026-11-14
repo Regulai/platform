@@ -59,12 +59,14 @@ def api_login(request):
     user = authenticate(username=username, password=password)
 
     if user is not None:
-        token, created = Token.objects.get_or_create(user=user)
+        # Rotate the token on every successful login.
+        Token.objects.filter(user=user).delete()
+        token = Token.objects.create(user=user)
 
         # Log login action
         log_action(user, 'api_login', {
             'username': user.username,
-            'token_created': created
+            'token_regenerated': True
         }, request)
 
         # Get user profile data

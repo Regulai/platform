@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,15 +78,31 @@ DATABASES = {
 
 # Cache Configuration for Rate Limiting
 # https://docs.djangoproject.com/en/5.2/topics/cache/
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'regulai-cache',
-        'OPTIONS': {
-            'MAX_ENTRIES': 10000
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'regulai-cache',
+            'OPTIONS': {
+                'MAX_ENTRIES': 10000
+            }
+        }
+    }
+
+TRUSTED_PROXIES = [
+    proxy.strip()
+    for proxy in os.environ.get('TRUSTED_PROXIES', '').split(',')
+    if proxy.strip()
+]
+API_THROTTLE_EXEMPT_USER_IDS = []
 
 
 # Password validation
@@ -147,7 +164,6 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # rwxr-xr-x
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # OpenAI API Configuration
-import os
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
 # Authentication

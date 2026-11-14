@@ -4,8 +4,10 @@ from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 from functools import wraps
 from django.utils import timezone
 
@@ -15,6 +17,7 @@ from front.rate_limit import (
     login_rate_limit, chat_rate_limit, signup_rate_limit,
     api_rate_limit, rate_limit
 )
+from front.auth_utils import change_user_password, safe_redirect_url
 import yara, io
 import json
 import base64
@@ -191,11 +194,9 @@ def login_view(request):
             if not remember:
                 request.session.set_expiry(0)
 
-            # Redirect to requested page or home
+            # Only permit redirects to this host.
             next_url = request.POST.get('next') or request.GET.get('next')
-            if not next_url:
-                next_url = 'front:home'
-            return redirect(next_url)
+            return redirect(safe_redirect_url(request, next_url))
         else:
             # Log failed attempt
             log_action(None, 'user_login_failed', {
@@ -266,8 +267,11 @@ def signup_view(request):
 
         if not password:
             errors.append('Password is required.')
-        elif len(password) < 8:
-            errors.append('Password must be at least 8 characters long.')
+        else:
+            try:
+                validate_password(password, User(username=username, email=email))
+            except ValidationError as error:
+                errors.extend(error.messages)
 
         if password != password_confirm:
             errors.append('Passwords do not match.')
@@ -438,22 +442,30 @@ def profile_view(request):
 
             profile.save()
 
-        # Change password if provided
+        # A password change must prove knowledge of the current password.
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
+        current_password = request.POST.get('current_password')
 
         if new_password:
-            if new_password == confirm_password:
-                user.set_password(new_password)
-                user.save()
-                # Re-authenticate the user
-                login(request, user)
+            if not current_password:
+                messages.error(request, 'Current password is required to change your password.')
+                return redirect('front:profile')
+            if not user.check_password(current_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('front:profile')
+            if new_password != confirm_password:
+                messages.error(request, 'Passwords do not match.')
+                return redirect('front:profile')
+            try:
+                change_user_password(user, new_password, request)
                 log_action(user, 'profile_update', {
                     'changes': ['profile_data', 'password']
                 }, request)
                 messages.success(request, 'Profile and password updated successfully.')
-            else:
-                messages.error(request, 'Passwords do not match.')
+            except ValidationError as error:
+                for message in error.messages:
+                    messages.error(request, message)
                 return redirect('front:profile')
         else:
             log_action(user, 'profile_update', {
@@ -547,7 +559,13 @@ def user_create(request):
 
         if not password:
             errors.append('Password is required.')
-        elif password != confirm_password:
+        else:
+            try:
+                validate_password(password, User(username=username, email=email))
+            except ValidationError as error:
+                errors.extend(error.messages)
+
+        if password != confirm_password:
             errors.append('Passwords do not match.')
 
         if errors:
@@ -647,7 +665,21 @@ def user_edit(request, pk):
         user.last_name = last_name
         user.is_staff = is_staff
         if new_password:
-            user.set_password(new_password)
+            try:
+                validate_password(new_password, user)
+                user.set_password(new_password)
+                from rest_framework.authtoken.models import Token
+                Token.objects.filter(user=user).delete()
+            except ValidationError as error:
+                for message in error.messages:
+                    messages.error(request, message)
+                return render(request, 'users/form.html', {
+                    'roles': roles,
+                    'departments': departments,
+                    'profile': profile,
+                    'edit_user': user,
+                    'is_edit': True,
+                })
         user.save()
 
         # Update profile
