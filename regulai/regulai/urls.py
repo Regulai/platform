@@ -18,10 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from front.access import avatar
 
+# Use rate-limited admin site (AUTH-05)
+from regulai.admin import rate_limited_admin_site, setup_admin
+
+# Setup admin after apps are loaded
+try:
+    setup_admin()
+except Exception:
+    pass  # Will be set up on first request if import fails during startup
+
 
 urlpatterns = [
     path('media/avatars/<path:filename>', avatar),
-    path('admin/', admin.site.urls),
+    path('admin/', rate_limited_admin_site.urls),
     path('api/', include('api.urls')),
     path("", include("front.urls")),
 ]
