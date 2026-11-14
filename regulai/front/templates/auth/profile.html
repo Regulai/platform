@@ -129,13 +129,20 @@
           <p class="text-muted small mb-3">Leave blank if you don't want to change the password.</p>
 
           <div class="row">
+            <div class="col-md-12 mb-3">
+              <label for="current_password" class="form-label fw-semibold">Current Password</label>
+              <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Enter your current password" autocomplete="current-password">
+              <small class="text-muted">Required to change your password</small>
+            </div>
+          </div>
+          <div class="row">
             <div class="col-md-6 mb-3">
               <label for="new_password" class="form-label fw-semibold">New Password</label>
-              <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Enter new password">
+              <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Enter new password" autocomplete="new-password">
             </div>
             <div class="col-md-6 mb-3">
               <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
-              <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+              <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password" autocomplete="new-password">
             </div>
           </div>
 
