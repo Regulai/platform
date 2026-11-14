@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tool Configuration{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">
+          <iconify-icon icon="solar:magic-stick-3-bold-duotone" class="text-primary me-2"></iconify-icon>
+          AI Tool Configuration
+        </h5>
+        <p class="text-muted mb-4">
+          Configure which tools the AI assistant can use when chatting with users in your company.
+          Enabled tools: <strong>{{ enabled_count }}</strong> of {{ total_tools }}
+        </p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <h6 class="fw-semibold mb-3 mt-4">
+            <iconify-icon icon="solar:document-bold" class="text-info me-2"></iconify-icon>
+            Document Creation Tools
+          </h6>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_documents" name="enable_documents"
+                       {% if config.enable_documents %}checked{% endif %}>
+                <label class="form-check-label" for="enable_documents">
+                  <strong>Documents</strong>
+                  <small class="text-muted d-block">Create Word/PDF documents</small>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_spreadsheets" name="enable_spreadsheets"
+                       {% if config.enable_spreadsheets %}checked{% endif %}>
+                <label class="form-check-label" for="enable_spreadsheets">
+                  <strong>Spreadsheets</strong>
+                  <small class="text-muted d-block">Create Excel/CSV files</small>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_presentations" name="enable_presentations"
+                       {% if config.enable_presentations %}checked{% endif %}>
+                <label class="form-check-label" for="enable_presentations">
+                  <strong>Presentations</strong>
+                  <small class="text-muted d-block">Create PowerPoint presentations</small>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_code_files" name="enable_code_files"
+                       {% if config.enable_code_files %}checked{% endif %}>
+                <label class="form-check-label" for="enable_code_files">
+                  <strong>Code Files</strong>
+                  <small class="text-muted d-block">Create code and script files</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="fw-semibold mb-3">
+            <iconify-icon icon="solar:chart-bold" class="text-success me-2"></iconify-icon>
+            Data Analysis Tools
+          </h6>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_charts" name="enable_charts"
+                       {% if config.enable_charts %}checked{% endif %}>
+                <label class="form-check-label" for="enable_charts">
+                  <strong>Charts</strong>
+                  <small class="text-muted d-block">Create charts and graphs</small>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_data_analysis" name="enable_data_analysis"
+                       {% if config.enable_data_analysis %}checked{% endif %}>
+                <label class="form-check-label" for="enable_data_analysis">
+                  <strong>Data Analysis</strong>
+                  <small class="text-muted d-block">Analyze data and statistics</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="fw-semibold mb-3">
+            <iconify-icon icon="solar:calculator-bold" class="text-warning me-2"></iconify-icon>
+            Utility Tools
+          </h6>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_datetime" name="enable_datetime"
+                       {% if config.enable_datetime %}checked{% endif %}>
+                <label class="form-check-label" for="enable_datetime">
+                  <strong>Date/Time</strong>
+                  <small class="text-muted d-block">Get current date and time</small>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_calculator" name="enable_calculator"
+                       {% if config.enable_calculator %}checked{% endif %}>
+                <label class="form-check-label" for="enable_calculator">
+                  <strong>Calculator</strong>
+                  <small class="text-muted d-block">Mathematical calculations</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="fw-semibold mb-3">
+            <iconify-icon icon="solar:global-bold" class="text-danger me-2"></iconify-icon>
+            External Services
+          </h6>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="enable_web_search" name="enable_web_search"
+                       {% if config.enable_web_search %}checked{% endif %}>
+                <label class="form-check-label" for="enable_web_search">
+                  <strong>Web Search</strong>
+                  <small class="text-muted d-block">Search the web for information</small>
+                </label>
+              </div>
+              <div class="alert alert-warning alert-sm py-2 px-3 mb-0">
+                <small>
+                  <iconify-icon icon="solar:shield-warning-bold" class="me-1"></iconify-icon>
+                  Web search sends queries to external services (DuckDuckGo)
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              <iconify-icon icon="solar:diskette-bold" class="me-1"></iconify-icon>
+              Save Configuration
+            </button>
+            <a href="{% url 'front:dashboard' %}" class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">
+          <iconify-icon icon="solar:info-circle-bold" class="text-info me-2"></iconify-icon>
+          About AI Tools
+        </h6>
+        <p class="text-muted small mb-3">
+          Tools allow the AI assistant to perform actions beyond just text responses.
+          When a user asks for a document, chart, or calculation, the AI can use these tools to fulfill the request.
+        </p>
+        <hr>
+        <h6 class="fw-semibold mb-2">Security Considerations</h6>
+        <ul class="list-unstyled small text-muted">
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
+            Document tools create files locally
+          </li>
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
+            Calculator runs in a sandboxed environment
+          </li>
+          <li class="mb-2">
+            <iconify-icon icon="solar:shield-warning-bold" class="text-warning me-1"></iconify-icon>
+            Web search sends data externally
+          </li>
+        </ul>
+        <hr>
+        <h6 class="fw-semibold mb-2">Tool Usage</h6>
+        <p class="text-muted small mb-0">
+          The AI will automatically choose to use tools when appropriate based on user requests.
+          Disabled tools will not be available to the AI.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
