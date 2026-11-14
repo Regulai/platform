@@ -80,6 +80,9 @@ else:
 
 SECURE_SSL_REDIRECT = False  # Nginx handles redirect
 CORS_ALLOW_CREDENTIALS = True
+
+# Demo/Registration settings
+ALLOW_REGISTRATION = os.environ.get('ALLOW_REGISTRATION', 'False').lower() in ('true', '1', 'yes')
 EOLSETTINGS
 echo "    Created local_settings.py"
 
