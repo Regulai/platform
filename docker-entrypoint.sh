@@ -63,6 +63,13 @@ if _csrf_origins:
 if os.environ.get('SECURE_PROXY_SSL_HEADER', '').lower() in ('true', '1', 'yes'):
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Trusted proxies for X-Forwarded-For (AUTH-04)
+_trusted_proxies = os.environ.get('TRUSTED_PROXIES', '')
+if _trusted_proxies:
+    TRUSTED_PROXIES = [p.strip() for p in _trusted_proxies.split(',') if p.strip()]
+else:
+    TRUSTED_PROXIES = []
+
 # Security settings
 if not DEBUG:
     SESSION_COOKIE_SECURE = True

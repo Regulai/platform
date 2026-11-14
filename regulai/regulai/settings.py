@@ -79,17 +79,38 @@ DATABASES = {
     }
 }
 
-# Cache Configuration for Rate Limiting
+# Cache Configuration for Rate Limiting (MISC-01)
 # https://docs.djangoproject.com/en/5.2/topics/cache/
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'regulai-cache',
-        'OPTIONS': {
-            'MAX_ENTRIES': 10000
+# Use Redis in production for shared cache across workers
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django.core.cache.backends.redis.RedisCache',
+            }
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'regulai-cache',
+            'OPTIONS': {
+                'MAX_ENTRIES': 10000
+            }
+        }
+    }
+    # Warn about LocMemCache in production with multiple workers
+    import warnings
+    if not DEBUG and os.environ.get('GUNICORN_WORKERS', '1') != '1':
+        warnings.warn(
+            'Using LocMemCache with multiple workers: rate limits may be bypassed. '
+            'Set REDIS_URL for shared cache in production.',
+            RuntimeWarning
+        )
 
 
 # Password validation
