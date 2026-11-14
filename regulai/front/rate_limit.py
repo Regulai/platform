@@ -13,11 +13,13 @@ Features:
 """
 
 from functools import wraps
+from django.conf import settings
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 import hashlib
+import ipaddress
 import json
 
 
@@ -30,17 +32,56 @@ class RateLimitExceeded(Exception):
         super().__init__(f"Rate limit exceeded: {limit} requests per {window} seconds")
 
 
+def _is_trusted_proxy(ip_str):
+    """Check if an IP is in the TRUSTED_PROXIES list."""
+    trusted = getattr(settings, 'TRUSTED_PROXIES', [])
+    if not trusted:
+        return False
+
+    try:
+        ip = ipaddress.ip_address(ip_str)
+        for proxy in trusted:
+            try:
+                if '/' in proxy:
+                    # CIDR notation
+                    if ip in ipaddress.ip_network(proxy, strict=False):
+                        return True
+                else:
+                    # Single IP
+                    if ip == ipaddress.ip_address(proxy):
+                        return True
+            except ValueError:
+                continue
+        return False
+    except ValueError:
+        return False
+
+
 def get_client_ip(request):
     """
-    Get client IP address from request.
-    Handles X-Forwarded-For header for proxied requests.
+    Get client IP address from request securely (AUTH-04).
+
+    Only honors X-Forwarded-For if REMOTE_ADDR is a trusted proxy.
+    When trusted, returns the rightmost non-trusted IP from the chain.
     """
+    remote_addr = request.META.get('REMOTE_ADDR', '')
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0].strip()
-    else:
-        ip = request.META.get('REMOTE_ADDR', '')
-    return ip
+
+    # If no XFF header or REMOTE_ADDR is not a trusted proxy, use REMOTE_ADDR
+    if not x_forwarded_for or not _is_trusted_proxy(remote_addr):
+        return remote_addr
+
+    # Parse XFF chain and find rightmost non-trusted IP
+    # XFF format: "client, proxy1, proxy2" - rightmost is closest to server
+    chain = [ip.strip() for ip in x_forwarded_for.split(',')]
+
+    # Walk from right to left, return first non-trusted IP
+    for ip in reversed(chain):
+        if not _is_trusted_proxy(ip):
+            return ip
+
+    # All IPs in chain are trusted (shouldn't happen in practice)
+    return chain[0] if chain else remote_addr
 
 
 def get_rate_limit_key(identifier, endpoint, window):
@@ -339,8 +380,10 @@ try:
 
         def allow_request(self, request, view):
             """Check if request should be allowed"""
-            if request.user.is_authenticated and request.user.is_superuser:
-                # Superusers bypass rate limiting
+            # AUTH-09: No bypass for superusers - all users are rate limited
+            # Use API_THROTTLE_EXEMPT_USER_IDS setting for explicit exemptions
+            exempt_ids = getattr(settings, 'API_THROTTLE_EXEMPT_USER_IDS', [])
+            if request.user.is_authenticated and request.user.id in exempt_ids:
                 return True
 
             identifier = self.get_cache_key(request, view)

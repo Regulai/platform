@@ -1,9 +1,24 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: regulai-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   regulai:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: regulai-app
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
@@ -11,11 +26,15 @@ services:
       - DATABASE_PATH=/app/regulai/data/db.sqlite3
       - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-admin}
       - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@regulai.local}
-      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-changeme}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-}
       # Production: Set these for HTTPS behind reverse proxy
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
       - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-}
       - SECURE_PROXY_SSL_HEADER=${SECURE_PROXY_SSL_HEADER:-}
+      # Redis for shared cache (MISC-01: required for rate limiting with multiple workers)
+      - REDIS_URL=redis://redis:6379/0
+      # Trusted proxies for X-Forwarded-For (AUTH-04)
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES:-}
       # Auto-generated if not provided (stored in volume for persistence)
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
       - SECRET_KEY=${SECRET_KEY:-}
@@ -37,3 +56,4 @@ services:
 volumes:
   regulai-data:
   regulai-media:
+  redis-data:
