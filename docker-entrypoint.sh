@@ -87,14 +87,27 @@ python manage.py shell << 'EOF'
 from django.contrib.auth import get_user_model
 User = get_user_model()
 import os
+import secrets
+
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
 email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@regulai.local')
-password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin123')
-if not User.objects.filter(username=username).exists():
+password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '').strip()
+
+if User.objects.filter(username=username).exists():
+    print(f'    Superuser "{username}" already exists')
+elif not password:
+    print('    WARNING: DJANGO_SUPERUSER_PASSWORD not set - skipping superuser creation')
+    print('    Set DJANGO_SUPERUSER_PASSWORD in your .env file to create an admin user')
+elif password == 'auto':
+    # Generate random password and show it once
+    generated = secrets.token_urlsafe(16)
+    User.objects.create_superuser(username=username, email=email, password=generated)
+    print(f'    Superuser "{username}" created with generated password:')
+    print(f'    >>> {generated} <<<')
+    print('    IMPORTANT: Save this password now - it will not be shown again!')
+else:
     User.objects.create_superuser(username=username, email=email, password=password)
     print(f'    Superuser "{username}" created')
-else:
-    print(f'    Superuser "{username}" already exists')
 EOF
 
 echo "==> Starting server..."
