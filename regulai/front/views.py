@@ -20,6 +20,7 @@ from front.rate_limit import (
     login_rate_limit, chat_rate_limit, signup_rate_limit,
     api_rate_limit, rate_limit
 )
+from front.auth_utils import change_user_password, safe_redirect_url
 import yara, io
 import json
 import base64
@@ -182,11 +183,10 @@ def login_view(request):
             if not remember:
                 request.session.set_expiry(0)
 
-            # Redirect to requested page or home
+            # Redirect to requested page or home (AUTH-08: prevent open redirect)
             next_url = request.POST.get('next') or request.GET.get('next')
-            if not next_url:
-                next_url = 'front:home'
-            return redirect(next_url)
+            safe_url = safe_redirect_url(request, next_url, fallback='/')
+            return redirect(safe_url)
         else:
             # Log failed attempt
             log_action(None, 'user_login_failed', {
@@ -256,8 +256,15 @@ def signup_view(request):
 
         if not password:
             errors.append('Password is required.')
-        elif len(password) < 8:
-            errors.append('Password must be at least 8 characters long.')
+        else:
+            # Validate password with Django validators (AUTH-07)
+            from django.contrib.auth.password_validation import validate_password
+            try:
+                # Create a temporary user object for validation
+                temp_user = User(username=username, email=email)
+                validate_password(password, temp_user)
+            except ValidationError as e:
+                errors.extend(e.messages)
 
         if password != password_confirm:
             errors.append('Passwords do not match.')
@@ -417,22 +424,35 @@ def profile_view(request):
 
             profile.save()
 
-        # Change password if provided
+        # Change password if provided (AUTH-06: require current password)
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
+        current_password = request.POST.get('current_password')
 
         if new_password:
-            if new_password == confirm_password:
-                user.set_password(new_password)
-                user.save()
-                # Re-authenticate the user
-                login(request, user)
+            # Verify current password first (AUTH-06)
+            if not current_password:
+                messages.error(request, 'Current password is required to change password.')
+                return redirect('front:profile')
+
+            if not user.check_password(current_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('front:profile')
+
+            if new_password != confirm_password:
+                messages.error(request, 'New passwords do not match.')
+                return redirect('front:profile')
+
+            try:
+                # Use helper for validation and token revocation (AUTH-02/03/07)
+                change_user_password(user, new_password, request)
                 log_action(user, 'profile_update', {
                     'changes': ['profile_data', 'password']
                 }, request)
                 messages.success(request, 'Profile and password updated successfully.')
-            else:
-                messages.error(request, 'Passwords do not match.')
+            except ValidationError as e:
+                for error in e.messages:
+                    messages.error(request, error)
                 return redirect('front:profile')
         else:
             log_action(user, 'profile_update', {
@@ -526,7 +546,16 @@ def user_create(request):
 
         if not password:
             errors.append('Password is required.')
-        elif password != confirm_password:
+        else:
+            # Validate password with Django validators (AUTH-07)
+            from django.contrib.auth.password_validation import validate_password
+            try:
+                temp_user = User(username=username, email=email)
+                validate_password(password, temp_user)
+            except ValidationError as e:
+                errors.extend(e.messages)
+
+        if password != confirm_password:
             errors.append('Passwords do not match.')
 
         if errors:
@@ -626,8 +655,26 @@ def user_edit(request, pk):
         user.first_name = first_name
         user.last_name = last_name
         user.is_staff = is_staff
+
+        # Handle password change with validation (AUTH-02/03/07)
         if new_password:
-            user.set_password(new_password)
+            from django.contrib.auth.password_validation import validate_password
+            from rest_framework.authtoken.models import Token
+            try:
+                validate_password(new_password, user)
+                user.set_password(new_password)
+                # Revoke all tokens when admin changes password
+                Token.objects.filter(user=user).delete()
+            except ValidationError as e:
+                for error in e.messages:
+                    messages.error(request, error)
+                return render(request, 'users/form.html', {
+                    'roles': roles,
+                    'departments': departments,
+                    'profile': profile,
+                    'edit_user': user,
+                    'is_edit': True,
+                })
         user.save()
 
         # Update profile
