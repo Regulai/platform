@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.conf import settings
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
@@ -3473,10 +3474,8 @@ def rulesgroup_activate_all(request, pk):
         }, request)
         messages.success(request, f'{count} rules activated in group "{group.name}".')
 
-    next_url = request.GET.get('next', 'front:rulesgroup_detail')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect('front:rulesgroup_detail', pk=pk)
+    fallback = reverse('front:rulesgroup_detail', args=[pk])
+    return redirect(safe_redirect_url(request, request.GET.get('next'), fallback=fallback))
 
 
 @security_required
@@ -3497,10 +3496,8 @@ def rulesgroup_deactivate_all(request, pk):
         }, request)
         messages.warning(request, f'{count} rules deactivated in group "{group.name}".')
 
-    next_url = request.GET.get('next', 'front:rulesgroup_detail')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect('front:rulesgroup_detail', pk=pk)
+    fallback = reverse('front:rulesgroup_detail', args=[pk])
+    return redirect(safe_redirect_url(request, request.GET.get('next'), fallback=fallback))
 
 
 # ==================== RULES VIEWS ====================
@@ -3791,11 +3788,7 @@ def rule_toggle(request, pk):
     status = 'activated' if rule.active else 'deactivated'
     messages.success(request, f'Rule "{rule.name}" {status}.')
 
-    # Redirect to previous page or list
-    next_url = request.GET.get('next', 'front:rules_list')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect(next_url)
+    return redirect(safe_redirect_url(request, request.GET.get('next'), fallback=reverse('front:rules_list')))
 
 
 # ==================== RULES COMMUNITY VIEWS ====================
@@ -4237,10 +4230,7 @@ def alert_resolve(request, pk):
 
     messages.success(request, f'Alert #{alert.id} marked as resolved.')
 
-    next_url = request.GET.get('next', 'front:alerts_list')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect(next_url)
+    return redirect(safe_redirect_url(request, request.GET.get('next'), fallback=reverse('front:alerts_list')))
 
 
 @security_required
@@ -4262,10 +4252,7 @@ def alert_unresolve(request, pk):
 
     messages.warning(request, f'Alert #{alert.id} marked as unresolved.')
 
-    next_url = request.GET.get('next', 'front:alerts_list')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect(next_url)
+    return redirect(safe_redirect_url(request, request.GET.get('next'), fallback=reverse('front:alerts_list')))
 
 
 @security_required
