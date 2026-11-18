@@ -73,15 +73,15 @@
           </div>
           <div class="d-flex gap-2">
             {% if alert.resolved %}
-            <form method="post" action="{% url 'front:alert_unresolve' alert.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-outline-warning">
+            <a href="{% url 'front:alert_unresolve' alert.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="btn btn-outline-warning">
               <iconify-icon icon="solar:restart-bold" class="me-1"></iconify-icon>
               Mark Unresolved
-            </button></form>
+            </a>
             {% else %}
-            <form method="post" action="{% url 'front:alert_resolve' alert.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-success">
+            <a href="{% url 'front:alert_resolve' alert.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="btn btn-success">
               <iconify-icon icon="solar:check-circle-bold" class="me-1"></iconify-icon>
               Mark Resolved
-            </button></form>
+            </a>
             {% endif %}
             <a href="{% url 'front:alert_delete' alert.pk %}" class="btn btn-outline-danger">
               <iconify-icon icon="solar:trash-bin-trash-bold" class="me-1"></iconify-icon>
@@ -171,7 +171,7 @@
     <div class="card mb-4">
       <div class="card-body">
         <h5 class="card-title fw-semibold mb-3">
-          <iconify-icon icon="solar:atom-bold" class="text-info me-2"></iconify-icon>
+          <iconify-icon icon="solar:robot-bold" class="text-info me-2"></iconify-icon>
           AI Response
         </h5>
         <div class="prompt-content bg-info-subtle">{{ response.content }}</div>
@@ -276,10 +276,10 @@
             <iconify-icon icon="solar:shield-check-bold" class="me-2"></iconify-icon>
             View Triggering Rule
           </a>
-          <form method="post" action="{% url 'front:rule_toggle' alert.rule.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="d-inline">{% csrf_token %}<button type="submit" class="btn btn-outline-warning">
+          <a href="{% url 'front:rule_toggle' alert.rule.pk %}?next={% url 'front:alert_detail' alert.pk %}" class="btn btn-outline-warning">
             <iconify-icon icon="solar:power-bold" class="me-2"></iconify-icon>
             {% if alert.rule.active %}Disable{% else %}Enable{% endif %} Rule
-          </button></form>
+          </a>
           {% endif %}
           <a href="{% url 'front:alerts_list' %}?severity={{ alert.severity }}" class="btn btn-outline-secondary">
             <iconify-icon icon="solar:filter-bold" class="me-2"></iconify-icon>

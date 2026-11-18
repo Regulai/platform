@@ -10,7 +10,7 @@ NOT in the code or database.
 
 import os
 import base64
-from cryptography.fernet import Fernet, InvalidToken, MultiFernet
+from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
 
 
@@ -53,20 +53,8 @@ def get_encryption_key():
         key_bytes = key.encode() if isinstance(key, str) else key
         Fernet(key_bytes)  # Will raise if invalid
         return key_bytes
-    except (TypeError, ValueError):
-        raise EncryptionError("Invalid ENCRYPTION_KEY format.") from None
-
-
-def get_encryption_cipher():
-    """Writes use the primary key; fallbacks only decrypt existing ciphertext."""
-    fallbacks = getattr(settings, 'ENCRYPTION_KEY_FALLBACKS', ())
-    if not isinstance(fallbacks, (list, tuple)):
-        raise EncryptionError('ENCRYPTION_KEY_FALLBACKS must be a list of keys.')
-    try:
-        return MultiFernet([Fernet(get_encryption_key()), *[
-            Fernet(key.encode() if isinstance(key, str) else key) for key in fallbacks]])
-    except (TypeError, ValueError):
-        raise EncryptionError('Invalid encryption fallback key format.') from None
+    except Exception as e:
+        raise EncryptionError(f"Invalid ENCRYPTION_KEY: {e}")
 
 
 def encrypt_value(plaintext):
@@ -101,8 +89,8 @@ def encrypt_value(plaintext):
         # Return as string (base64)
         return encrypted_bytes.decode('utf-8')
 
-    except (EncryptionError, TypeError, ValueError):
-        raise EncryptionError("Encryption failed; check the configured key and value type.") from None
+    except Exception as e:
+        raise EncryptionError(f"Encryption failed: {e}")
 
 
 def decrypt_value(encrypted):
@@ -122,7 +110,8 @@ def decrypt_value(encrypted):
         return encrypted
 
     try:
-        f = get_encryption_cipher()
+        key = get_encryption_key()
+        f = Fernet(key)
 
         # Convert to bytes if string
         if isinstance(encrypted, str):
@@ -141,8 +130,8 @@ def decrypt_value(encrypted):
             "Decryption failed: Invalid token. "
             "This could mean the data was encrypted with a different key."
         )
-    except (EncryptionError, TypeError, ValueError):
-        raise EncryptionError("Decryption failed; check the configured keys and ciphertext.") from None
+    except Exception as e:
+        raise EncryptionError(f"Decryption failed: {e}")
 
 
 def generate_key():

@@ -200,11 +200,11 @@
                 </td>
                 <td class="border-bottom-0 text-end">
                   <div class="d-flex gap-2 justify-content-end">
-                    <form method="post" action="{% url 'front:rule_toggle' rule.pk %}?next={{ request.get_full_path|urlencode }}" class="d-inline">{% csrf_token %}<button type="submit"
+                    <a href="{% url 'front:rule_toggle' rule.pk %}?next={{ request.get_full_path|urlencode }}"
                        class="btn btn-sm {% if rule.active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
                        title="{% if rule.active %}Deactivate{% else %}Activate{% endif %}">
                       <iconify-icon icon="{% if rule.active %}solar:power-bold{% else %}solar:play-bold{% endif %}"></iconify-icon>
-                    </button></form>
+                    </a>
                     <a href="{% url 'front:rule_edit' rule.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
                       <iconify-icon icon="solar:pen-bold"></iconify-icon>
                     </a>

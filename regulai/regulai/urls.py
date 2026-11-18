@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from front.access import avatar
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Use rate-limited admin site (AUTH-05)
 from regulai.admin import rate_limited_admin_site, setup_admin
@@ -29,11 +30,11 @@ except Exception:
 
 
 urlpatterns = [
-    path('media/avatars/<path:filename>', avatar),
     path('admin/', rate_limited_admin_site.urls),
     path('api/', include('api.urls')),
     path("", include("front.urls")),
 ]
 
-# Chat files are private. Serve them only through front:chat_download_file,
-# including in development; the media directory must never be a public alias.
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

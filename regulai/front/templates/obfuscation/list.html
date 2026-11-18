@@ -24,7 +24,7 @@
     <!-- Messages -->
     {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-break" role="alert">
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
       {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -74,9 +74,8 @@
             <thead class="table-light">
               <tr>
                 <th>Name</th>
-                <th>Processing location</th>
+                <th>Mode</th>
                 <th>Detect</th>
-                <th>Language</th>
                 <th class="text-center">Status</th>
                 <th class="text-end">Actions</th>
               </tr>
@@ -87,22 +86,22 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <iconify-icon icon="solar:shield-keyhole-bold" class="text-primary me-2"></iconify-icon>
-                    <strong style="min-width: 12rem; max-width: 18rem; overflow-wrap: anywhere;">{{ config.name }}</strong>
+                    <strong>{{ config.name }}</strong>
                   </div>
                 </td>
                 <td>
-                  <span class="badge bg-secondary-subtle text-secondary">{{ config.get_backend_display }}</span>
-                  {% if config.backend == 'http' %}<div><code class="text-muted small">{{ config.api_url }}</code></div>{% endif %}
+                  {% if config.mode == 'local' %}
+                  <span class="badge bg-primary-subtle text-primary">
+                    <iconify-icon icon="solar:server-bold" class="me-1"></iconify-icon>Local
+                  </span>
+                  {% else %}
+                  <span class="badge bg-warning-subtle text-warning" title="{{ config.api_url }}">
+                    <iconify-icon icon="solar:cloud-bold" class="me-1"></iconify-icon>API
+                  </span>
+                  {% endif %}
                 </td>
                 <td>
                   <span class="badge bg-info-subtle text-info">{{ config.get_detect_display }}</span>
-                </td>
-                <td>
-                  {% if config.language %}
-                  <span class="badge bg-secondary-subtle text-secondary">{{ config.language }}</span>
-                  {% else %}
-                  <span class="text-muted small">Auto-detect</span>
-                  {% endif %}
                 </td>
                 <td class="text-center">
                   {% if config.active %}
@@ -113,13 +112,10 @@
                 </td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
-                    <form method="post" action="{% url 'front:obfuscation_toggle' config.pk %}" class="d-inline">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-sm btn-outline-{{ config.active|yesno:'warning,success' }}" title="{{ config.active|yesno:'Deactivate,Activate' }}">
-                        <iconify-icon icon="solar:{{ config.active|yesno:'pause-bold,play-bold' }}" class="me-1"></iconify-icon>
-                        {{ config.active|yesno:'Deactivate,Activate' }}
-                      </button>
-                    </form>
+                    <a href="{% url 'front:obfuscation_toggle' config.pk %}" class="btn btn-outline-{{ config.active|yesno:'warning,success' }}" title="{{ config.active|yesno:'Deactivate,Activate' }}">
+                      <iconify-icon icon="solar:{{ config.active|yesno:'pause-bold,play-bold' }}" class="me-1"></iconify-icon>
+                      {{ config.active|yesno:'Deactivate,Activate' }}
+                    </a>
                     <a href="{% url 'front:obfuscation_edit' config.pk %}" class="btn btn-outline-primary" title="Edit">
                       <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
                       Edit
