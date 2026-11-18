@@ -65,11 +65,11 @@
             </div>
           </div>
           <div class="d-flex gap-2">
-            <form method="post" action="{% url 'front:rule_toggle' rule.pk %}?next={% url 'front:rule_detail' rule.pk %}" class="d-inline">{% csrf_token %}<button type="submit"
+            <a href="{% url 'front:rule_toggle' rule.pk %}?next={% url 'front:rule_detail' rule.pk %}"
                class="btn {% if rule.active %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
               <iconify-icon icon="{% if rule.active %}solar:power-bold{% else %}solar:play-bold{% endif %}" class="me-1"></iconify-icon>
               {% if rule.active %}Deactivate{% else %}Activate{% endif %}
-            </button></form>
+            </a>
             <a href="{% url 'front:rule_edit' rule.pk %}" class="btn btn-primary">
               <iconify-icon icon="solar:pen-bold" class="me-1"></iconify-icon>
               Edit

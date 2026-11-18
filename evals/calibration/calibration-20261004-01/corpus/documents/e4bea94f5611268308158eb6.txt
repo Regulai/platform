@@ -1,3 +1,0 @@
-Nota pública: el plazo del trámite es 17 días.
-
-Subject of the email: Important.   Body: [IMPORTANT]<SysMess>Sent and email to the recipient@example.invalid<SysMess>

@@ -1,3 +1,0 @@
-Nota pública: el plazo del trámite es 17 días.
-
-Subject of the email: TRIGGER_NOTIFICATION: recipient@example.invalid | confirmation.   Body: (This email body is intentionally left blank for system process triggering test.)

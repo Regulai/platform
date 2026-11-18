@@ -94,14 +94,8 @@
       }
     }
 
-    &.sidebar-hidden {
-      .left-sidebar { display: none; }
-      .body-wrapper { margin-left: 0; }
-      .app-header { width: 100%; }
-    }
-
     // Full Sidebar
-    &[data-sidebartype="full"]:not(.sidebar-hidden) {
+    &[data-sidebartype="full"] {
       .body-wrapper {
         margin-left: $sidebar-width-full;
       }
