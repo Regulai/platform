@@ -45,3 +45,10 @@ urllib3==2.6.3
 yara-python==4.5.4
 whitenoise==6.9.0
 redis==5.0.0
+reportlab==4.2.5
+matplotlib==3.9.2
+python-pptx==1.0.2
+pytz==2024.1
+google-api-python-client==2.149.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0

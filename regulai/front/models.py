@@ -68,6 +68,11 @@ class Profile(models.Model):
         related_name='default_for_users',
         help_text="Default AI model for chat"
     )
+    google_drive_credentials = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Encrypted Google Drive OAuth credentials (JSON)"
+    )
 
     def __str__(self):
         return f"{self.user.username} ({self.company.name})"
@@ -179,6 +184,10 @@ class Message(models.Model):
     file_name = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.IntegerField(default=0)
     response_file = models.FileField(upload_to='chat_responses/', null=True, blank=True)
+    # Obfuscation fields
+    is_obfuscated = models.BooleanField(default=False)
+    original_content = models.TextField(blank=True, null=True)  # Original text before obfuscation
+    obfuscated_entities = models.JSONField(blank=True, null=True)  # List of entity types detected
 
     class Meta:
         ordering = ['created_at']
@@ -322,18 +331,24 @@ class CompanyEngine(models.Model):
 
 
 class ObfuscationConfig(models.Model):
-    """Configuración de ofuscación para una empresa (integración con PasteGuard)."""
+    """Configuración de ofuscación para una empresa (local o con PasteGuard)."""
     DETECT_CHOICES = [
         ("pii", "PII"),
         ("secrets", "Secrets"),
         ("both", "PII & Secrets"),
     ]
 
+    MODE_CHOICES = [
+        ("local", "Local (regex patterns)"),
+        ("api", "External API (PasteGuard)"),
+    ]
+
     name = models.CharField(max_length=255)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="obfuscation_configs")
-    api_url = models.URLField(help_text="Base URL del servicio PasteGuard (ej: https://pasteguard.com)")
+    mode = models.CharField(max_length=10, choices=MODE_CHOICES, default="local", help_text="Use local regex or external API")
+    api_url = models.URLField(blank=True, default="", help_text="Base URL del servicio PasteGuard (solo para modo API)")
     detect = models.CharField(max_length=20, choices=DETECT_CHOICES, default="both")
-    language = models.CharField(max_length=10, blank=True, default="", help_text="Idioma para detección (vacío=auto-detectar)")
+    language = models.CharField(max_length=10, blank=True, default="", help_text="Idioma para detección (solo para modo API)")
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -342,3 +357,60 @@ class ObfuscationConfig(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.company.name})"
+
+    @property
+    def is_local(self):
+        return self.mode == "local"
+
+
+class CompanyToolConfig(models.Model):
+    """Configuration for which tools are enabled for a company."""
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name="tool_config")
+
+    # Document tools
+    enable_documents = models.BooleanField(default=True, help_text="Create Word/PDF documents")
+    enable_spreadsheets = models.BooleanField(default=True, help_text="Create Excel/CSV spreadsheets")
+    enable_presentations = models.BooleanField(default=True, help_text="Create PowerPoint presentations")
+    enable_code_files = models.BooleanField(default=True, help_text="Create code/script files")
+
+    # Data tools
+    enable_charts = models.BooleanField(default=True, help_text="Create charts and graphs")
+    enable_data_analysis = models.BooleanField(default=True, help_text="Analyze data and statistics")
+
+    # Utility tools
+    enable_datetime = models.BooleanField(default=True, help_text="Get current date/time")
+    enable_calculator = models.BooleanField(default=True, help_text="Mathematical calculations")
+    enable_web_search = models.BooleanField(default=False, help_text="Search the web (may send data to external services)")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Company Tool Configuration"
+        verbose_name_plural = "Company Tool Configurations"
+
+    def __str__(self):
+        return f"Tool Config for {self.company.name}"
+
+    def get_enabled_tools(self) -> list:
+        """Return list of enabled tool names."""
+        tools = []
+        if self.enable_documents:
+            tools.append('create_document')
+        if self.enable_spreadsheets:
+            tools.append('create_spreadsheet')
+        if self.enable_presentations:
+            tools.append('create_presentation')
+        if self.enable_code_files:
+            tools.append('create_code_file')
+        if self.enable_charts:
+            tools.append('create_chart')
+        if self.enable_data_analysis:
+            tools.append('analyze_data')
+        if self.enable_datetime:
+            tools.append('get_current_datetime')
+        if self.enable_calculator:
+            tools.append('calculate')
+        if self.enable_web_search:
+            tools.append('web_search')
+        return tools

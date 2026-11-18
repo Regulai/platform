@@ -74,9 +74,8 @@
             <thead class="table-light">
               <tr>
                 <th>Name</th>
-                <th>API URL</th>
+                <th>Mode</th>
                 <th>Detect</th>
-                <th>Language</th>
                 <th class="text-center">Status</th>
                 <th class="text-end">Actions</th>
               </tr>
@@ -90,16 +89,19 @@
                     <strong>{{ config.name }}</strong>
                   </div>
                 </td>
-                <td><code class="text-muted small">{{ config.api_url }}</code></td>
                 <td>
-                  <span class="badge bg-info-subtle text-info">{{ config.get_detect_display }}</span>
+                  {% if config.mode == 'local' %}
+                  <span class="badge bg-primary-subtle text-primary">
+                    <iconify-icon icon="solar:server-bold" class="me-1"></iconify-icon>Local
+                  </span>
+                  {% else %}
+                  <span class="badge bg-warning-subtle text-warning" title="{{ config.api_url }}">
+                    <iconify-icon icon="solar:cloud-bold" class="me-1"></iconify-icon>API
+                  </span>
+                  {% endif %}
                 </td>
                 <td>
-                  {% if config.language %}
-                  <span class="badge bg-secondary-subtle text-secondary">{{ config.language }}</span>
-                  {% else %}
-                  <span class="text-muted small">Auto-detect</span>
-                  {% endif %}
+                  <span class="badge bg-info-subtle text-info">{{ config.get_detect_display }}</span>
                 </td>
                 <td class="text-center">
                   {% if config.active %}

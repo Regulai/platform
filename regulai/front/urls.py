@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     home_view, login_view, logout_view, signup_view, profile_view,
-    chat_view, chat_new, chat_delete, chat_send_message, chat_download_file, chat_select_engine, chat_select_model, dashboard_view,
+    chat_view, chat_new, chat_delete, chat_send_message, chat_send_message_stream, chat_download_file, chat_select_engine, chat_select_model, dashboard_view,
     rulesgroups_list, rulesgroup_detail, rulesgroup_create, rulesgroup_edit, rulesgroup_delete,
     rulesgroup_activate_all, rulesgroup_deactivate_all,
     rules_list, rule_detail, rule_create, rule_edit, rule_delete, rule_toggle,
@@ -15,6 +15,8 @@ from .views import (
     engines_list, engine_create, engine_edit, engine_delete, engine_toggle, engine_sync_models,
     model_create, model_edit, model_toggle, model_delete,
     obfuscation_list, obfuscation_create, obfuscation_edit, obfuscation_delete, obfuscation_toggle,
+    tool_config,
+    google_drive_status, google_drive_connect, google_drive_callback, google_drive_disconnect, upload_to_google_drive,
 )
 
 app_name = 'front'
@@ -35,12 +37,21 @@ urlpatterns = [
     path("chat/", chat_view, name="chat"),
     path("chat/new/", chat_new, name="chat_new"),
     path("chat/send/", chat_send_message, name="chat_send"),
+    path("chat/stream/", chat_send_message_stream, name="chat_send_stream"),
+    path("chat/<int:conversation_id>/stream/", chat_send_message_stream, name="chat_send_stream_conversation"),
     path("chat/select-engine/", chat_select_engine, name="chat_select_engine"),
     path("chat/select-model/", chat_select_model, name="chat_select_model"),
     path("chat/<int:conversation_id>/send/", chat_send_message, name="chat_send_conversation"),
     path("chat/<int:conversation_id>/", chat_view, name="chat_conversation"),
     path("chat/<int:conversation_id>/delete/", chat_delete, name="chat_delete"),
     path("chat/download/<int:message_id>/", chat_download_file, name="chat_download_file"),
+
+    # Google Drive Integration
+    path("google/status/", google_drive_status, name="google_drive_status"),
+    path("google/connect/", google_drive_connect, name="google_drive_connect"),
+    path("google/callback/", google_drive_callback, name="google_drive_callback"),
+    path("google/disconnect/", google_drive_disconnect, name="google_drive_disconnect"),
+    path("google/upload/<int:message_id>/", upload_to_google_drive, name="upload_to_google_drive"),
 
     # Rules Groups
     path("rules/groups/", rulesgroups_list, name="rulesgroups_list"),
@@ -118,4 +129,7 @@ urlpatterns = [
     path("obfuscation/<int:pk>/edit/", obfuscation_edit, name="obfuscation_edit"),
     path("obfuscation/<int:pk>/delete/", obfuscation_delete, name="obfuscation_delete"),
     path("obfuscation/<int:pk>/toggle/", obfuscation_toggle, name="obfuscation_toggle"),
+
+    # Tool Configuration
+    path("settings/tools/", tool_config, name="tool_config"),
 ]

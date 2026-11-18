@@ -6,11 +6,16 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.http import JsonResponse, StreamingHttpResponse
 from functools import wraps
 from django.utils import timezone
 
 from front.models import *
 from front.connectors import get_connector, ChatMessage, ChatResponse
+from front.tools import (
+    get_tools_for_openai, execute_tool, ToolResultType, get_enabled_tools_for_company
+)
+from front.local_obfuscator import deobfuscate
 from front.rate_limit import (
     login_rate_limit, chat_rate_limit, signup_rate_limit,
     api_rate_limit, rate_limit
@@ -1768,6 +1773,7 @@ def chat_view(request, conversation_id=None):
         "current_engine": current_engine,
         "available_models": available_models,
         "current_model": current_model,
+        "google_client_id": getattr(settings, 'GOOGLE_CLIENT_ID', ''),
     })
 
 
@@ -2177,6 +2183,8 @@ def chat_send_message(request, conversation_id=None):
 
     # --- Obfuscation ---
     obfuscation_context = None
+    original_display_content = display_content  # Save original before obfuscation
+    obfuscated_entity_types = []
     try:
         obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
         if obfuscation_context:
@@ -2184,6 +2192,11 @@ def chat_send_message(request, conversation_id=None):
             display_content = obfuscated_text
             if prompt_text:
                 prompt_text = obfuscated_text
+            # Extract entity types for the message
+            for key in obfuscation_context.keys():
+                parts = key.strip('[]').rsplit('_', 1)
+                if len(parts) > 1 and parts[0] not in obfuscated_entity_types:
+                    obfuscated_entity_types.append(parts[0])
     except Exception as obf_error:
         import logging
         logging.error(f"Obfuscation error: {obf_error}")
@@ -2196,13 +2209,16 @@ def chat_send_message(request, conversation_id=None):
             title=title + ('...' if len(title) > 50 else '')
         )
 
-    # Create user message
+    # Create user message with obfuscation info
     user_message = Message.objects.create(
         conversation=conversation,
         role='user',
         content=display_content,
         file_name=file_name,
-        file_size=file_size
+        file_size=file_size,
+        is_obfuscated=bool(obfuscation_context),
+        original_content=original_display_content if obfuscation_context else None,
+        obfuscated_entities=obfuscated_entity_types if obfuscation_context else None
     )
 
     # Create prompt for audit/tracking
@@ -2499,6 +2515,683 @@ def chat_send_message(request, conversation_id=None):
                 }
 
     return JsonResponse(response_data)
+
+
+@login_required
+def chat_send_message_stream(request, conversation_id=None):
+    """
+    Streaming endpoint for chat messages using Server-Sent Events.
+    """
+    import logging
+    import traceback
+
+    # Only accept POST requests
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        return _chat_send_message_stream_impl(request, conversation_id)
+    except Exception as e:
+        error_details = traceback.format_exc()
+        logging.error(f"Error in chat_send_message_stream: {error_details}")
+        return JsonResponse({
+            'success': False,
+            'error': f"Server error: {str(e)}"
+        }, status=500)
+
+
+def _chat_send_message_stream_impl(request, conversation_id=None):
+    """Implementation of the streaming chat endpoint."""
+    import logging
+    user = request.user
+    blocked = False
+    blocked_rules = []
+
+    # Ensure Profile and Company exist
+    if not hasattr(user, 'profile'):
+        default_company, _ = Company.objects.get_or_create(name="Default Company")
+        Profile.objects.create(user=user, company=default_company)
+        user.refresh_from_db()
+
+    profile = user.profile
+    company = profile.company
+
+    # Get available engines for user's company
+    available_engines = CompanyEngine.objects.filter(
+        company=profile.company,
+        active=True
+    ).select_related('engine').prefetch_related('engine__models')
+
+    # Determine which engine to use
+    selected_engine_id = request.session.get('selected_engine_id')
+    current_engine = None
+
+    if selected_engine_id:
+        current_engine = available_engines.filter(id=selected_engine_id).first()
+
+    if not current_engine and profile.default_engine:
+        current_engine = available_engines.filter(id=profile.default_engine.id).first()
+
+    if not current_engine:
+        current_engine = available_engines.first()
+
+    # Determine which model to use
+    selected_model_id = request.session.get('selected_model_id')
+    current_model = None
+
+    if current_engine:
+        available_models = current_engine.engine.models.filter(active=True)
+
+        if selected_model_id:
+            current_model = available_models.filter(id=selected_model_id).first()
+
+        if not current_model and profile.default_model:
+            if profile.default_model.engine_id == current_engine.engine_id:
+                current_model = available_models.filter(id=profile.default_model.id).first()
+
+        if not current_model:
+            current_model = available_models.first()
+
+    # Get API Key and settings from selected engine/model
+    api_key = settings.OPENAI_API_KEY
+    base_url = None
+    model_name = "gpt-4o-mini"
+    connector_type = "openai"
+
+    if current_engine:
+        api_key = current_engine.api_key
+        if current_engine.engine.base_url:
+            base_url = current_engine.engine.base_url
+        connector_type = current_engine.engine.connector_type or "openai"
+
+        if current_model:
+            model_name = current_model.model_id
+        elif current_engine.engine.default_model:
+            model_name = current_engine.engine.default_model
+
+    # Validate API key before proceeding
+    if not api_key or api_key.strip() == '':
+        return JsonResponse({
+            'success': False,
+            'error_type': 'no_api_key',
+            'error': 'No API key configured for the selected AI engine.',
+            'engine_name': current_engine.name if current_engine else 'Default',
+        })
+
+    # Create connector based on engine type
+    connector = get_connector(connector_type, api_key, base_url)
+
+    # Get or create conversation
+    conversation = None
+    if conversation_id:
+        conversation = get_object_or_404(Conversation, id=conversation_id, user=user)
+
+    prompt_text = request.POST.get("prompt", "").strip()
+    uploaded_file = request.FILES.get('file')
+
+    # Read file content if uploaded
+    file_content_text = None
+    file_name = None
+    file_size = 0
+    file_hashes = None
+    is_image = False
+    image_base64 = None
+    image_mime_type = None
+
+    if uploaded_file:
+        file_name = uploaded_file.name
+        file_size = uploaded_file.size
+        file_extension = file_name.lower().split('.')[-1] if '.' in file_name else ''
+
+        # Check if it's an image
+        image_extensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']
+        is_image = file_extension in image_extensions
+        mime_types = {
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'gif': 'image/gif',
+            'bmp': 'image/bmp',
+            'webp': 'image/webp'
+        }
+        if is_image:
+            image_mime_type = mime_types.get(file_extension, 'image/png')
+
+        try:
+            file_content = uploaded_file.read()
+
+            # Calculate file hashes
+            file_hashes = {
+                'md5': hashlib.md5(file_content).hexdigest(),
+                'sha1': hashlib.sha1(file_content).hexdigest(),
+                'sha256': hashlib.sha256(file_content).hexdigest(),
+            }
+
+            if file_extension == 'pdf':
+                try:
+                    pdf_reader = PyPDF2.PdfReader(io.BytesIO(file_content))
+                    extracted_text = []
+                    for page_num, page in enumerate(pdf_reader.pages, 1):
+                        page_text = page.extract_text()
+                        if page_text:
+                            extracted_text.append(f"--- Page {page_num} ---\n{page_text}")
+                    file_content_text = "\n\n".join(extracted_text) if extracted_text else "[PDF without extractable text]"
+                except Exception as pdf_error:
+                    file_content_text = f"[Error extracting PDF text: {str(pdf_error)}]"
+
+            elif file_extension == 'docx':
+                try:
+                    doc = docx.Document(io.BytesIO(file_content))
+                    paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+                    for table in doc.tables:
+                        for row in table.rows:
+                            row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                            if row_text:
+                                paragraphs.append(" | ".join(row_text))
+                    file_content_text = "\n\n".join(paragraphs) if paragraphs else "[DOCX without extractable text]"
+                except Exception as docx_error:
+                    file_content_text = f"[Error extracting DOCX text: {str(docx_error)}]"
+
+            elif file_extension in ['xlsx', 'xls']:
+                try:
+                    workbook = openpyxl.load_workbook(io.BytesIO(file_content), data_only=True)
+                    extracted_text = []
+                    for sheet_name in workbook.sheetnames:
+                        sheet = workbook[sheet_name]
+                        sheet_text = [f"--- Sheet: {sheet_name} ---"]
+                        for row in sheet.iter_rows(values_only=True):
+                            row_values = [str(cell) if cell is not None else "" for cell in row]
+                            if any(v.strip() for v in row_values):
+                                sheet_text.append(" | ".join(row_values))
+                        if len(sheet_text) > 1:
+                            extracted_text.append("\n".join(sheet_text))
+                    file_content_text = "\n\n".join(extracted_text) if extracted_text else "[Excel without extractable data]"
+                except Exception as excel_error:
+                    file_content_text = f"[Error extracting Excel data: {str(excel_error)}]"
+
+            elif file_extension == 'csv':
+                try:
+                    file_content_text = file_content.decode('utf-8')
+                except UnicodeDecodeError:
+                    file_content_text = file_content.decode('latin-1')
+
+            elif file_extension in ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp']:
+                image_base64 = base64.b64encode(file_content).decode('utf-8')
+                if PYTESSERACT_AVAILABLE:
+                    try:
+                        image = Image.open(io.BytesIO(file_content))
+                        ocr_text = pytesseract.image_to_string(image)
+                        file_content_text = ocr_text.strip() if ocr_text.strip() else "[Image without detected text]"
+                    except Exception as ocr_error:
+                        file_content_text = f"[OCR error: {str(ocr_error)}]"
+                else:
+                    file_content_text = "[Image file]"
+
+            else:
+                try:
+                    file_content_text = file_content.decode('utf-8')
+                except UnicodeDecodeError:
+                    try:
+                        file_content_text = file_content.decode('latin-1')
+                    except:
+                        file_content_text = f"[Binary file: {file_name}]"
+
+        except Exception as e:
+            file_content_text = f"[Error reading file: {str(e)}]"
+
+    # Need either prompt or file
+    if not prompt_text and not uploaded_file:
+        return JsonResponse({'error': 'Please enter a message or attach a file.'}, status=400)
+
+    # Build the full content for the message
+    if file_content_text and prompt_text:
+        full_content = f"{prompt_text}\n\n--- Attached File: {file_name} ---\n{file_content_text[:10000]}"
+        display_content = prompt_text
+    elif file_content_text:
+        full_content = f"Please analyze this file:\n\n--- File: {file_name} ---\n{file_content_text[:10000]}"
+        display_content = f"[Attached file: {file_name}]"
+        prompt_text = display_content
+    else:
+        full_content = prompt_text
+        display_content = prompt_text
+
+    # --- Obfuscation ---
+    obfuscation_context = None
+    original_display_content = display_content  # Save original before obfuscation
+    obfuscated_entity_types = []
+    try:
+        obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
+        if obfuscation_context:
+            full_content = obfuscated_text
+            display_content = obfuscated_text
+            if prompt_text:
+                prompt_text = obfuscated_text
+            # Extract entity types for the message
+            for key in obfuscation_context.keys():
+                parts = key.strip('[]').rsplit('_', 1)
+                if len(parts) > 1 and parts[0] not in obfuscated_entity_types:
+                    obfuscated_entity_types.append(parts[0])
+    except Exception as obf_error:
+        logging.error(f"Obfuscation error: {obf_error}")
+
+    # Create new conversation if needed
+    if not conversation:
+        title = prompt_text[:50] if prompt_text else file_name[:50] if file_name else "New conversation"
+        conversation = Conversation.objects.create(
+            user=user,
+            title=title + ('...' if len(title) > 50 else '')
+        )
+
+    # Create user message with obfuscation info
+    user_message = Message.objects.create(
+        conversation=conversation,
+        role='user',
+        content=display_content,
+        file_name=file_name,
+        file_size=file_size,
+        is_obfuscated=bool(obfuscation_context),
+        original_content=original_display_content if obfuscation_context else None,
+        obfuscated_entities=obfuscated_entity_types if obfuscation_context else None
+    )
+
+    # Create prompt for audit/tracking
+    prompt_obj = Prompt.objects.create(
+        user=user,
+        conversation=conversation,
+        content=prompt_text or f"[File: {file_name}]",
+        file_name=file_name,
+        file_size=file_size,
+        file_md5=file_hashes.get('md5') if file_hashes else None,
+        file_sha1=file_hashes.get('sha1') if file_hashes else None,
+        file_sha256=file_hashes.get('sha256') if file_hashes else None
+    )
+
+    # Create obfuscation alert if data was obfuscated
+    if obfuscation_context:
+        entities_detected = list(obfuscation_context.keys())
+        entity_count = len(entities_detected)
+        entity_types = set()
+        for key in entities_detected:
+            parts = key.strip('[]').rsplit('_', 1)
+            if len(parts) > 1:
+                entity_types.add(parts[0])
+
+        Alert.objects.create(
+            user=user,
+            company=company,
+            prompt=prompt_obj,
+            rule=None,
+            severity='medium',
+            source='obfuscation',
+            description=f"Prompt obfuscated: {entity_count} entities detected ({', '.join(sorted(entity_types))}). Sensitive data was masked before sending to AI engine."
+        )
+
+        log_action(user, 'obfuscation_alert_created', {
+            'prompt_id': prompt_obj.id,
+            'conversation_id': conversation.id,
+            'entities_count': entity_count,
+            'entity_types': list(entity_types),
+        }, request)
+
+    # Check if user already confirmed consent
+    consent_confirmed = request.POST.get('consent_confirmed') == 'true'
+
+    # Validate prompt against rules
+    requires_consent = False
+    consent_rules_data = []
+    blocked_rules_data = []
+    all_matches = []
+    try:
+        prompt_matches, prompt_matched_rules = validate_prompt(user, prompt_text, prompt_obj, None, 'prompts')
+
+        # Validate file content against rules
+        file_matches = []
+        file_matched_rules = []
+        if file_content_text:
+            file_info = {'name': file_name, 'size': file_size, 'hashes': file_hashes} if file_hashes else None
+            file_matches, file_matched_rules = validate_prompt(user, file_content_text, prompt_obj, None, 'files', file_info)
+
+        # Combine matches
+        all_matches = (prompt_matches or []) + (file_matches or [])
+        all_matched_rules = prompt_matched_rules + file_matched_rules
+
+        # Separate rules by action type
+        blocking_rules = [r for r in all_matched_rules if r.get('action', 'block') == 'block']
+        consent_rules = [r for r in all_matched_rules if r.get('action') == 'consent']
+
+        # Block rules always take priority
+        if blocking_rules:
+            for rule_data in blocking_rules:
+                try:
+                    rule = Rule.objects.get(id=rule_data['id'])
+
+                    Alert.objects.create(
+                        user=user,
+                        company=company,
+                        prompt=prompt_obj,
+                        rule=rule,
+                        severity=rule_data.get('severity', 'medium'),
+                        description=f"Prompt blocked by rule '{rule.name}'. The message was not sent to the LLM."
+                    )
+
+                    log_action(user, 'blocking_alert_created', {
+                        'rule_name': rule.name,
+                        'severity': rule_data.get('severity', 'medium'),
+                        'prompt_id': prompt_obj.id,
+                        'conversation_id': conversation.id
+                    }, request)
+
+                except Rule.DoesNotExist:
+                    logging.warning(f"Rule {rule_data.get('name', 'unknown')} not found for alert creation")
+
+            # Mark as blocked
+            prompt_obj.filtered = True
+            prompt_obj.save()
+            user_message.blocked = True
+            user_message.save()
+            blocked = True
+            blocked_rules_data = [{'name': r['name'], 'severity': r['severity'], 'description': r['description']} for r in blocking_rules]
+
+        # Consent rules: ask for confirmation (only if no blocking rules)
+        elif consent_rules and not consent_confirmed:
+            requires_consent = True
+            consent_rules_data = [{'name': r['name'], 'severity': r['severity'], 'description': r['description']} for r in consent_rules]
+
+        # User confirmed consent: create consent alerts and proceed
+        elif consent_rules and consent_confirmed:
+            for rule_data in consent_rules:
+                try:
+                    rule = Rule.objects.get(id=rule_data['id'])
+
+                    Alert.objects.create(
+                        user=user,
+                        company=company,
+                        prompt=prompt_obj,
+                        rule=rule,
+                        severity=rule_data.get('severity', 'medium'),
+                        description=f"User consented to send message despite rule '{rule.name}' match."
+                    )
+
+                    log_action(user, 'consent_alert_created', {
+                        'rule_name': rule.name,
+                        'severity': rule_data.get('severity', 'medium'),
+                        'prompt_id': prompt_obj.id,
+                        'conversation_id': conversation.id
+                    }, request)
+
+                except Rule.DoesNotExist:
+                    logging.warning(f"Rule {rule_data.get('name', 'unknown')} not found for alert creation")
+
+    except Exception as validation_error:
+        logging.error(f"Error validating prompt: {validation_error}")
+        all_matches = []
+        blocked_rules_data = []
+
+    # Log the action
+    log_action(user, 'prompt_sent', {
+        'prompt_id': prompt_obj.id,
+        'conversation_id': conversation.id,
+        'content_length': len(prompt_text) if prompt_text else 0,
+        'has_file': bool(uploaded_file),
+        'file_name': file_name,
+        'file_size': file_size,
+        'rules_matched': len(all_matches),
+        'blocked': blocked
+    }, request)
+
+    # If blocked or requires consent, return JSON (not streaming)
+    if blocked or requires_consent:
+        return JsonResponse({
+            'success': True,
+            'conversation_id': conversation.id,
+            'blocked': blocked,
+            'blocked_rules': blocked_rules_data,
+            'requires_consent': requires_consent,
+            'consent_rules': consent_rules_data,
+            'user_message': {
+                'id': user_message.id,
+                'content': display_content,
+                'file_name': file_name,
+                'file_size': file_size,
+                'blocked': blocked
+            }
+        })
+
+    # Stream the AI response
+    def generate_stream():
+        """Generator function for SSE streaming with tool support."""
+        full_response = []
+
+        try:
+            # First, send metadata
+            yield f"data: {json.dumps({'type': 'start', 'conversation_id': conversation.id, 'user_message': {'id': user_message.id, 'content': display_content, 'file_name': file_name, 'file_size': file_size}})}\n\n"
+
+            # Build messages history for context using ChatMessage objects
+            chat_messages = []
+
+            # Inject company and department system prompts
+            system_prompt_parts = []
+            if profile.company and profile.company.system_prompt:
+                system_prompt_parts.append(profile.company.system_prompt)
+            if profile.department and profile.department.system_prompt:
+                system_prompt_parts.append(profile.department.system_prompt)
+
+            # Add tool usage instructions to system prompt
+            tool_instructions = """You have access to tools for creating files. When the user asks you to create a document, spreadsheet, or code file, use the appropriate tool:
+- create_document: For Word documents (.docx) or PDFs
+- create_spreadsheet: For Excel spreadsheets (.xlsx) or CSV files
+- create_code_file: For code/script files in any programming language
+
+Always use these tools when the user explicitly asks for a file to be created or downloaded."""
+            system_prompt_parts.append(tool_instructions)
+
+            if system_prompt_parts:
+                chat_messages.append(ChatMessage(role='system', content='\n\n'.join(system_prompt_parts)))
+
+            for msg in conversation.messages.exclude(id=user_message.id):
+                if msg.role in ['user', 'assistant']:
+                    chat_messages.append(ChatMessage(
+                        role=msg.role,
+                        content=msg.content
+                    ))
+
+            # Add current message - handle images with vision API
+            if is_image and image_base64:
+                user_content = []
+                if prompt_text and prompt_text != f"[Attached file: {file_name}]":
+                    user_content.append({
+                        "type": "text",
+                        "text": prompt_text
+                    })
+                else:
+                    user_content.append({
+                        "type": "text",
+                        "text": "Please analyze this image."
+                    })
+                user_content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:{image_mime_type};base64,{image_base64}"
+                    }
+                })
+                chat_messages.append(ChatMessage(
+                    role="user",
+                    content=user_content
+                ))
+            else:
+                chat_messages.append(ChatMessage(
+                    role="user",
+                    content=full_content
+                ))
+
+            # Check if connector supports tools - filter by company configuration
+            enabled_tools = get_enabled_tools_for_company(company) if connector.supports_tools() else None
+            tools = get_tools_for_openai(enabled_tools) if enabled_tools else None
+            file_url = None
+            complete_response = ""
+            generated_file_name = None
+            generated_file_size = 0
+
+            if tools and connector.supports_tools():
+                # Use non-streaming call with tools first to check for tool usage
+                response = connector.chat_with_tools(
+                    messages=chat_messages,
+                    model=model_name,
+                    tools=tools,
+                    max_tokens=2000,
+                    temperature=0.6,
+                )
+
+                # Check if there are tool calls
+                if response.tool_calls:
+                    from django.core.files.base import ContentFile
+
+                    # Execute each tool call
+                    for tool_call in response.tool_calls:
+                        tool_display_name = tool_call.name.replace("_", " ")
+                        yield f"data: {json.dumps({'type': 'token', 'content': f'Creating {tool_display_name}...'})}\n\n"
+
+                        result = execute_tool(tool_call.name, tool_call.arguments)
+
+                        if result.type == ToolResultType.FILE and result.file_bytes:
+                            generated_file_name = result.file_name
+                            generated_file_size = len(result.file_bytes)
+
+                            # Save the file to the message
+                            assistant_message = Message.objects.create(
+                                conversation=conversation,
+                                role='assistant',
+                                content=result.content,
+                                tokens_used=response.tokens_used,
+                                file_name=generated_file_name,
+                                file_size=generated_file_size
+                            )
+                            assistant_message.response_file.save(
+                                generated_file_name,
+                                ContentFile(result.file_bytes),
+                                save=True
+                            )
+                            file_url = f'/chat/download/{assistant_message.id}/'
+                            complete_response = result.content
+
+                            yield f"data: {json.dumps({'type': 'token', 'content': f' Done!'})}\n\n"
+                        elif result.type == ToolResultType.ERROR:
+                            complete_response = f"Error creating file: {result.content}"
+                            yield f"data: {json.dumps({'type': 'token', 'content': complete_response})}\n\n"
+                        else:
+                            complete_response = result.content
+                            yield f"data: {json.dumps({'type': 'token', 'content': result.content})}\n\n"
+
+                    # If we haven't created a message yet (text result), create one
+                    if not file_url and complete_response:
+                        assistant_message = Message.objects.create(
+                            conversation=conversation,
+                            role='assistant',
+                            content=complete_response,
+                            tokens_used=response.tokens_used
+                        )
+                else:
+                    # No tool calls, stream the text response
+                    complete_response = response.content
+
+                    # Des-ofuscate the response if we have obfuscation context
+                    if obfuscation_context:
+                        complete_response = deobfuscate(complete_response, obfuscation_context)
+
+                    for char in complete_response:
+                        full_response.append(char)
+                        yield f"data: {json.dumps({'type': 'token', 'content': char})}\n\n"
+
+                    assistant_message = Message.objects.create(
+                        conversation=conversation,
+                        role='assistant',
+                        content=complete_response,
+                        tokens_used=response.tokens_used
+                    )
+
+                    # Still check for embedded file content (markdown code blocks, etc.)
+                    file_info_response = extract_file_from_ai_response(complete_response)
+                    if file_info_response:
+                        from django.core.files.base import ContentFile
+                        file_bytes, gen_file_name, mime_type = file_info_response
+                        assistant_message.file_name = gen_file_name
+                        assistant_message.file_size = len(file_bytes)
+                        assistant_message.response_file.save(gen_file_name, ContentFile(file_bytes), save=True)
+                        file_url = f'/chat/download/{assistant_message.id}/'
+                        generated_file_name = gen_file_name
+                        generated_file_size = len(file_bytes)
+            else:
+                # Fallback to streaming without tools
+                for token in connector.chat_stream(
+                    messages=chat_messages,
+                    model=model_name,
+                    max_tokens=1000,
+                    temperature=0.6,
+                ):
+                    full_response.append(token)
+                    yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+
+                complete_response = ''.join(full_response)
+
+                # Des-ofuscate the response if we have obfuscation context
+                if obfuscation_context:
+                    complete_response = deobfuscate(complete_response, obfuscation_context)
+
+                assistant_message = Message.objects.create(
+                    conversation=conversation,
+                    role='assistant',
+                    content=complete_response,
+                    tokens_used=0
+                )
+
+                # Detect and save structured file content from the response
+                file_info_response = extract_file_from_ai_response(complete_response)
+                if file_info_response:
+                    from django.core.files.base import ContentFile
+                    file_bytes, gen_file_name, mime_type = file_info_response
+                    assistant_message.file_name = gen_file_name
+                    assistant_message.file_size = len(file_bytes)
+                    assistant_message.response_file.save(gen_file_name, ContentFile(file_bytes), save=True)
+                    file_url = f'/chat/download/{assistant_message.id}/'
+                    generated_file_name = gen_file_name
+                    generated_file_size = len(file_bytes)
+
+            # Update conversation timestamp
+            conversation.save()
+
+            # Send completion event with message ID and file info
+            yield f"data: {json.dumps({'type': 'done', 'message_id': assistant_message.id, 'file_name': generated_file_name or assistant_message.file_name, 'file_size': generated_file_size or assistant_message.file_size, 'file_url': file_url})}\n\n"
+
+        except Exception as e:
+            error_str = str(e).lower()
+            is_auth_error = any(keyword in error_str for keyword in [
+                'authentication', 'auth', 'api key', 'api_key', 'apikey',
+                'unauthorized', '401', 'invalid_api_key', 'invalid api key',
+                'incorrect api key', 'invalid x-api-key',
+            ])
+
+            if is_auth_error:
+                error_message = Message.objects.create(
+                    conversation=conversation,
+                    role='system',
+                    content=f"Error: Invalid API key for the configured AI engine."
+                )
+                yield f"data: {json.dumps({'type': 'error', 'error_type': 'invalid_api_key', 'error': str(e), 'engine_name': current_engine.name if current_engine else 'Default', 'message_id': error_message.id})}\n\n"
+            else:
+                error_message = Message.objects.create(
+                    conversation=conversation,
+                    role='system',
+                    content=f"Error: {str(e)}"
+                )
+                yield f"data: {json.dumps({'type': 'error', 'error': str(e), 'message_id': error_message.id})}\n\n"
+
+    response = StreamingHttpResponse(
+        generate_stream(),
+        content_type='text/event-stream'
+    )
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'
+    return response
 
 
 @login_required
@@ -3880,8 +4573,11 @@ def prompt_detail(request, pk):
 def obfuscate_text(text, company):
     """
     Ofusca texto encadenando todas las configs activas de la company.
+    Soporta modo local (regex) o API externa (PasteGuard).
     Retorna (texto_ofuscado, contexto_map_combinado) o (texto_original, None) si no hay configs.
     """
+    from front.local_obfuscator import obfuscate_local
+
     configs = ObfuscationConfig.objects.filter(company=company, active=True).order_by("created_at")
     if not configs.exists():
         return text, None
@@ -3891,28 +4587,51 @@ def obfuscate_text(text, company):
     counters = {}
 
     for config in configs:
-        detect_param = ["pii", "secrets"] if config.detect == "both" else [config.detect]
+        if config.mode == "local":
+            # Use local regex-based obfuscation
+            if config.detect == "pii":
+                detect_types = ['EMAIL', 'PHONE', 'DNI', 'NIF', 'PASSPORT', 'SSN', 'CREDIT_CARD', 'IBAN']
+            elif config.detect == "secrets":
+                detect_types = ['API_KEY', 'API_KEY_URL', 'AWS_KEY', 'PRIVATE_KEY']
+            else:  # both
+                detect_types = None  # All types
 
-        payload = {
-            "text": current_text,
-            "detect": detect_param,
-        }
-        if config.language:
-            payload["language"] = config.language
-        if counters:
-            payload["startFrom"] = counters
+            result = obfuscate_local(current_text, detect_types=detect_types)
+            current_text = result.masked_text
+            combined_context.update(result.context)
 
-        api_endpoint = config.api_url.rstrip('/') + '/api/mask'
-        response = requests.post(api_endpoint, json=payload, timeout=10)
-        response.raise_for_status()
-        result = response.json()
+            # Update counters for next iteration
+            for entity in result.entities_found:
+                entity_type = entity['type']
+                counters[entity_type] = counters.get(entity_type, 0) + 1
 
-        current_text = result.get("masked", current_text)
-        combined_context.update(result.get("context", {}))
+        else:
+            # Use external API (PasteGuard)
+            if not config.api_url:
+                continue
 
-        result_counters = result.get("counters", {})
-        for entity_type, count in result_counters.items():
-            counters[entity_type] = counters.get(entity_type, 0) + count
+            detect_param = ["pii", "secrets"] if config.detect == "both" else [config.detect]
+
+            payload = {
+                "text": current_text,
+                "detect": detect_param,
+            }
+            if config.language:
+                payload["language"] = config.language
+            if counters:
+                payload["startFrom"] = counters
+
+            api_endpoint = config.api_url.rstrip('/') + '/api/mask'
+            response = requests.post(api_endpoint, json=payload, timeout=10)
+            response.raise_for_status()
+            result = response.json()
+
+            current_text = result.get("masked", current_text)
+            combined_context.update(result.get("context", {}))
+
+            result_counters = result.get("counters", {})
+            for entity_type, count in result_counters.items():
+                counters[entity_type] = counters.get(entity_type, 0) + count
 
     return current_text, combined_context if combined_context else None
 
@@ -3938,6 +4657,7 @@ def obfuscation_create(request):
 
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
+        mode = request.POST.get('mode', 'local')
         api_url = request.POST.get('api_url', '').strip()
         detect = request.POST.get('detect', 'both')
         language = request.POST.get('language', '').strip()
@@ -3946,8 +4666,8 @@ def obfuscation_create(request):
         errors = []
         if not name:
             errors.append('Name is required.')
-        if not api_url:
-            errors.append('API URL is required.')
+        if mode == 'api' and not api_url:
+            errors.append('API URL is required for API mode.')
 
         if errors:
             for error in errors:
@@ -3960,6 +4680,7 @@ def obfuscation_create(request):
         ObfuscationConfig.objects.create(
             name=name,
             company=company,
+            mode=mode,
             api_url=api_url,
             detect=detect,
             language=language,
@@ -3968,6 +4689,7 @@ def obfuscation_create(request):
 
         log_action(request.user, 'obfuscation_create', {
             'name': name,
+            'mode': mode,
             'api_url': api_url,
             'detect': detect,
             'company': company.name,
@@ -3987,6 +4709,7 @@ def obfuscation_edit(request, pk):
 
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
+        mode = request.POST.get('mode', 'local')
         api_url = request.POST.get('api_url', '').strip()
         detect = request.POST.get('detect', 'both')
         language = request.POST.get('language', '').strip()
@@ -3995,8 +4718,8 @@ def obfuscation_edit(request, pk):
         errors = []
         if not name:
             errors.append('Name is required.')
-        if not api_url:
-            errors.append('API URL is required.')
+        if mode == 'api' and not api_url:
+            errors.append('API URL is required for API mode.')
 
         if errors:
             for error in errors:
@@ -4007,6 +4730,7 @@ def obfuscation_edit(request, pk):
             })
 
         config.name = name
+        config.mode = mode
         config.api_url = api_url
         config.detect = detect
         config.language = language
@@ -4015,6 +4739,7 @@ def obfuscation_edit(request, pk):
 
         log_action(request.user, 'obfuscation_edit', {
             'name': name,
+            'mode': mode,
             'api_url': api_url,
             'detect': detect,
             'company': company.name,
@@ -4068,4 +4793,244 @@ def obfuscation_toggle(request, pk):
 
     messages.success(request, f'Obfuscation config "{config.name}" {status}.')
     return redirect('front:obfuscation_list')
+
+
+# ==================== TOOL CONFIGURATION ====================
+
+@login_required
+@security_required
+def tool_config(request):
+    """Configure which tools are enabled for the company."""
+    company = get_user_company(request.user)
+
+    # Get or create tool config for company
+    config, created = CompanyToolConfig.objects.get_or_create(company=company)
+
+    if request.method == 'POST':
+        # Update configuration
+        config.enable_documents = request.POST.get('enable_documents') == 'on'
+        config.enable_spreadsheets = request.POST.get('enable_spreadsheets') == 'on'
+        config.enable_presentations = request.POST.get('enable_presentations') == 'on'
+        config.enable_code_files = request.POST.get('enable_code_files') == 'on'
+        config.enable_charts = request.POST.get('enable_charts') == 'on'
+        config.enable_data_analysis = request.POST.get('enable_data_analysis') == 'on'
+        config.enable_datetime = request.POST.get('enable_datetime') == 'on'
+        config.enable_calculator = request.POST.get('enable_calculator') == 'on'
+        config.enable_web_search = request.POST.get('enable_web_search') == 'on'
+        config.save()
+
+        log_action(request.user, 'tool_config_update', {
+            'company': company.name,
+            'enabled_tools': config.get_enabled_tools(),
+        }, request)
+
+        messages.success(request, 'Tool configuration updated successfully.')
+        return redirect('front:tool_config')
+
+    context = {
+        'config': config,
+        'enabled_count': len(config.get_enabled_tools()),
+        'total_tools': 9,  # Total number of configurable tools
+    }
+    return render(request, 'tools/config.html', context)
+
+
+# ==================== GOOGLE DRIVE INTEGRATION ====================
+
+@login_required
+def google_drive_status(request):
+    """Check if user has connected Google Drive."""
+    from front.google_drive import is_google_drive_configured
+
+    profile = request.user.profile
+    has_credentials = bool(profile.google_drive_credentials) if hasattr(profile, 'google_drive_credentials') else False
+
+    return JsonResponse({
+        'configured': is_google_drive_configured(),
+        'connected': has_credentials,
+    })
+
+
+@login_required
+def google_drive_connect(request):
+    """Start Google OAuth flow to connect Google Drive."""
+    from front.google_drive import get_authorization_url, is_google_drive_configured
+
+    if not is_google_drive_configured():
+        return JsonResponse({
+            'success': False,
+            'error': 'Google Drive integration is not configured. Please contact your administrator.'
+        }, status=400)
+
+    auth_url, state = get_authorization_url(request)
+
+    if not auth_url:
+        return JsonResponse({
+            'success': False,
+            'error': 'Failed to create authorization URL'
+        }, status=500)
+
+    # Store state in session for verification
+    request.session['google_oauth_state'] = state
+
+    return JsonResponse({
+        'success': True,
+        'auth_url': auth_url
+    })
+
+
+@login_required
+def google_drive_callback(request):
+    """Handle OAuth callback from Google."""
+    from front.google_drive import exchange_code_for_credentials
+
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    error = request.GET.get('error')
+
+    if error:
+        messages.error(request, f'Google authorization failed: {error}')
+        return redirect('front:chat')
+
+    # Verify state
+    saved_state = request.session.get('google_oauth_state')
+    if state != saved_state:
+        messages.error(request, 'Invalid OAuth state. Please try again.')
+        return redirect('front:chat')
+
+    # Exchange code for credentials
+    credentials = exchange_code_for_credentials(request, code, state)
+
+    if not credentials:
+        messages.error(request, 'Failed to get credentials from Google.')
+        return redirect('front:chat')
+
+    # Save credentials to user profile
+    profile = request.user.profile
+    profile.google_drive_credentials = json.dumps(credentials)
+    profile.save()
+
+    # Clean up session
+    del request.session['google_oauth_state']
+
+    messages.success(request, 'Google Drive connected successfully!')
+    return redirect('front:chat')
+
+
+@login_required
+def google_drive_disconnect(request):
+    """Disconnect Google Drive from user account."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    profile = request.user.profile
+    profile.google_drive_credentials = None
+    profile.save()
+
+    return JsonResponse({'success': True})
+
+
+@login_required
+def upload_to_google_drive(request, message_id):
+    """Upload a message's file to Google Drive."""
+    from front.google_drive import (
+        get_credentials_from_dict, upload_to_drive,
+        is_google_drive_configured, ORIGINAL_MIME_TYPES
+    )
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    # Check if Google Drive is configured
+    if not is_google_drive_configured():
+        return JsonResponse({
+            'success': False,
+            'error': 'Google Drive integration is not configured.'
+        }, status=400)
+
+    # Get message and verify ownership
+    message = get_object_or_404(Message, id=message_id)
+    if message.conversation.user != request.user:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+
+    if not message.response_file:
+        return JsonResponse({'error': 'No file attached to this message'}, status=400)
+
+    # Get user's Google credentials
+    profile = request.user.profile
+    creds_json = getattr(profile, 'google_drive_credentials', None)
+
+    if not creds_json:
+        return JsonResponse({
+            'success': False,
+            'error': 'Google Drive not connected. Please connect your account first.',
+            'need_auth': True
+        }, status=401)
+
+    try:
+        creds_dict = json.loads(creds_json)
+        credentials = get_credentials_from_dict(creds_dict)
+
+        if not credentials:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid credentials. Please reconnect Google Drive.',
+                'need_auth': True
+            }, status=401)
+
+        # Update stored credentials if they were refreshed
+        updated_creds = {
+            'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': list(credentials.scopes) if credentials.scopes else [],
+        }
+        profile.google_drive_credentials = json.dumps(updated_creds)
+        profile.save()
+
+        # Read file content
+        message.response_file.seek(0)
+        file_bytes = message.response_file.read()
+        file_name = message.file_name or 'file'
+
+        # Get MIME type
+        ext = file_name.split('.')[-1].lower() if '.' in file_name else ''
+        mime_type = ORIGINAL_MIME_TYPES.get(ext, 'application/octet-stream')
+
+        # Upload to Drive
+        result = upload_to_drive(
+            credentials=credentials,
+            file_bytes=file_bytes,
+            file_name=file_name,
+            mime_type=mime_type,
+            convert_to_google_format=True
+        )
+
+        if not result:
+            return JsonResponse({
+                'success': False,
+                'error': 'Failed to upload file to Google Drive'
+            }, status=500)
+
+        return JsonResponse({
+            'success': True,
+            'file_id': result['file_id'],
+            'edit_link': result['edit_link'],
+            'view_link': result['web_view_link'],
+            'name': result['name'],
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid credentials format. Please reconnect Google Drive.',
+            'need_auth': True
+        }, status=401)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error uploading to Google Drive: {str(e)}'
+        }, status=500)
 

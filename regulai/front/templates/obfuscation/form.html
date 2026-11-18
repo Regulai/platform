@@ -30,34 +30,49 @@
             <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="name" name="name"
                    value="{% if is_edit %}{{ config.name }}{% elif form_data %}{{ form_data.name }}{% endif %}"
-                   placeholder="e.g. PasteGuard PII" required>
+                   placeholder="e.g. Local PII Detection" required>
             <div class="form-text">A descriptive name for this obfuscation configuration.</div>
           </div>
 
           <div class="mb-3">
-            <label for="api_url" class="form-label fw-semibold">API URL <span class="text-danger">*</span></label>
-            <input type="url" class="form-control" id="api_url" name="api_url"
-                   value="{% if is_edit %}{{ config.api_url }}{% elif form_data %}{{ form_data.api_url }}{% endif %}"
-                   placeholder="https://pasteguard.com" required>
-            <div class="form-text">Base URL of the PasteGuard service. The <code>/api/mask</code> endpoint will be appended automatically.</div>
+            <label for="mode" class="form-label fw-semibold">Mode</label>
+            <select class="form-select" id="mode" name="mode" onchange="toggleApiFields()">
+              <option value="local" {% if is_edit %}{% if config.mode == 'local' %}selected{% endif %}{% elif form_data %}{% if form_data.mode == 'local' %}selected{% endif %}{% else %}selected{% endif %}>
+                Local (regex patterns) - No external service needed
+              </option>
+              <option value="api" {% if is_edit %}{% if config.mode == 'api' %}selected{% endif %}{% elif form_data %}{% if form_data.mode == 'api' %}selected{% endif %}{% endif %}>
+                External API (PasteGuard)
+              </option>
+            </select>
+            <div class="form-text">Local mode uses built-in regex patterns. API mode sends data to PasteGuard.</div>
+          </div>
+
+          <div id="apiFields" style="display: none;">
+            <div class="mb-3">
+              <label for="api_url" class="form-label fw-semibold">API URL</label>
+              <input type="url" class="form-control" id="api_url" name="api_url"
+                     value="{% if is_edit %}{{ config.api_url }}{% elif form_data %}{{ form_data.api_url }}{% endif %}"
+                     placeholder="https://pasteguard.com">
+              <div class="form-text">Base URL of the PasteGuard service. The <code>/api/mask</code> endpoint will be appended automatically.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="language" class="form-label fw-semibold">Language</label>
+              <input type="text" class="form-control" id="language" name="language"
+                     value="{% if is_edit %}{{ config.language }}{% elif form_data %}{{ form_data.language }}{% endif %}"
+                     placeholder="Leave empty for auto-detection">
+              <div class="form-text">Language code (e.g. <code>es</code>, <code>en</code>). Leave empty to auto-detect.</div>
+            </div>
           </div>
 
           <div class="mb-3">
             <label for="detect" class="form-label fw-semibold">Detection Type</label>
             <select class="form-select" id="detect" name="detect">
               <option value="both" {% if is_edit %}{% if config.detect == 'both' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'both' %}selected{% endif %}{% else %}selected{% endif %}>PII & Secrets</option>
-              <option value="pii" {% if is_edit %}{% if config.detect == 'pii' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'pii' %}selected{% endif %}{% endif %}>PII only</option>
-              <option value="secrets" {% if is_edit %}{% if config.detect == 'secrets' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'secrets' %}selected{% endif %}{% endif %}>Secrets only</option>
+              <option value="pii" {% if is_edit %}{% if config.detect == 'pii' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'pii' %}selected{% endif %}{% endif %}>PII only (emails, phones, IDs, etc.)</option>
+              <option value="secrets" {% if is_edit %}{% if config.detect == 'secrets' %}selected{% endif %}{% elif form_data %}{% if form_data.detect == 'secrets' %}selected{% endif %}{% endif %}>Secrets only (API keys, tokens, etc.)</option>
             </select>
             <div class="form-text">Choose what types of sensitive data to detect and obfuscate.</div>
-          </div>
-
-          <div class="mb-3">
-            <label for="language" class="form-label fw-semibold">Language</label>
-            <input type="text" class="form-control" id="language" name="language"
-                   value="{% if is_edit %}{{ config.language }}{% elif form_data %}{{ form_data.language }}{% endif %}"
-                   placeholder="Leave empty for auto-detection">
-            <div class="form-text">Language code (e.g. <code>es</code>, <code>en</code>). Leave empty to auto-detect.</div>
           </div>
 
           <div class="mb-4">
@@ -92,35 +107,69 @@
           About Obfuscation
         </h6>
         <p class="text-muted small mb-3">
-          Obfuscation automatically masks sensitive data (PII, secrets) in user prompts before sending them to AI engines, using PasteGuard.
+          Obfuscation automatically masks sensitive data in user prompts before sending them to AI engines.
         </p>
+        <hr>
+        <h6 class="fw-semibold mb-2">Local Mode detects:</h6>
+        <ul class="list-unstyled small text-muted">
+          <li class="mb-1">
+            <iconify-icon icon="solar:letter-bold" class="text-primary me-1"></iconify-icon>
+            Emails
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:phone-bold" class="text-primary me-1"></iconify-icon>
+            Phone numbers
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:card-bold" class="text-primary me-1"></iconify-icon>
+            Credit cards, DNI/NIE, IBAN
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:key-bold" class="text-primary me-1"></iconify-icon>
+            API keys, AWS keys
+          </li>
+          <li class="mb-1">
+            <iconify-icon icon="solar:server-bold" class="text-primary me-1"></iconify-icon>
+            IP addresses
+          </li>
+        </ul>
         <hr>
         <h6 class="fw-semibold mb-2">How it works:</h6>
         <ul class="list-unstyled small text-muted">
           <li class="mb-2">
             <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
-            Detects PII (names, emails, phones, etc.)
+            Scans text for sensitive patterns
           </li>
           <li class="mb-2">
             <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
-            Detects secrets (API keys, tokens, etc.)
+            Replaces with tokens like <code>[EMAIL_1]</code>
           </li>
           <li class="mb-2">
             <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
-            Replaces with placeholders like <code>[[PERSON_1]]</code>
-          </li>
-          <li class="mb-2">
-            <iconify-icon icon="solar:shield-check-bold" class="text-success me-1"></iconify-icon>
-            Multiple configs are chained in sequence
+            Creates alert when data is masked
           </li>
         </ul>
-        <hr>
-        <p class="text-muted small mb-0">
-          <iconify-icon icon="solar:link-bold" class="text-primary me-1"></iconify-icon>
-          Powered by <strong>PasteGuard</strong> API
-        </p>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+function toggleApiFields() {
+  const mode = document.getElementById('mode').value;
+  const apiFields = document.getElementById('apiFields');
+  const apiUrlInput = document.getElementById('api_url');
+
+  if (mode === 'api') {
+    apiFields.style.display = 'block';
+    apiUrlInput.required = true;
+  } else {
+    apiFields.style.display = 'none';
+    apiUrlInput.required = false;
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', toggleApiFields);
+</script>
 {% endblock %}

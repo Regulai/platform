@@ -227,22 +227,250 @@
   }
 
   .file-attachment {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    margin-top: 0.75rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+  }
+
+  .file-attachment:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .file-attachment .file-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+  }
+
+  .file-attachment .file-icon.docx { background: #2b579a; color: white; }
+  .file-attachment .file-icon.pdf { background: #d32f2f; color: white; }
+  .file-attachment .file-icon.xlsx { background: #217346; color: white; }
+  .file-attachment .file-icon.csv { background: #43a047; color: white; }
+  .file-attachment .file-icon.pptx { background: #d24726; color: white; }
+  .file-attachment .file-icon.png, .file-attachment .file-icon.jpg { background: #7b1fa2; color: white; }
+  .file-attachment .file-icon.code { background: #37474f; color: white; }
+  .file-attachment .file-icon.default { background: #5d87ff; color: white; }
+
+  .file-attachment .file-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .file-attachment .file-name {
+    font-weight: 500;
+    color: #212529;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-attachment .file-name:hover {
+    color: #5d87ff;
+  }
+
+  .file-attachment .file-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+
+  .file-attachment .file-actions {
+    display: flex;
     gap: 0.5rem;
-    background-color: rgba(255,255,255,0.2);
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
+    align-items: center;
+  }
+
+  .file-attachment .file-actions .btn {
+    padding: 0.375rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-attachment .google-drive-btn {
+    border-color: #dadce0;
+  }
+
+  .file-attachment .google-drive-btn:hover {
+    background-color: #f1f3f4;
+    border-color: #dadce0;
   }
 
   .chat-bubble.user .file-attachment {
-    background-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.2);
   }
 
-  .chat-bubble.assistant .file-attachment {
-    background-color: #f0f0f0;
+  .chat-bubble.user .file-attachment .file-name,
+  .chat-bubble.user .file-attachment .file-meta {
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* Image preview */
+  .file-preview {
+    margin-top: 0.75rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    max-width: 400px;
+  }
+
+  .file-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .file-preview img:hover {
+    opacity: 0.9;
+  }
+
+  .file-preview-caption {
+    padding: 0.5rem 0.75rem;
+    background: #f8f9fa;
+    font-size: 0.75rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Tool progress indicator */
+  .tool-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-radius: 0.75rem;
+    margin-top: 0.5rem;
+    border: 1px solid #90caf9;
+  }
+
+  .tool-progress .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #1976d2;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .tool-progress .tool-name {
+    font-weight: 500;
+    color: #1565c0;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Streaming cursor animation */
+  .chat-bubble.assistant .message-content.streaming::after {
+    content: '|';
+    animation: blink 0.7s infinite;
+    margin-left: 2px;
+    color: #5d87ff;
+    font-weight: bold;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Obfuscated message styles */
+  .chat-bubble.user.obfuscated {
+    border-left: 3px solid #ffc107;
+    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+  }
+
+  .obfuscation-toggle-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  .obfuscation-toggle-btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .obfuscation-toggle-btn.active {
+    pointer-events: none;
+  }
+
+  .obfuscation-content .content-masked {
+    background: rgba(255, 193, 7, 0.15);
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-left: 2px solid #ffc107;
+  }
+
+  .obfuscation-badge {
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+  }
+
+  .obfuscation-badge:hover {
+    background-color: #e0a800 !important;
+    transform: scale(1.05);
+  }
+
+
+  /* Image modal for full preview */
+  .image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-modal.show {
+    display: flex;
+  }
+
+  .image-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
+
+  .image-modal .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
   }
 
 </style>
@@ -390,7 +618,7 @@
           {% if messages %}
             {% for msg in messages %}
               {% if msg.role == 'user' %}
-                <div class="chat-bubble user {% if msg.blocked %}blocked{% endif %}">
+                <div class="chat-bubble user {% if msg.blocked %}blocked{% endif %} {% if msg.is_obfuscated %}obfuscated{% endif %}">
                   <div class="message-role">
                     <iconify-icon icon="solar:user-bold"></iconify-icon>
                     You
@@ -398,7 +626,30 @@
                       <span class="badge bg-danger ms-2">Blocked</span>
                     {% endif %}
                   </div>
+                  {% if msg.is_obfuscated %}
+                  <div class="obfuscation-toggle-container mb-2">
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button type="button" class="btn btn-primary btn-sm obfuscation-toggle-btn active" data-show="original" data-msg-id="{{ msg.id }}">
+                        <iconify-icon icon="solar:eye-bold" class="me-1"></iconify-icon>
+                        Original
+                      </button>
+                      <button type="button" class="btn btn-outline-warning btn-sm obfuscation-toggle-btn" data-show="masked" data-msg-id="{{ msg.id }}">
+                        <iconify-icon icon="solar:shield-keyhole-bold" class="me-1"></iconify-icon>
+                        Sent to AI
+                      </button>
+                    </div>
+                    <span class="ms-2 badge bg-warning-subtle text-warning-emphasis">
+                      <iconify-icon icon="solar:shield-warning-bold" class="me-1"></iconify-icon>
+                      {{ msg.obfuscated_entities|join:', ' }}
+                    </span>
+                  </div>
+                  <div class="message-content obfuscation-content" data-msg-id="{{ msg.id }}" data-view="original">
+                    <div class="content-original">{{ msg.original_content }}</div>
+                    <div class="content-masked" style="display: none;">{{ msg.content }}</div>
+                  </div>
+                  {% else %}
                   <div class="message-content">{{ msg.content }}</div>
+                  {% endif %}
                   {% if msg.file_name %}
                   <div class="file-attachment">
                     <iconify-icon icon="solar:file-bold"></iconify-icon>
@@ -417,13 +668,27 @@
                   </div>
                   <div class="message-content">{{ msg.content }}</div>
                   {% if msg.file_name and msg.response_file %}
-                  <div class="file-attachment mt-2">
-                    <iconify-icon icon="solar:file-download-bold"></iconify-icon>
-                    <a href="{% url 'front:chat_download_file' msg.id %}" download="{{ msg.file_name }}" class="ms-1">{{ msg.file_name }}</a>
-                    {% if msg.file_size %}
-                    <span class="opacity-75 ms-1">({{ msg.file_size|filesizeformat }})</span>
-                    {% endif %}
+                  <div class="file-attachment">
+                    <div class="file-icon {% if '.docx' in msg.file_name or '.doc' in msg.file_name %}docx{% elif '.pdf' in msg.file_name %}pdf{% elif '.xlsx' in msg.file_name or '.xls' in msg.file_name %}xlsx{% elif '.csv' in msg.file_name %}csv{% elif '.pptx' in msg.file_name or '.ppt' in msg.file_name %}pptx{% elif '.png' in msg.file_name or '.jpg' in msg.file_name or '.jpeg' in msg.file_name %}png{% elif '.py' in msg.file_name or '.js' in msg.file_name or '.html' in msg.file_name %}code{% else %}default{% endif %}">
+                      <iconify-icon icon="{% if '.docx' in msg.file_name or '.doc' in msg.file_name %}solar:document-text-bold{% elif '.pdf' in msg.file_name %}solar:file-text-bold{% elif '.xlsx' in msg.file_name or '.xls' in msg.file_name %}solar:calculator-bold{% elif '.csv' in msg.file_name %}solar:database-bold{% elif '.pptx' in msg.file_name %}solar:presentation-chart-bold{% elif '.png' in msg.file_name or '.jpg' in msg.file_name %}solar:gallery-bold{% elif '.py' in msg.file_name or '.js' in msg.file_name %}solar:code-bold{% else %}solar:file-download-bold{% endif %}"></iconify-icon>
+                    </div>
+                    <div class="file-info">
+                      <a href="{% url 'front:chat_download_file' msg.id %}" download="{{ msg.file_name }}" class="file-name">{{ msg.file_name }}</a>
+                      <div class="file-meta">{% if msg.file_size %}{{ msg.file_size|filesizeformat }}{% endif %}</div>
+                    </div>
+                    <a href="{% url 'front:chat_download_file' msg.id %}" download="{{ msg.file_name }}" class="btn btn-sm btn-outline-primary">
+                      <iconify-icon icon="solar:download-bold"></iconify-icon>
+                    </a>
                   </div>
+                  {% if '.png' in msg.file_name or '.jpg' in msg.file_name or '.jpeg' in msg.file_name %}
+                  <div class="file-preview">
+                    <img src="{% url 'front:chat_download_file' msg.id %}" alt="{{ msg.file_name }}" onclick="showImageModal(this.src)" loading="lazy">
+                    <div class="file-preview-caption">
+                      <span>Click to enlarge</span>
+                      <a href="{% url 'front:chat_download_file' msg.id %}" download="{{ msg.file_name }}">Download</a>
+                    </div>
+                  </div>
+                  {% endif %}
                   {% endif %}
                 </div>
               {% elif msg.role == 'system' %}
@@ -600,10 +865,11 @@
     }
   });
 
-  async function sendMessage() {
+  async function sendMessage(consentConfirmed = false) {
     if (isLoading) return;
 
-    const prompt = document.getElementById('prompt').value.trim();
+    const promptInput = document.getElementById('prompt');
+    const prompt = promptInput.value.trim();
     const fileInput = document.getElementById('fileInput');
     const file = fileInput.files[0];
 
@@ -635,8 +901,8 @@
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     // Clear form
-    document.getElementById('prompt').value = '';
-    document.getElementById('prompt').style.height = 'auto';
+    promptInput.value = '';
+    promptInput.style.height = 'auto';
     removeFile();
 
     // Build form data
@@ -646,11 +912,14 @@
       formData.append('file', file);
     }
     formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    if (consentConfirmed) {
+      formData.append('consent_confirmed', 'true');
+    }
 
-    // Determine URL
+    // Use streaming endpoint
     let url = currentConversationId
-      ? `/chat/${currentConversationId}/send/`
-      : '/chat/send/';
+      ? `/chat/${currentConversationId}/stream/`
+      : '/chat/stream/';
 
     try {
       const response = await fetch(url, {
@@ -658,12 +927,27 @@
         body: formData
       });
 
-      // Remove loading indicator
-      loadingIndicator.remove();
-
       // Check if response is OK
       if (!response.ok) {
-        const errorBubble = createSystemBubble(`Error: Server returned ${response.status}`);
+        loadingIndicator.remove();
+        let errorMessage = `Error: Server returned ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.error('Server error:', errorData);
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+          if (errorData.details) {
+            console.error('Error details:', errorData.details);
+          }
+        } catch (e) {
+          // Response wasn't JSON, try to get text
+          try {
+            const errorText = await response.text();
+            console.error('Server error (text):', errorText);
+          } catch (e2) {}
+        }
+        const errorBubble = createSystemBubble(errorMessage);
         chatContainer.appendChild(errorBubble);
         chatContainer.scrollTop = chatContainer.scrollHeight;
         isLoading = false;
@@ -671,131 +955,109 @@
         return;
       }
 
-      const data = await response.json();
+      // Check content type - JSON means blocked/consent/error, SSE means streaming
+      const contentType = response.headers.get('content-type');
 
-      // Check for API key errors - show modal
-      if (data.error_type === 'no_api_key' || data.error_type === 'invalid_api_key') {
-        showApiKeyModal(data.error_type, data.engine_name);
-        if (data.error_message) {
-          const errorBubble = createSystemBubble(data.error_message.content);
-          chatContainer.appendChild(errorBubble);
-        } else {
-          const errorBubble = createSystemBubble(data.error || 'API key not configured');
-          chatContainer.appendChild(errorBubble);
-        }
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        isLoading = false;
-        setLoadingState(false);
+      if (contentType && contentType.includes('application/json')) {
+        // Non-streaming response (blocked, consent required, or error)
+        loadingIndicator.remove();
+        const data = await response.json();
+        handleNonStreamingResponse(data, userBubble, chatContainer, prompt);
         return;
       }
 
-      if (data.success) {
-        // Update conversation ID if new
-        if (!currentConversationId && data.conversation_id) {
-          currentConversationId = data.conversation_id;
-          // Update URL without reload
-          window.history.pushState({}, '', `/chat/${data.conversation_id}/`);
-        }
+      // Streaming response - process SSE
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantBubble = null;
+      let contentDiv = null;
+      let fullContent = '';
+      let buffer = '';
 
-        // Handle obfuscation confirmation required
-        if (data.obfuscated) {
-          const roleDiv = userBubble.querySelector('.message-role');
-          if (roleDiv) {
-            const containerId = 'obf-' + Date.now();
-            const badgeHtml = `
-              <span
-                class="badge bg-warning text-dark ms-2"
-                style="cursor: pointer;"
-                id="${containerId}-badge"
-                title="Click to show/hide original content"
-                onclick="toggleObfuscation('${containerId}')">
-                <iconify-icon icon="solar:eye-closed-bold" class="me-1"></iconify-icon>
-              </span>
-            `;
-            roleDiv.innerHTML += badgeHtml;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-            // Update bubble content with obfuscated version
-            const contentDiv = userBubble.querySelector('.message-content');
-            if (contentDiv) {
-              contentDiv.innerHTML = `
-                <div id="${containerId}" class="obfuscated-content" style="display: block;">
-                  ${escapeHtml(data.obfuscated_content || '')}
-                </div>
-                <div id="${containerId}-original" class="original-content" style="display: none;">
-                  ${escapeHtml(data.user_message.content)}
-                </div>
-              `;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'start') {
+                // Update conversation ID
+                if (!currentConversationId && data.conversation_id) {
+                  currentConversationId = data.conversation_id;
+                  window.history.pushState({}, '', `/chat/${data.conversation_id}/`);
+                }
+                // Remove loading indicator
+                loadingIndicator.remove();
+                // Create assistant bubble for streaming
+                assistantBubble = createStreamingAssistantBubble();
+                chatContainer.appendChild(assistantBubble);
+                contentDiv = assistantBubble.querySelector('.message-content');
+              }
+              else if (data.type === 'token' && contentDiv) {
+                fullContent += data.content;
+                // Check if this is a tool progress message
+                if (data.content.includes('Creating ') && data.content.includes('...')) {
+                  // Show tool progress indicator
+                  const toolName = data.content.replace('Creating ', '').replace('...', '').trim();
+                  contentDiv.innerHTML = `
+                    <div class="tool-progress">
+                      <div class="spinner"></div>
+                      <span class="tool-name">Creating ${escapeHtml(toolName)}...</span>
+                    </div>
+                  `;
+                } else if (data.content === ' Done!') {
+                  // Tool completed, update progress
+                  const progressDiv = contentDiv.querySelector('.tool-progress');
+                  if (progressDiv) {
+                    progressDiv.innerHTML = `
+                      <iconify-icon icon="solar:check-circle-bold" style="color: #4caf50; font-size: 1.25rem;"></iconify-icon>
+                      <span class="tool-name" style="color: #2e7d32;">File created successfully!</span>
+                    `;
+                  }
+                } else {
+                  contentDiv.textContent = fullContent;
+                }
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+              }
+              else if (data.type === 'done') {
+                // Finalize the assistant message with proper formatting
+                if (contentDiv) {
+                  contentDiv.classList.remove('streaming');
+                  // Clean up tool progress messages from display
+                  const cleanContent = fullContent.replace(/Creating [^.]+\.\.\./g, '').replace(/ Done!/g, '').trim();
+                  contentDiv.innerHTML = cleanContent ? escapeHtml(cleanContent) : '';
+                }
+                // Add file download with preview if present
+                if (data.file_name && data.file_url && assistantBubble) {
+                  const fileHtml = createFileAttachmentHtml(data.file_name, data.file_size, data.file_url, true, data.message_id);
+                  assistantBubble.insertAdjacentHTML('beforeend', fileHtml);
+                }
+              }
+              else if (data.type === 'error') {
+                loadingIndicator.remove();
+                if (data.error_type === 'invalid_api_key') {
+                  showApiKeyModal(data.error_type, data.engine_name);
+                }
+                const errorBubble = createSystemBubble(data.error || 'An error occurred');
+                chatContainer.appendChild(errorBubble);
+              }
+            } catch (parseError) {
+              console.error('Error parsing SSE data:', parseError, line);
             }
           }
-
-          // Show obfuscation modal if rules are provided
-          if (data.obfuscation_rules && data.obfuscation_rules.length > 0) {
-            showObfuscationModal(data.obfuscation_rules);
-          }
-          return; // Don't continue with normal flow
         }
-
-        // Handle consent required
-        if (data.requires_consent && data.consent_rules && data.consent_rules.length > 0) {
-          // Store pending data for resend
-          window._pendingConsent = {
-            prompt: prompt,
-            conversationId: data.conversation_id,
-            userBubble: userBubble
-          };
-          // Add warning badge to user bubble
-          const roleDiv = userBubble.querySelector('.message-role');
-          if (roleDiv) {
-            roleDiv.innerHTML += '<span class="badge bg-warning text-dark ms-2">Pending consent</span>';
-          }
-          showConsentModal(data.consent_rules);
-          isLoading = false;
-          setLoadingState(false);
-          return;
-        }
-
-        // Handle blocked message
-        if (data.blocked) {
-          userBubble.classList.add('blocked');
-          const roleDiv = userBubble.querySelector('.message-role');
-          if (roleDiv) {
-            roleDiv.innerHTML += '<span class="badge bg-danger ms-2">Blocked</span>';
-          }
-
-          // Show blocked rules modal if rules exist
-          if (data.blocked_rules && data.blocked_rules.length > 0) {
-            showBlockedModal(data.blocked_rules);
-          }
-        }
-
-        // Add assistant response
-        if (data.assistant_message) {
-          const am = data.assistant_message;
-          const assistantBubble = createAssistantBubble(am.content, am.file_name || null, am.file_size || null, am.file_url || null);
-          chatContainer.appendChild(assistantBubble);
-        }
-
-        // Add error message if any
-        if (data.error_message) {
-          const errorBubble = createSystemBubble(data.error_message.content);
-          chatContainer.appendChild(errorBubble);
-        }
-
-        // Scroll to bottom
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        // Reload sidebar to show new conversation (if new)
-        if (!currentConversationId || data.conversation_id !== currentConversationId) {
-          // Could refresh sidebar via AJAX, for now just update
-        }
-      } else {
-        // Show error
-        const errorBubble = createSystemBubble(data.error || 'An error occurred');
-        chatContainer.appendChild(errorBubble);
       }
 
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
     } catch (error) {
-      // Safe remove - might already be removed
       if (loadingIndicator.parentNode) {
         loadingIndicator.remove();
       }
@@ -807,6 +1069,90 @@
 
     isLoading = false;
     setLoadingState(false);
+  }
+
+  function handleNonStreamingResponse(data, userBubble, chatContainer, prompt) {
+    // Check for API key errors
+    if (data.error_type === 'no_api_key' || data.error_type === 'invalid_api_key') {
+      showApiKeyModal(data.error_type, data.engine_name);
+      const errorBubble = createSystemBubble(data.error || 'API key not configured');
+      chatContainer.appendChild(errorBubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      isLoading = false;
+      setLoadingState(false);
+      return;
+    }
+
+    if (data.success) {
+      // Update conversation ID if new
+      if (!currentConversationId && data.conversation_id) {
+        currentConversationId = data.conversation_id;
+        window.history.pushState({}, '', `/chat/${data.conversation_id}/`);
+      }
+
+      // Handle consent required
+      if (data.requires_consent && data.consent_rules && data.consent_rules.length > 0) {
+        window._pendingConsent = {
+          prompt: prompt,
+          conversationId: data.conversation_id,
+          userBubble: userBubble
+        };
+        const roleDiv = userBubble.querySelector('.message-role');
+        if (roleDiv) {
+          roleDiv.innerHTML += '<span class="badge bg-warning text-dark ms-2">Pending consent</span>';
+        }
+        showConsentModal(data.consent_rules);
+        isLoading = false;
+        setLoadingState(false);
+        return;
+      }
+
+      // Handle blocked message
+      if (data.blocked) {
+        userBubble.classList.add('blocked');
+        const roleDiv = userBubble.querySelector('.message-role');
+        if (roleDiv) {
+          roleDiv.innerHTML += '<span class="badge bg-danger ms-2">Blocked</span>';
+        }
+        if (data.blocked_rules && data.blocked_rules.length > 0) {
+          showBlockedModal(data.blocked_rules);
+        }
+      }
+
+      // Add assistant response if present
+      if (data.assistant_message) {
+        const am = data.assistant_message;
+        const assistantBubble = createAssistantBubble(am.content, am.file_name || null, am.file_size || null, am.file_url || null, am.id || null);
+        chatContainer.appendChild(assistantBubble);
+      }
+
+      // Add error message if present
+      if (data.error_message) {
+        const errorBubble = createSystemBubble(data.error_message.content);
+        chatContainer.appendChild(errorBubble);
+      }
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    } else {
+      const errorBubble = createSystemBubble(data.error || 'An error occurred');
+      chatContainer.appendChild(errorBubble);
+    }
+
+    isLoading = false;
+    setLoadingState(false);
+  }
+
+  function createStreamingAssistantBubble() {
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble assistant';
+    bubble.innerHTML = `
+      <div class="message-role text-primary">
+        <iconify-icon icon="solar:atom-bold"></iconify-icon>
+        AI Assistant
+      </div>
+      <div class="message-content streaming"></div>
+    `;
+    return bubble;
   }
 
   function setLoadingState(loading) {
@@ -830,6 +1176,299 @@
     }
   }
 
+  function getFileIconClass(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const iconMap = {
+      'docx': 'docx', 'doc': 'docx',
+      'pdf': 'pdf',
+      'xlsx': 'xlsx', 'xls': 'xlsx',
+      'csv': 'csv',
+      'pptx': 'pptx', 'ppt': 'pptx',
+      'png': 'png', 'jpg': 'jpg', 'jpeg': 'jpg', 'gif': 'png', 'webp': 'png',
+      'py': 'code', 'js': 'code', 'ts': 'code', 'html': 'code', 'css': 'code',
+      'json': 'code', 'yaml': 'code', 'xml': 'code', 'sql': 'code', 'sh': 'code'
+    };
+    return iconMap[ext] || 'default';
+  }
+
+  function getFileIcon(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const icons = {
+      'docx': 'solar:document-text-bold', 'doc': 'solar:document-text-bold',
+      'pdf': 'solar:file-text-bold',
+      'xlsx': 'solar:calculator-bold', 'xls': 'solar:calculator-bold',
+      'csv': 'solar:database-bold',
+      'pptx': 'solar:presentation-chart-bold', 'ppt': 'solar:presentation-chart-bold',
+      'png': 'solar:gallery-bold', 'jpg': 'solar:gallery-bold', 'jpeg': 'solar:gallery-bold',
+      'py': 'solar:code-bold', 'js': 'solar:code-bold', 'ts': 'solar:code-bold',
+      'html': 'solar:code-bold', 'css': 'solar:code-bold', 'json': 'solar:code-bold'
+    };
+    return icons[ext] || 'solar:file-download-bold';
+  }
+
+  function isImageFile(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext);
+  }
+
+  function getFileTypeLabel(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const labels = {
+      'docx': 'Word Document', 'doc': 'Word Document',
+      'pdf': 'PDF Document',
+      'xlsx': 'Excel Spreadsheet', 'xls': 'Excel Spreadsheet',
+      'csv': 'CSV Data',
+      'pptx': 'PowerPoint', 'ppt': 'PowerPoint',
+      'png': 'PNG Image', 'jpg': 'JPEG Image', 'jpeg': 'JPEG Image',
+      'py': 'Python Script', 'js': 'JavaScript', 'ts': 'TypeScript',
+      'html': 'HTML File', 'css': 'Stylesheet', 'json': 'JSON Data'
+    };
+    return labels[ext] || 'File';
+  }
+
+  function canOpenInGoogleDrive(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    return ['docx', 'doc', 'xlsx', 'xls', 'csv', 'pptx', 'ppt', 'pdf', 'png', 'jpg', 'jpeg'].includes(ext);
+  }
+
+  function getGoogleAppInfo(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const apps = {
+      'docx': { name: 'Google Docs', icon: 'logos:google-docs', color: '#4285f4' },
+      'doc': { name: 'Google Docs', icon: 'logos:google-docs', color: '#4285f4' },
+      'xlsx': { name: 'Google Sheets', icon: 'logos:google-sheets', color: '#0f9d58' },
+      'xls': { name: 'Google Sheets', icon: 'logos:google-sheets', color: '#0f9d58' },
+      'csv': { name: 'Google Sheets', icon: 'logos:google-sheets', color: '#0f9d58' },
+      'pptx': { name: 'Google Slides', icon: 'logos:google-slides', color: '#f4b400' },
+      'ppt': { name: 'Google Slides', icon: 'logos:google-slides', color: '#f4b400' },
+      'pdf': { name: 'Google Drive', icon: 'logos:google-drive', color: '#ea4335' },
+      'png': { name: 'Google Drive', icon: 'logos:google-drive', color: '#ea4335' },
+      'jpg': { name: 'Google Drive', icon: 'logos:google-drive', color: '#ea4335' },
+    };
+    return apps[ext] || { name: 'Google Drive', icon: 'logos:google-drive', color: '#4285f4' };
+  }
+
+  function createFileAttachmentHtml(fileName, fileSize, fileUrl, showPreview = true, messageId = null) {
+    const iconClass = getFileIconClass(fileName);
+    const icon = getFileIcon(fileName);
+    const typeLabel = getFileTypeLabel(fileName);
+    const sizeText = fileSize ? formatFileSize(fileSize) : '';
+    const canOpenGoogle = canOpenInGoogleDrive(fileName);
+    const googleApp = getGoogleAppInfo(fileName);
+
+    // Extract message ID from URL if not provided
+    if (!messageId && fileUrl) {
+      const match = fileUrl.match(/\/download\/(\d+)\//);
+      if (match) messageId = match[1];
+    }
+
+    let googleButton = '';
+    if (canOpenGoogle && messageId) {
+      googleButton = `
+        <button type="button" class="btn btn-sm btn-outline-secondary google-drive-btn"
+                onclick="uploadToGoogleDrive(${messageId}, this)"
+                title="Open in ${googleApp.name}">
+          <iconify-icon icon="${googleApp.icon}"></iconify-icon>
+        </button>
+      `;
+    }
+
+    let html = `
+      <div class="file-attachment" data-message-id="${messageId || ''}">
+        <div class="file-icon ${iconClass}">
+          <iconify-icon icon="${icon}"></iconify-icon>
+        </div>
+        <div class="file-info">
+          <a href="${escapeHtml(fileUrl)}" download="${escapeHtml(fileName)}" class="file-name">${escapeHtml(fileName)}</a>
+          <div class="file-meta">${typeLabel}${sizeText ? ' • ' + sizeText : ''}</div>
+        </div>
+        <div class="file-actions">
+          ${googleButton}
+          <a href="${escapeHtml(fileUrl)}" download="${escapeHtml(fileName)}" class="btn btn-sm btn-outline-primary" title="Download">
+            <iconify-icon icon="solar:download-bold"></iconify-icon>
+          </a>
+        </div>
+      </div>
+    `;
+
+    // Add image preview for image files
+    if (showPreview && isImageFile(fileName)) {
+      html += `
+        <div class="file-preview">
+          <img src="${escapeHtml(fileUrl)}" alt="${escapeHtml(fileName)}" onclick="showImageModal(this.src)" loading="lazy">
+          <div class="file-preview-caption">
+            <span>Click to enlarge</span>
+            <a href="${escapeHtml(fileUrl)}" download="${escapeHtml(fileName)}">Download</a>
+          </div>
+        </div>
+      `;
+    }
+
+    return html;
+  }
+
+  // Google Drive - Direct browser OAuth (user authenticates with their own Google account)
+  const GOOGLE_CLIENT_ID = '{{ google_client_id|default:"" }}';
+  let googleAccessToken = null;
+  let googleTokenClient = null;
+
+  function initGoogleDrive() {
+    if (!GOOGLE_CLIENT_ID) return;
+
+    // Load Google Identity Services library
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      googleTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.file',
+        callback: (tokenResponse) => {
+          if (tokenResponse.access_token) {
+            googleAccessToken = tokenResponse.access_token;
+            // If there's a pending upload, execute it
+            if (window._pendingGoogleUpload) {
+              const { button, originalContent } = window._pendingGoogleUpload;
+              window._pendingGoogleUpload = null;
+              doGoogleUpload(button, originalContent);
+            }
+          }
+        },
+      });
+    };
+    document.head.appendChild(script);
+  }
+
+  async function uploadToGoogleDrive(messageId, button) {
+    if (!GOOGLE_CLIENT_ID) {
+      alert('Google Drive is not configured. Add GOOGLE_CLIENT_ID to settings.');
+      return;
+    }
+
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    button.disabled = true;
+
+    // Check if we have a valid token
+    if (!googleAccessToken) {
+      // Need to authenticate - store pending upload
+      window._pendingGoogleUpload = { button, originalContent };
+      googleTokenClient.requestAccessToken({ prompt: '' });
+      return;
+    }
+
+    await doGoogleUpload(button, originalContent);
+  }
+
+  async function doGoogleUpload(button, originalContent) {
+    try {
+      // Get file info from the attachment
+      const attachment = button.closest('.file-attachment');
+      const fileName = attachment.querySelector('.file-name').textContent.trim();
+      const downloadLink = attachment.querySelector('a[download]').href;
+
+      // Download the file
+      const fileResponse = await fetch(downloadLink);
+      const fileBlob = await fileResponse.blob();
+
+      // Determine Google MIME type for conversion
+      const ext = fileName.split('.').pop().toLowerCase();
+      const googleMimeTypes = {
+        'docx': 'application/vnd.google-apps.document',
+        'doc': 'application/vnd.google-apps.document',
+        'xlsx': 'application/vnd.google-apps.spreadsheet',
+        'xls': 'application/vnd.google-apps.spreadsheet',
+        'csv': 'application/vnd.google-apps.spreadsheet',
+        'pptx': 'application/vnd.google-apps.presentation',
+        'ppt': 'application/vnd.google-apps.presentation',
+      };
+      const convertMimeType = googleMimeTypes[ext];
+
+      // Create metadata
+      const metadata = { name: fileName };
+      if (convertMimeType) {
+        metadata.mimeType = convertMimeType;
+      }
+
+      // Upload to Google Drive using multipart upload
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', fileBlob);
+
+      const uploadResponse = await fetch(
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,webViewLink',
+        {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${googleAccessToken}` },
+          body: form,
+        }
+      );
+
+      if (uploadResponse.status === 401) {
+        // Token expired, re-authenticate
+        googleAccessToken = null;
+        window._pendingGoogleUpload = { button, originalContent };
+        googleTokenClient.requestAccessToken({ prompt: '' });
+        return;
+      }
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed: ' + uploadResponse.status);
+      }
+
+      const result = await uploadResponse.json();
+
+      // Build edit URL based on mime type
+      let editUrl = result.webViewLink;
+      if (result.mimeType === 'application/vnd.google-apps.document') {
+        editUrl = `https://docs.google.com/document/d/${result.id}/edit`;
+      } else if (result.mimeType === 'application/vnd.google-apps.spreadsheet') {
+        editUrl = `https://docs.google.com/spreadsheets/d/${result.id}/edit`;
+      } else if (result.mimeType === 'application/vnd.google-apps.presentation') {
+        editUrl = `https://docs.google.com/presentation/d/${result.id}/edit`;
+      }
+
+      // Open in new tab
+      window.open(editUrl, '_blank');
+
+      // Show success
+      button.innerHTML = '<iconify-icon icon="solar:check-circle-bold" style="color: #4caf50;"></iconify-icon>';
+      button.title = 'Opened in Google Drive';
+
+      setTimeout(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+      }, 2000);
+
+    } catch (e) {
+      console.error('Error uploading to Google Drive:', e);
+      alert('Error uploading to Google Drive. Please try again.');
+      button.innerHTML = originalContent;
+      button.disabled = false;
+    }
+  }
+
+  // Initialize Google Drive on page load
+  initGoogleDrive();
+
+  function showImageModal(src) {
+    let modal = document.getElementById('imageModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'imageModal';
+      modal.className = 'image-modal';
+      modal.innerHTML = `
+        <span class="close-btn">&times;</span>
+        <img src="" alt="Preview">
+      `;
+      modal.onclick = () => modal.classList.remove('show');
+      document.body.appendChild(modal);
+    }
+    modal.querySelector('img').src = src;
+    modal.classList.add('show');
+  }
+
   function createUserBubble(content, file) {
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble user';
@@ -845,9 +1484,13 @@
     if (file) {
       html += `
         <div class="file-attachment">
-          <iconify-icon icon="solar:file-bold"></iconify-icon>
-          <span>${escapeHtml(file.name)}</span>
-          <span class="opacity-75">(${formatFileSize(file.size)})</span>
+          <div class="file-icon default">
+            <iconify-icon icon="solar:file-bold"></iconify-icon>
+          </div>
+          <div class="file-info">
+            <span class="file-name">${escapeHtml(file.name)}</span>
+            <div class="file-meta">${formatFileSize(file.size)}</div>
+          </div>
         </div>
       `;
     }
@@ -856,17 +1499,12 @@
     return bubble;
   }
 
-  function createAssistantBubble(content, fileName = null, fileSize = null, fileUrl = null) {
+  function createAssistantBubble(content, fileName = null, fileSize = null, fileUrl = null, messageId = null) {
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble assistant';
     let fileHtml = '';
     if (fileName && fileUrl) {
-      const sizeText = fileSize ? ` <span class="opacity-75">(${formatFileSize(fileSize)})</span>` : '';
-      fileHtml = `
-        <div class="file-attachment mt-2">
-          <iconify-icon icon="solar:file-download-bold"></iconify-icon>
-          <a href="${escapeHtml(fileUrl)}" download="${escapeHtml(fileName)}" class="ms-1">${escapeHtml(fileName)}</a>${sizeText}
-        </div>`;
+      fileHtml = createFileAttachmentHtml(fileName, fileSize, fileUrl, true, messageId);
     }
     bubble.innerHTML = `
       <div class="message-role text-primary">
@@ -1122,6 +1760,7 @@
     formData.append('consent_confirmed', 'true');
     formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
+    // Use non-streaming endpoint (temporarily)
     const url = pending.conversationId
       ? `/chat/${pending.conversationId}/send/`
       : '/chat/send/';
@@ -1140,9 +1779,11 @@
         chatContainer.scrollTop = chatContainer.scrollHeight;
         isLoading = false;
         setLoadingState(false);
+        window._pendingConsent = null;
         return;
       }
 
+      // Process JSON response
       const data = await response.json();
 
       if (data.success) {
@@ -1153,7 +1794,7 @@
 
         if (data.assistant_message) {
           const am = data.assistant_message;
-          const assistantBubble = createAssistantBubble(am.content, am.file_name || null, am.file_size || null, am.file_url || null);
+          const assistantBubble = createAssistantBubble(am.content, am.file_name || null, am.file_size || null, am.file_url || null, am.id || null);
           chatContainer.appendChild(assistantBubble);
         }
 
@@ -1162,13 +1803,13 @@
           chatContainer.appendChild(errorBubble);
         }
 
-        chatContainer.scrollTop = chatContainer.scrollHeight;
         showToast('Message sent with consent', 'success');
       } else {
         const errorBubble = createSystemBubble(data.error || 'An error occurred');
         chatContainer.appendChild(errorBubble);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
       }
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     } catch (error) {
       if (loadingIndicator.parentNode) loadingIndicator.remove();
       console.error('Consent resend error:', error);
@@ -1572,5 +2213,51 @@
       toastElement.remove();
     });
   }
+
+  // Obfuscation toggle handler
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle toggle buttons for obfuscated messages
+    document.querySelectorAll('.obfuscation-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const msgId = this.getAttribute('data-msg-id');
+        const showView = this.getAttribute('data-show');
+
+        // Update button states
+        const btnGroup = this.parentElement;
+        btnGroup.querySelectorAll('.obfuscation-toggle-btn').forEach(b => {
+          b.classList.remove('active', 'btn-primary', 'btn-warning');
+          if (b.getAttribute('data-show') === 'original') {
+            b.classList.add('btn-outline-primary');
+          } else {
+            b.classList.add('btn-outline-warning');
+          }
+        });
+
+        this.classList.add('active');
+        this.classList.remove('btn-outline-primary', 'btn-outline-warning');
+        if (showView === 'original') {
+          this.classList.add('btn-primary');
+        } else {
+          this.classList.add('btn-warning');
+        }
+
+        // Toggle content visibility
+        const contentDiv = document.querySelector(`.obfuscation-content[data-msg-id="${msgId}"]`);
+        if (contentDiv) {
+          const originalDiv = contentDiv.querySelector('.content-original');
+          const maskedDiv = contentDiv.querySelector('.content-masked');
+
+          if (showView === 'original') {
+            originalDiv.style.display = 'block';
+            maskedDiv.style.display = 'none';
+          } else {
+            originalDiv.style.display = 'none';
+            maskedDiv.style.display = 'block';
+          }
+          contentDiv.setAttribute('data-view', showView);
+        }
+      });
+    });
+  });
 </script>
 {% endblock %}

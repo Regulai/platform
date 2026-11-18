@@ -161,6 +161,12 @@
               </a>
             </li>
             <li class="sidebar-item">
+              <a class="sidebar-link {% if request.resolver_match.url_name == 'tool_config' %}active{% endif %}" href="{% url 'front:tool_config' %}" aria-expanded="false">
+                <iconify-icon icon="solar:magic-stick-3-line-duotone"></iconify-icon>
+                <span class="hide-menu">AI Tools</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
               <a class="sidebar-link {% if 'auditlog' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'front:auditlogs_list' %}" aria-expanded="false">
                 <iconify-icon icon="solar:clipboard-list-line-duotone"></iconify-icon>
                 <span class="hide-menu">Audit Log</span>
