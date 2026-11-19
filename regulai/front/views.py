@@ -2184,7 +2184,6 @@ def chat_send_message(request, conversation_id=None):
 
     # --- Obfuscation ---
     obfuscation_context = None
-    original_display_content = display_content  # Save original before obfuscation
     obfuscated_entity_types = []
     try:
         obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
@@ -2210,7 +2209,14 @@ def chat_send_message(request, conversation_id=None):
             title=title + ('...' if len(title) > 50 else '')
         )
 
-    # Create user message with obfuscation info
+    # Store obfuscation context in conversation (encrypted)
+    if obfuscation_context:
+        existing_context = conversation.get_obfuscation_context()
+        existing_context.update(obfuscation_context)
+        conversation.set_obfuscation_context(existing_context)
+        conversation.save(update_fields=['obfuscation_context'])
+
+    # Create user message with obfuscation info (no original content stored)
     user_message = Message.objects.create(
         conversation=conversation,
         role='user',
@@ -2218,7 +2224,6 @@ def chat_send_message(request, conversation_id=None):
         file_name=file_name,
         file_size=file_size,
         is_obfuscated=bool(obfuscation_context),
-        original_content=original_display_content if obfuscation_context else None,
         obfuscated_entities=obfuscated_entity_types if obfuscation_context else None
     )
 
@@ -2758,7 +2763,6 @@ def _chat_send_message_stream_impl(request, conversation_id=None):
 
     # --- Obfuscation ---
     obfuscation_context = None
-    original_display_content = display_content  # Save original before obfuscation
     obfuscated_entity_types = []
     try:
         obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
@@ -2783,7 +2787,14 @@ def _chat_send_message_stream_impl(request, conversation_id=None):
             title=title + ('...' if len(title) > 50 else '')
         )
 
-    # Create user message with obfuscation info
+    # Store obfuscation context in conversation (encrypted)
+    if obfuscation_context:
+        existing_context = conversation.get_obfuscation_context()
+        existing_context.update(obfuscation_context)
+        conversation.set_obfuscation_context(existing_context)
+        conversation.save(update_fields=['obfuscation_context'])
+
+    # Create user message with obfuscation info (no original content stored)
     user_message = Message.objects.create(
         conversation=conversation,
         role='user',
@@ -2791,7 +2802,6 @@ def _chat_send_message_stream_impl(request, conversation_id=None):
         file_name=file_name,
         file_size=file_size,
         is_obfuscated=bool(obfuscation_context),
-        original_content=original_display_content if obfuscation_context else None,
         obfuscated_entities=obfuscated_entity_types if obfuscation_context else None
     )
 
@@ -4559,19 +4569,31 @@ def prompt_detail(request, pk):
 
 def obfuscate_text(text, company):
     """
-    Ofusca texto encadenando todas las configs activas de la company.
-    Soporta modo local (regex) o API externa (PasteGuard).
-    Retorna (texto_ofuscado, contexto_map_combinado) o (texto_original, None) si no hay configs.
+    Ofusca texto usando:
+    1. Reglas YARA con action="obfuscate" (nativo)
+    2. ObfuscationConfig (legacy: local regex o API externa)
+
+    Retorna (texto_ofuscado, contexto_map_combinado) o (texto_original, None) si no hay reglas.
     """
     from front.local_obfuscator import obfuscate_local
-
-    configs = ObfuscationConfig.objects.filter(company=company, active=True).order_by("created_at")
-    if not configs.exists():
-        return text, None
+    from front.obfuscation_service import obfuscate_text as yara_obfuscate
 
     current_text = text
     combined_context = {}
     counters = {}
+
+    # 1. First, apply YARA rules with action="obfuscate"
+    try:
+        yara_result = yara_obfuscate(current_text, company.id, combined_context)
+        if yara_result.matches:
+            current_text = yara_result.text
+            combined_context.update(yara_result.context)
+    except Exception as e:
+        import logging
+        logging.warning(f"YARA obfuscation error: {e}")
+
+    # 2. Then, apply legacy ObfuscationConfig if any exist
+    configs = ObfuscationConfig.objects.filter(company=company, active=True).order_by("created_at")
 
     for config in configs:
         if config.mode == "local":
