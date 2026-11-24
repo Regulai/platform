@@ -283,10 +283,10 @@ def rate_limit(
 def login_rate_limit(view_func):
     """
     Rate limit for login attempts.
-    5 attempts per minute per IP.
+    20 attempts per minute per IP.
     """
     return rate_limit(
-        limit=5,
+        limit=20,
         window=60,
         key='ip',
         endpoint='login',
@@ -326,11 +326,11 @@ def chat_rate_limit(view_func):
 def signup_rate_limit(view_func):
     """
     Rate limit for signup/registration.
-    3 signups per hour per IP.
+    15 signups per minute per IP.
     """
     return rate_limit(
-        limit=3,
-        window=3600,
+        limit=15,
+        window=60,
         key='ip',
         endpoint='signup',
         message='Too many signup attempts. Please try again later.'

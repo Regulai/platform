@@ -47,7 +47,7 @@ except ImportError:
 @permission_classes([])
 @login_rate_limit
 def api_login(request):
-    """API endpoint for user login. Returns auth token (rate limited to 5 per minute)."""
+    """API endpoint for user login. Returns auth token (rate limited to 20 per minute)."""
     username = request.data.get('username')
     password = request.data.get('password')
 

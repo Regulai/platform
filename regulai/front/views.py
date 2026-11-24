@@ -174,7 +174,7 @@ def home_view(request):
 
 @login_rate_limit
 def login_view(request):
-    """Login view with rate limiting (5 attempts per minute per IP)."""
+    """Login view with rate limiting (20 attempts per minute per IP)."""
     if request.user.is_authenticated:
         return redirect('front:home')
 
