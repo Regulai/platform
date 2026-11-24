@@ -143,6 +143,7 @@
                                 <th>Description</th>
                                 <th class="text-center">Severity</th>
                                 <th class="text-center">Applies To</th>
+                                <th class="text-center">Recommended Action</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Actions</th>
                             </tr>
@@ -174,6 +175,15 @@
                                         <span class="badge bg-success">Files</span>
                                     {% else %}
                                         <span class="badge bg-dark">Both</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if rule.action == 'consent' %}
+                                        <span class="badge bg-warning text-dark">Consent</span>
+                                    {% elif rule.action == 'obfuscate' %}
+                                        <span class="badge bg-info">Obfuscate</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Block</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">

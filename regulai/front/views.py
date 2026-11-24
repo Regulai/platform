@@ -4056,6 +4056,8 @@ def rule_community_configure(request, pk):
         rules_group=company_group,
         severity=community_rule.severity,
         applies_to=community_rule.applies_to,
+        action=community_rule.action,
+        obfuscate_token=community_rule.obfuscate_token,
         active=False  # Inactive by default, user must activate
     )
 
@@ -4102,6 +4104,8 @@ def rules_community_sync(request):
     Syncs community rules from the GitHub repository.
     Only admins can sync rules. Rules are stored in a global RulesGroup (company=null, user=null).
     """
+    from front.yara_utils import check_source
+
     GITHUB_REPO = "Regulai/regulai-rules"
     GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/contents"
     GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main"
@@ -4147,6 +4151,19 @@ def rules_community_sync(request):
                 parsed_rules = parse_yara_file(file_content, file_name)
 
                 for rule_data in parsed_rules:
+                    # Never import a rule that does not compile
+                    compile_error = check_source(rule_data['yara_rule'])
+                    if compile_error:
+                        errors.append(f"Skipped {rule_data['name']} ({file_name}): invalid YARA: {compile_error}")
+                        continue
+
+                    fields = {
+                        'yara_rule': rule_data['yara_rule'],
+                        'description': rule_data.get('description', ''),
+                        'severity': rule_data.get('severity', 'medium'),
+                        'action': rule_data.get('action', 'block'),
+                    }
+
                     # Check if rule already exists
                     existing_rule = Rule.objects.filter(
                         rules_group=community_group,
@@ -4155,10 +4172,9 @@ def rules_community_sync(request):
 
                     if existing_rule:
                         # Update if content changed
-                        if existing_rule.yara_rule != rule_data['yara_rule']:
-                            existing_rule.yara_rule = rule_data['yara_rule']
-                            existing_rule.description = rule_data.get('description', '')
-                            existing_rule.severity = rule_data.get('severity', 'medium')
+                        if any(getattr(existing_rule, k) != v for k, v in fields.items()):
+                            for k, v in fields.items():
+                                setattr(existing_rule, k, v)
                             existing_rule.save()
                             rules_updated += 1
                         else:
@@ -4167,12 +4183,10 @@ def rules_community_sync(request):
                         # Create new rule
                         Rule.objects.create(
                             name=rule_data['name'],
-                            description=rule_data.get('description', ''),
-                            yara_rule=rule_data['yara_rule'],
                             rules_group=community_group,
-                            severity=rule_data.get('severity', 'medium'),
                             applies_to='both',
-                            active=True  # Community rules are active by default
+                            active=True,  # Community rules are active by default
+                            **fields
                         )
                         rules_added += 1
 
@@ -4235,10 +4249,15 @@ def parse_yara_file(content, filename):
             for meta_item in re.finditer(r'(\w+)\s*=\s*"([^"]*)"', meta_content):
                 meta[meta_item.group(1).lower()] = meta_item.group(2)
 
+        # Optional recommended action (block / consent / obfuscate)
+        severity = meta.get('severity', 'medium').lower()
+        action = meta.get('action', 'block').lower()
+
         rules.append({
             'name': rule_name,
             'description': meta.get('description', meta.get('purpose', f'Rule from {filename}')),
-            'severity': meta.get('severity', 'medium'),
+            'severity': severity if severity in dict(Rule.SEVERITY_CHOICES) else 'medium',
+            'action': action if action in dict(Rule.ACTION_CHOICES) else 'block',
             'yara_rule': rule_body.strip()
         })
 
