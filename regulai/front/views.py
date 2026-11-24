@@ -16,7 +16,7 @@ from front.connectors import get_connector, ChatMessage, ChatResponse
 from front.tools import (
     get_tools_for_openai, execute_tool, ToolResultType, get_enabled_tools_for_company
 )
-from front.local_obfuscator import deobfuscate
+from front.obfuscation_service import deobfuscate_text as deobfuscate
 from front.rate_limit import (
     login_rate_limit, chat_rate_limit, signup_rate_limit,
     api_rate_limit, rate_limit
@@ -2186,7 +2186,10 @@ def chat_send_message(request, conversation_id=None):
     obfuscation_context = None
     obfuscated_entity_types = []
     try:
-        obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
+        obfuscated_text, obfuscation_context = obfuscate_text(
+            full_content, company,
+            existing_context=conversation.get_obfuscation_context() if conversation else None,
+        )
         if obfuscation_context:
             full_content = obfuscated_text
             display_content = obfuscated_text
@@ -2765,7 +2768,10 @@ def _chat_send_message_stream_impl(request, conversation_id=None):
     obfuscation_context = None
     obfuscated_entity_types = []
     try:
-        obfuscated_text, obfuscation_context = obfuscate_text(full_content, company)
+        obfuscated_text, obfuscation_context = obfuscate_text(
+            full_content, company,
+            existing_context=conversation.get_obfuscation_context() if conversation else None,
+        )
         if obfuscation_context:
             full_content = obfuscated_text
             display_content = obfuscated_text
@@ -3265,15 +3271,12 @@ def validate_prompt(user, prompt_text, prompt_instance=None, file=None, content_
 
     logging.info(f"Total rules to validate: {len(all_rules)}")
 
-    # 2. Prepare dictionary to compile all rules
-    rules_dict = {}
-    for r in all_rules:
-        rules_dict[f"rule_{r.id}"] = r.yara_rule
-
-    try:
-        compiled_rules = yara.compile(sources=rules_dict)
-    except Exception as e:
-        raise ValueError(f"Error compiling YARA rules: {e}")
+    # 2. Compile all rules (one namespace per rule). A rule that does not
+    # compile is skipped and logged so it cannot disable every other rule.
+    from front.yara_utils import compile_rules
+    compiled_rules, _invalid_rules = compile_rules(all_rules)  # invalid ones are logged
+    if compiled_rules is None:
+        return [], []
 
     # 3. Execute match against the prompt
     matches = compiled_rules.match(data=prompt_text)
@@ -3605,6 +3608,7 @@ def rule_create(request):
         severity = request.POST.get('severity', 'medium')
         applies_to = request.POST.get('applies_to', 'both')
         action = request.POST.get('action', 'block')
+        obfuscate_token = (request.POST.get('obfuscate_token') or '').strip() or '[{name}_{n}]'
         active = request.POST.get('active') == 'on'
 
         # Validate required fields
@@ -3619,6 +3623,20 @@ def rule_create(request):
         group = RulesGroup.objects.filter(pk=rules_group_id, company=user_company).first()
         if not group:
             messages.error(request, 'Invalid rules group selected.')
+            return render(request, 'rules/form.html', {
+                'rules_groups': rules_groups,
+                'form_data': request.POST,
+            })
+
+        if action not in dict(Rule.ACTION_CHOICES):
+            messages.error(request, 'Invalid action selected.')
+            return render(request, 'rules/form.html', {
+                'rules_groups': rules_groups,
+                'form_data': request.POST,
+            })
+
+        if not _valid_obfuscate_token(obfuscate_token):
+            messages.error(request, 'Invalid obfuscation token format. Use {name} and {n}, e.g. [EMAIL_{n}].')
             return render(request, 'rules/form.html', {
                 'rules_groups': rules_groups,
                 'form_data': request.POST,
@@ -3649,6 +3667,7 @@ def rule_create(request):
                 severity=severity,
                 applies_to=applies_to,
                 action=action,
+                obfuscate_token=obfuscate_token,
                 active=active,
             )
             log_action(request.user, 'rule_create', {
@@ -3693,6 +3712,7 @@ def rule_edit(request, pk):
         rule.severity = request.POST.get('severity', 'medium')
         rule.applies_to = request.POST.get('applies_to', 'both')
         rule.action = request.POST.get('action', 'block')
+        rule.obfuscate_token = (request.POST.get('obfuscate_token') or '').strip() or '[{name}_{n}]'
         rule.active = request.POST.get('active') == 'on'
 
         # Validate required fields
@@ -3713,6 +3733,20 @@ def rule_edit(request, pk):
             })
 
         rule.rules_group_id = rules_group_id
+
+        if rule.action not in dict(Rule.ACTION_CHOICES):
+            messages.error(request, 'Invalid action selected.')
+            return render(request, 'rules/form.html', {
+                'rule': rule,
+                'rules_groups': rules_groups,
+            })
+
+        if not _valid_obfuscate_token(rule.obfuscate_token):
+            messages.error(request, 'Invalid obfuscation token format. Use {name} and {n}, e.g. [EMAIL_{n}].')
+            return render(request, 'rules/form.html', {
+                'rule': rule,
+                'rules_groups': rules_groups,
+            })
 
         # Validate YARA rule
         try:
@@ -3799,6 +3833,46 @@ def rule_toggle(request, pk):
     messages.success(request, f'Rule "{rule.name}" {status}.')
 
     return redirect(safe_redirect_url(request, request.GET.get('next'), fallback=reverse('front:rules_list')))
+
+
+def _valid_obfuscate_token(template):
+    """Token template must format with {name}/{n}, include {n} and fit the field."""
+    if not template or len(template) > 50 or '{n}' not in template:
+        return False
+    try:
+        template.format(name='X', n=1)
+    except (KeyError, IndexError, ValueError):
+        return False
+    return True
+
+
+@security_required
+@require_POST
+def rule_validate(request):
+    """
+    Compiles a YARA source sent from the rule form and, if a sample text is
+    given, runs it against that text. Does not save anything.
+    """
+    from front.yara_utils import test_source
+    return JsonResponse(test_source(
+        request.POST.get('yara_rule', ''),
+        request.POST.get('test_text', ''),
+    ))
+
+
+@security_required
+@require_POST
+def rule_compile(request, pk):
+    """
+    Compiles a saved rule and, if a sample text is given, runs it against
+    that text.
+    """
+    from front.yara_utils import test_source
+    user_company = get_user_company(request.user)
+    rule = get_object_or_404(Rule, pk=pk, rules_group__company=user_company)
+    result = test_source(rule.yara_rule, request.POST.get('test_text', ''))
+    result['rule_id'] = rule.id
+    return JsonResponse(result)
 
 
 # ==================== RULES COMMUNITY VIEWS ====================
@@ -4567,241 +4641,24 @@ def prompt_detail(request, pk):
 
 # ==================== OBFUSCATION ====================
 
-def obfuscate_text(text, company):
+def obfuscate_text(text, company, existing_context=None):
     """
-    Ofusca texto usando:
-    1. Reglas YARA con action="obfuscate" (nativo)
-    2. ObfuscationConfig (legacy: local regex o API externa)
+    Ofusca texto con las reglas YARA de la empresa con action="obfuscate".
 
-    Retorna (texto_ofuscado, contexto_map_combinado) o (texto_original, None) si no hay reglas.
+    existing_context: contexto token->valor ya usado en la conversación. Los
+    valores repetidos reutilizan su token y nunca se genera un token que ya
+    esté asignado a otro valor.
+
+    Retorna (texto_ofuscado, contexto_de_este_texto) o (texto_original, None)
+    si no se ha ofuscado nada. El contexto devuelto solo incluye los tokens
+    usados en este texto.
     """
-    from front.local_obfuscator import obfuscate_local
     from front.obfuscation_service import obfuscate_text as yara_obfuscate
 
-    current_text = text
-    combined_context = {}
-    counters = {}
-
-    # 1. First, apply YARA rules with action="obfuscate"
-    try:
-        yara_result = yara_obfuscate(current_text, company.id, combined_context)
-        if yara_result.matches:
-            current_text = yara_result.text
-            combined_context.update(yara_result.context)
-    except Exception as e:
-        import logging
-        logging.warning(f"YARA obfuscation error: {e}")
-
-    # 2. Then, apply legacy ObfuscationConfig if any exist
-    configs = ObfuscationConfig.objects.filter(company=company, active=True).order_by("created_at")
-
-    for config in configs:
-        if config.mode == "local":
-            # Use local regex-based obfuscation
-            if config.detect == "pii":
-                detect_types = ['EMAIL', 'PHONE', 'DNI', 'NIF', 'PASSPORT', 'SSN', 'CREDIT_CARD', 'IBAN']
-            elif config.detect == "secrets":
-                detect_types = ['API_KEY', 'API_KEY_URL', 'AWS_KEY', 'PRIVATE_KEY']
-            else:  # both
-                detect_types = None  # All types
-
-            result = obfuscate_local(current_text, detect_types=detect_types)
-            current_text = result.masked_text
-            combined_context.update(result.context)
-
-            # Update counters for next iteration
-            for entity in result.entities_found:
-                entity_type = entity['type']
-                counters[entity_type] = counters.get(entity_type, 0) + 1
-
-        else:
-            # Use external API (PasteGuard)
-            if not config.api_url:
-                continue
-
-            detect_param = ["pii", "secrets"] if config.detect == "both" else [config.detect]
-
-            payload = {
-                "text": current_text,
-                "detect": detect_param,
-            }
-            if config.language:
-                payload["language"] = config.language
-            if counters:
-                payload["startFrom"] = counters
-
-            api_endpoint = config.api_url.rstrip('/') + '/api/mask'
-            response = requests.post(api_endpoint, json=payload, timeout=10)
-            response.raise_for_status()
-            result = response.json()
-
-            current_text = result.get("masked", current_text)
-            combined_context.update(result.get("context", {}))
-
-            result_counters = result.get("counters", {})
-            for entity_type, count in result_counters.items():
-                counters[entity_type] = counters.get(entity_type, 0) + count
-
-    return current_text, combined_context if combined_context else None
-
-
-@security_required
-def obfuscation_list(request):
-    """List obfuscation configurations for the user's company."""
-    company = get_user_company(request.user)
-    configs = ObfuscationConfig.objects.filter(company=company)
-
-    context = {
-        'configs': configs,
-        'total_configs': configs.count(),
-        'active_configs': configs.filter(active=True).count(),
-    }
-    return render(request, 'obfuscation/list.html', context)
-
-
-@security_required
-def obfuscation_create(request):
-    """Create a new obfuscation configuration."""
-    company = get_user_company(request.user)
-
-    if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        mode = request.POST.get('mode', 'local')
-        api_url = request.POST.get('api_url', '').strip()
-        detect = request.POST.get('detect', 'both')
-        language = request.POST.get('language', '').strip()
-        active = request.POST.get('active') == 'on'
-
-        errors = []
-        if not name:
-            errors.append('Name is required.')
-        if mode == 'api' and not api_url:
-            errors.append('API URL is required for API mode.')
-
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-            return render(request, 'obfuscation/form.html', {
-                'form_data': request.POST,
-                'is_edit': False,
-            })
-
-        ObfuscationConfig.objects.create(
-            name=name,
-            company=company,
-            mode=mode,
-            api_url=api_url,
-            detect=detect,
-            language=language,
-            active=active,
-        )
-
-        log_action(request.user, 'obfuscation_create', {
-            'name': name,
-            'mode': mode,
-            'api_url': api_url,
-            'detect': detect,
-            'company': company.name,
-        }, request)
-
-        messages.success(request, f'Obfuscation config "{name}" created successfully.')
-        return redirect('front:obfuscation_list')
-
-    return render(request, 'obfuscation/form.html', {'is_edit': False})
-
-
-@security_required
-def obfuscation_edit(request, pk):
-    """Edit an existing obfuscation configuration."""
-    company = get_user_company(request.user)
-    config = get_object_or_404(ObfuscationConfig, pk=pk, company=company)
-
-    if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        mode = request.POST.get('mode', 'local')
-        api_url = request.POST.get('api_url', '').strip()
-        detect = request.POST.get('detect', 'both')
-        language = request.POST.get('language', '').strip()
-        active = request.POST.get('active') == 'on'
-
-        errors = []
-        if not name:
-            errors.append('Name is required.')
-        if mode == 'api' and not api_url:
-            errors.append('API URL is required for API mode.')
-
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-            return render(request, 'obfuscation/form.html', {
-                'config': config,
-                'is_edit': True,
-            })
-
-        config.name = name
-        config.mode = mode
-        config.api_url = api_url
-        config.detect = detect
-        config.language = language
-        config.active = active
-        config.save()
-
-        log_action(request.user, 'obfuscation_edit', {
-            'name': name,
-            'mode': mode,
-            'api_url': api_url,
-            'detect': detect,
-            'company': company.name,
-        }, request)
-
-        messages.success(request, f'Obfuscation config "{name}" updated successfully.')
-        return redirect('front:obfuscation_list')
-
-    return render(request, 'obfuscation/form.html', {
-        'config': config,
-        'is_edit': True,
-    })
-
-
-@security_required
-def obfuscation_delete(request, pk):
-    """Delete an obfuscation configuration."""
-    company = get_user_company(request.user)
-    config = get_object_or_404(ObfuscationConfig, pk=pk, company=company)
-
-    if request.method == 'POST':
-        name = config.name
-        config.delete()
-
-        log_action(request.user, 'obfuscation_delete', {
-            'name': name,
-            'company': company.name,
-        }, request)
-
-        messages.success(request, f'Obfuscation config "{name}" deleted successfully.')
-        return redirect('front:obfuscation_list')
-
-    return render(request, 'obfuscation/delete.html', {'config': config})
-
-
-@security_required
-def obfuscation_toggle(request, pk):
-    """Toggle active/inactive status of an obfuscation configuration."""
-    company = get_user_company(request.user)
-    config = get_object_or_404(ObfuscationConfig, pk=pk, company=company)
-
-    config.active = not config.active
-    config.save()
-
-    status = "activated" if config.active else "deactivated"
-    log_action(request.user, 'obfuscation_toggle', {
-        'name': config.name,
-        'active': config.active,
-        'company': company.name,
-    }, request)
-
-    messages.success(request, f'Obfuscation config "{config.name}" {status}.')
-    return redirect('front:obfuscation_list')
+    result = yara_obfuscate(text, company.id, existing_context)
+    if not result.matches:
+        return text, None
+    return result.text, {m.token: m.original for m in result.matches}
 
 
 # ==================== TOOL CONFIGURATION ====================

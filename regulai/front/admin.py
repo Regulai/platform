@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Engine, EngineModel, CompanyEngine, Profile, Role, Department, RulesGroup, Rule, Prompt, Response, AuditLog, Alert, ObfuscationConfig
+from .models import Company, Engine, EngineModel, CompanyEngine, Profile, Role, Department, RulesGroup, Rule, Prompt, Response, AuditLog, Alert
 
 
 @admin.register(Company)
@@ -126,10 +126,3 @@ class AlertAdmin(admin.ModelAdmin):
     search_fields = ("description", "rule__name", "user__username", "company__name")
     ordering = ("-created_at",)
 
-
-@admin.register(ObfuscationConfig)
-class ObfuscationConfigAdmin(admin.ModelAdmin):
-    list_display = ("name", "company", "api_url", "detect", "active", "created_at")
-    list_filter = ("active", "detect", "company")
-    search_fields = ("name", "company__name", "api_url")
-    ordering = ("-created_at",)

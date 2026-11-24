@@ -5,6 +5,7 @@ from .views import (
     rulesgroups_list, rulesgroup_detail, rulesgroup_create, rulesgroup_edit, rulesgroup_delete,
     rulesgroup_activate_all, rulesgroup_deactivate_all,
     rules_list, rule_detail, rule_create, rule_edit, rule_delete, rule_toggle,
+    rule_validate, rule_compile,
     rules_community_list, rule_community_configure, rule_community_activate, rules_community_sync,
     alerts_list, alert_detail, alert_resolve, alert_unresolve, alert_delete, alerts_resolve_all,
     auditlogs_list, auditlog_detail, auditlog_delete, auditlogs_clear,
@@ -14,7 +15,6 @@ from .views import (
     departments_list, department_create, department_edit, department_delete,
     engines_list, engine_create, engine_edit, engine_delete, engine_toggle, engine_sync_models,
     model_create, model_edit, model_toggle, model_delete,
-    obfuscation_list, obfuscation_create, obfuscation_edit, obfuscation_delete, obfuscation_toggle,
     tool_config,
     google_drive_status, google_drive_connect, google_drive_callback, google_drive_disconnect, upload_to_google_drive,
 )
@@ -65,10 +65,12 @@ urlpatterns = [
     # Rules
     path("rules/", rules_list, name="rules_list"),
     path("rules/create/", rule_create, name="rule_create"),
+    path("rules/validate/", rule_validate, name="rule_validate"),
     path("rules/<int:pk>/", rule_detail, name="rule_detail"),
     path("rules/<int:pk>/edit/", rule_edit, name="rule_edit"),
     path("rules/<int:pk>/delete/", rule_delete, name="rule_delete"),
     path("rules/<int:pk>/toggle/", rule_toggle, name="rule_toggle"),
+    path("rules/<int:pk>/compile/", rule_compile, name="rule_compile"),
 
     # Rules Community
     path("rules/community/", rules_community_list, name="rules_community_list"),
@@ -124,11 +126,6 @@ urlpatterns = [
     path("settings/models/<int:pk>/delete/", model_delete, name="model_delete"),
 
     # Obfuscation
-    path("obfuscation/", obfuscation_list, name="obfuscation_list"),
-    path("obfuscation/create/", obfuscation_create, name="obfuscation_create"),
-    path("obfuscation/<int:pk>/edit/", obfuscation_edit, name="obfuscation_edit"),
-    path("obfuscation/<int:pk>/delete/", obfuscation_delete, name="obfuscation_delete"),
-    path("obfuscation/<int:pk>/toggle/", obfuscation_toggle, name="obfuscation_toggle"),
 
     # Tool Configuration
     path("settings/tools/", tool_config, name="tool_config"),

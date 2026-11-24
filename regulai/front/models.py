@@ -371,39 +371,6 @@ class CompanyEngine(models.Model):
         return self.name if self.name else self.engine.name
 
 
-class ObfuscationConfig(models.Model):
-    """Configuración de ofuscación para una empresa (local o con PasteGuard)."""
-    DETECT_CHOICES = [
-        ("pii", "PII"),
-        ("secrets", "Secrets"),
-        ("both", "PII & Secrets"),
-    ]
-
-    MODE_CHOICES = [
-        ("local", "Local (regex patterns)"),
-        ("api", "External API (PasteGuard)"),
-    ]
-
-    name = models.CharField(max_length=255)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="obfuscation_configs")
-    mode = models.CharField(max_length=10, choices=MODE_CHOICES, default="local", help_text="Use local regex or external API")
-    api_url = models.URLField(blank=True, default="", help_text="Base URL del servicio PasteGuard (solo para modo API)")
-    detect = models.CharField(max_length=20, choices=DETECT_CHOICES, default="both")
-    language = models.CharField(max_length=10, blank=True, default="", help_text="Idioma para detección (solo para modo API)")
-    active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.name} ({self.company.name})"
-
-    @property
-    def is_local(self):
-        return self.mode == "local"
-
-
 class CompanyToolConfig(models.Model):
     """Configuration for which tools are enabled for a company."""
     company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name="tool_config")

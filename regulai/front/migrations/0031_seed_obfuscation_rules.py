@@ -146,7 +146,6 @@ OBFUSCATION_RULES = [
         category = "secrets"
     strings:
         $access = /AKIA[A-Z0-9]{16}/
-        $secret = /[A-Za-z0-9\\/+=]{40}/
     condition:
         $access
 }'''

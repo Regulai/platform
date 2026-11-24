@@ -4,11 +4,18 @@ Obfuscation Service for RegulAI
 Integrates YARA rules with obfuscation to detect and mask sensitive data.
 """
 
-import re
+import logging
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
 import yara
-from typing import Dict, List, Tuple, Optional
-from dataclasses import dataclass, field
+
 from .models import Rule, Conversation
+from .yara_utils import byte_to_char_offset, compile_rules, rule_id_from_namespace
+
+logger = logging.getLogger(__name__)
+
+DEFAULT_TOKEN_TEMPLATE = "[{name}_{n}]"
 
 
 @dataclass
@@ -30,27 +37,14 @@ class ObfuscationResult:
 
 
 def compile_yara_rules(rules: List[Rule]) -> Optional[yara.Rules]:
-    """Compile multiple YARA rules into a single Rules object."""
+    """
+    Compile rules into a single Rules object, one namespace per rule
+    (``rule_<id>``). Rules that do not compile are skipped and logged.
+    """
     if not rules:
         return None
-
-    combined_source = "\n".join(rule.yara_rule for rule in rules)
-
-    try:
-        return yara.compile(source=combined_source)
-    except yara.SyntaxError as e:
-        # If combined fails, try compiling individually
-        valid_sources = []
-        for rule in rules:
-            try:
-                yara.compile(source=rule.yara_rule)
-                valid_sources.append(rule.yara_rule)
-            except yara.SyntaxError:
-                continue
-
-        if valid_sources:
-            return yara.compile(source="\n".join(valid_sources))
-        return None
+    compiled, _invalid = compile_rules(rules)
+    return compiled
 
 
 def get_obfuscation_rules(company_id: int) -> List[Rule]:
@@ -62,29 +56,87 @@ def get_obfuscation_rules(company_id: int) -> List[Rule]:
     ).select_related('rules_group'))
 
 
-def extract_matches_from_yara(yara_matches, text: str, rules: List[Rule]) -> List[dict]:
-    """Extract match positions from YARA results."""
+def extract_matches_from_yara(yara_matches, data: bytes, rules: List[Rule]) -> List[dict]:
+    """
+    Extract match positions from YARA results.
+
+    Matches are mapped back to their Rule through the compile namespace
+    (``rule_<id>``), not through the YARA identifier, which is free text
+    written by the user and usually differs from ``Rule.name``.
+
+    YARA reports byte offsets over the UTF-8 encoded text; they are converted
+    to character offsets so they can be used to slice the original ``str``.
+    Leading/trailing whitespace captured by a pattern is left out of the match.
+    """
     matches = []
-    rule_map = {r.name: r for r in rules}
+    rules_by_id = {r.id: r for r in rules}
 
     for match in yara_matches:
-        rule_name = match.rule
-        rule = rule_map.get(rule_name)
-
+        rule = rules_by_id.get(rule_id_from_namespace(match.namespace))
         if not rule:
             continue
 
         for string_match in match.strings:
             for instance in string_match.instances:
+                original = instance.matched_data.decode('utf-8', errors='replace')
+                start = byte_to_char_offset(data, instance.offset)
+
+                stripped = original.strip()
+                if not stripped:
+                    continue
+                start += len(original) - len(original.lstrip())
+
                 matches.append({
-                    'rule_name': rule_name,
+                    'rule_name': rule.name,
                     'rule': rule,
-                    'original': instance.matched_data.decode('utf-8', errors='replace'),
-                    'start': instance.offset,
-                    'end': instance.offset + instance.matched_length,
+                    'original': stripped,
+                    'start': start,
+                    'end': start + len(stripped),
                 })
 
     return matches
+
+
+def _remove_overlaps(raw_matches: List[dict]) -> List[dict]:
+    """Keep the earliest (and, on ties, longest) match among overlapping ones."""
+    raw_matches.sort(key=lambda x: (x['start'], -(x['end'] - x['start'])))
+    filtered = []
+    last_end = -1
+    for match in raw_matches:
+        if match['start'] >= last_end:
+            filtered.append(match)
+            last_end = match['end']
+    return filtered
+
+
+def _build_token(rule: Rule, n: int) -> str:
+    token_type = rule.name.upper().replace(" ", "_")
+    template = rule.obfuscate_token or DEFAULT_TOKEN_TEMPLATE
+    try:
+        return template.format(name=token_type, n=n)
+    except (KeyError, IndexError, ValueError):
+        return DEFAULT_TOKEN_TEMPLATE.format(name=token_type, n=n)
+
+
+def _token_for(rule: Rule, original: str, context: Dict[str, str], counters: Dict[int, int]) -> str:
+    """
+    Return the token for ``original``: the existing one if this value was
+    already masked in the conversation, otherwise the next free token for the
+    rule. A token already mapped to a different value is never reused.
+    """
+    for token, value in context.items():
+        if value == original:
+            return token
+
+    n = counters.get(rule.id, 0)
+    while True:
+        n += 1
+        token = _build_token(rule, n)
+        if token not in context:
+            break
+    counters[rule.id] = n
+    context[token] = original
+    return token
 
 
 def obfuscate_text(
@@ -98,110 +150,55 @@ def obfuscate_text(
     Args:
         text: Text to obfuscate
         company_id: Company ID to get rules for
-        existing_context: Existing obfuscation context to append to
+        existing_context: Existing obfuscation context to append to (tokens
+            already used in the conversation are reused/never overwritten)
 
     Returns:
-        ObfuscationResult with obfuscated text and context
+        ObfuscationResult with obfuscated text and the full (existing + new) context
     """
-    if not text:
-        return ObfuscationResult(text="", matches=[], context={})
-
-    # Get active obfuscation rules
-    rules = get_obfuscation_rules(company_id)
-
-    if not rules:
-        return ObfuscationResult(text=text, matches=[], context=existing_context or {})
-
-    # Compile YARA rules
-    compiled_rules = compile_yara_rules(rules)
-
-    if not compiled_rules:
-        return ObfuscationResult(text=text, matches=[], context=existing_context or {})
-
-    # Run YARA scan
-    try:
-        yara_matches = compiled_rules.match(data=text.encode('utf-8'))
-    except Exception:
-        return ObfuscationResult(text=text, matches=[], context=existing_context or {})
-
-    # Extract matches
-    raw_matches = extract_matches_from_yara(yara_matches, text, rules)
-
-    if not raw_matches:
-        return ObfuscationResult(text=text, matches=[], context=existing_context or {})
-
-    # Sort by position (start) and remove overlaps
-    raw_matches.sort(key=lambda x: (x['start'], -(x['end'] - x['start'])))
-    filtered_matches = []
-    covered_ranges = []
-
-    for match in raw_matches:
-        start, end = match['start'], match['end']
-        is_overlapping = any(
-            (start >= r[0] and start < r[1]) or (end > r[0] and end <= r[1])
-            for r in covered_ranges
-        )
-        if not is_overlapping:
-            filtered_matches.append(match)
-            covered_ranges.append((start, end))
-
-    # Generate tokens and build context
     context = dict(existing_context) if existing_context else {}
-    counters = {}
+
+    if not text:
+        return ObfuscationResult(text="", matches=[], context=context)
+
+    rules = get_obfuscation_rules(company_id)
+    if not rules:
+        return ObfuscationResult(text=text, matches=[], context=context)
+
+    compiled_rules = compile_yara_rules(rules)
+    if not compiled_rules:
+        return ObfuscationResult(text=text, matches=[], context=context)
+
+    data = text.encode('utf-8')
+    try:
+        yara_matches = compiled_rules.match(data=data)
+    except yara.Error as e:
+        logger.error("YARA obfuscation scan failed: %s", e)
+        return ObfuscationResult(text=text, matches=[], context=context)
+
+    filtered_matches = _remove_overlaps(extract_matches_from_yara(yara_matches, data, rules))
+    if not filtered_matches:
+        return ObfuscationResult(text=text, matches=[], context=context)
+
+    # Assign tokens in reading order so numbering follows the text
+    counters: Dict[int, int] = {}
     obfuscation_matches = []
-
-    # Count existing tokens to continue numbering
-    for token in context.keys():
-        # Parse token like [EMAIL_1] to get type and number
-        match = re.match(r'\[([A-Z_]+)_(\d+)\]', token)
-        if match:
-            token_type = match.group(1)
-            token_num = int(match.group(2))
-            counters[token_type] = max(counters.get(token_type, 0), token_num)
-
-    # Sort by position descending for replacement
-    filtered_matches.sort(key=lambda x: x['start'], reverse=True)
-
-    result_text = text
     for match in filtered_matches:
-        rule = match['rule']
-        original = match['original']
-
-        # Check if this exact value is already in context
-        existing_token = None
-        for token, value in context.items():
-            if value == original:
-                existing_token = token
-                break
-
-        if existing_token:
-            token = existing_token
-        else:
-            # Generate new token
-            token_template = rule.obfuscate_token or "[{name}_{n}]"
-            token_type = rule.name.upper().replace(" ", "_")
-
-            counters[token_type] = counters.get(token_type, 0) + 1
-            token = token_template.format(name=token_type, n=counters[token_type])
-
-            context[token] = original
-
-        # Replace in text
-        result_text = result_text[:match['start']] + token + result_text[match['end']:]
-
+        token = _token_for(match['rule'], match['original'], context, counters)
         obfuscation_matches.append(ObfuscationMatch(
-            rule_name=rule.name,
-            original=original,
+            rule_name=match['rule_name'],
+            original=match['original'],
             token=token,
             start=match['start'],
-            end=match['end']
+            end=match['end'],
         ))
 
-    return ObfuscationResult(
-        text=result_text,
-        matches=list(reversed(obfuscation_matches)),
-        context=context
-    )
+    # Replace from the end so earlier offsets stay valid
+    result_text = text
+    for m in reversed(obfuscation_matches):
+        result_text = result_text[:m.start] + m.token + result_text[m.end:]
+
+    return ObfuscationResult(text=result_text, matches=obfuscation_matches, context=context)
 
 
 def deobfuscate_text(text: str, context: Dict[str, str]) -> str:
@@ -219,8 +216,9 @@ def deobfuscate_text(text: str, context: Dict[str, str]) -> str:
         return text
 
     result = text
-    for token, original in context.items():
-        result = result.replace(token, original)
+    # Longest tokens first so e.g. [EMAIL_1] never clobbers part of [EMAIL_10]
+    for token in sorted(context, key=len, reverse=True):
+        result = result.replace(token, context[token])
 
     return result
 
