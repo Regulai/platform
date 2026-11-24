@@ -47,6 +47,20 @@ BAD_META_RULE = '''rule Weird_Meta
 }
 '''
 
+OBFUSCATE_RULE = '''rule Obfuscate_Email
+{
+    meta:
+        description = "Masks emails"
+        severity = "medium"
+        action = "obfuscate"
+        token = "[EMAIL_{n}]"
+    strings:
+        $email = /[a-z]+@[a-z]+\.[a-z]{2,}/
+    condition:
+        $email
+}
+'''
+
 BROKEN_RULE = '''rule Broken_One
 {
     strings:
@@ -66,6 +80,16 @@ class ParseYaraFileTests(TestCase):
         self.assertEqual(rules['Private_Key']['severity'], 'critical')
         self.assertEqual(rules['Weird_Meta']['action'], 'block')
         self.assertEqual(rules['Weird_Meta']['severity'], 'medium')
+
+    def test_reads_obfuscation_token(self):
+        rules = {r['name']: r for r in parse_yara_file(OBFUSCATE_RULE + CONSENT_RULE, 'f')}
+        self.assertEqual(rules['Obfuscate_Email']['action'], 'obfuscate')
+        self.assertEqual(rules['Obfuscate_Email']['obfuscate_token'], '[EMAIL_{n}]')
+        self.assertEqual(rules['Confidential_Marking']['obfuscate_token'], '[{name}_{n}]')
+
+    def test_invalid_token_falls_back_to_default(self):
+        bad = OBFUSCATE_RULE.replace('[EMAIL_{n}]', '[EMAIL]')
+        self.assertEqual(parse_yara_file(bad, 'f')[0]['obfuscate_token'], '[{name}_{n}]')
 
 
 def fake_github(files):
@@ -109,6 +133,15 @@ class CommunitySyncTests(TestCase):
         self.assertFalse(Rule.objects.filter(name='Broken_One').exists())
         self.assertTrue(any('Broken_One' in e for e in data['errors']))
 
+    def test_sync_stores_obfuscation_rules_with_token(self):
+        self.sync({'Obfuscation_PII': OBFUSCATE_RULE})
+        rule = self.community_rule('Obfuscate_Email')
+        self.assertEqual(rule.action, 'obfuscate')
+        self.assertEqual(rule.obfuscate_token, '[EMAIL_{n}]')
+
+        response = self.client.get(reverse('front:rules_community_list'), {'action': 'obfuscate'})
+        self.assertContains(response, 'Obfuscate_Email')
+
     def test_resync_updates_when_only_action_changes(self):
         self.sync({'Markings': CONSENT_RULE})
         data = self.sync({'Markings': CONSENT_RULE.replace('action = "consent"', 'action = "block"')})
@@ -132,6 +165,19 @@ class CommunityConfigureTests(TestCase):
             severity='medium', action='consent',
         )
         self.client.force_login(self.user)
+
+    def test_configured_obfuscation_rule_masks_text(self):
+        group = RulesGroup.objects.get(name='Community')
+        community = Rule.objects.create(name='Obfuscate_Email', rules_group=group, yara_rule=OBFUSCATE_RULE,
+                                        action='obfuscate', obfuscate_token='[EMAIL_{n}]')
+        self.client.post(reverse('front:rule_community_configure', args=[community.pk]))
+        copy = Rule.objects.get(rules_group__company=self.company, name='Obfuscate_Email')
+        self.assertEqual((copy.action, copy.obfuscate_token), ('obfuscate', '[EMAIL_{n}]'))
+
+        copy.active = True
+        copy.save()
+        from .obfuscation_service import obfuscate_text
+        self.assertEqual(obfuscate_text('mail ana@corp.es', self.company.id).text, 'mail [EMAIL_1]')
 
     def test_configure_copies_recommended_action_inactive(self):
         response = self.client.post(reverse('front:rule_community_configure', args=[self.community_rule.pk]))

@@ -3966,6 +3966,7 @@ def rules_community_list(request):
     severity_filter = request.GET.get('severity')
     applies_to_filter = request.GET.get('applies_to')
     status_filter = request.GET.get('status')  # configured/not_configured
+    action_filter = request.GET.get('action')  # block/consent/obfuscate
 
     if search:
         community_rules = [r for r in community_rules if search.lower() in r.name.lower() or (r.description and search.lower() in r.description.lower())]
@@ -3975,6 +3976,9 @@ def rules_community_list(request):
 
     if applies_to_filter:
         community_rules = [r for r in community_rules if r.applies_to == applies_to_filter]
+
+    if action_filter:
+        community_rules = [r for r in community_rules if r.action == action_filter]
 
     if status_filter == 'configured':
         community_rules = [r for r in community_rules if r.is_configured]
@@ -4008,6 +4012,7 @@ def rules_community_list(request):
         'severity_filter': severity_filter,
         'applies_to_filter': applies_to_filter,
         'status_filter': status_filter,
+        'action_filter': action_filter,
     }
     return render(request, 'rules_community/list.html', context)
 
@@ -4162,6 +4167,7 @@ def rules_community_sync(request):
                         'description': rule_data.get('description', ''),
                         'severity': rule_data.get('severity', 'medium'),
                         'action': rule_data.get('action', 'block'),
+                        'obfuscate_token': rule_data.get('obfuscate_token', '[{name}_{n}]'),
                     }
 
                     # Check if rule already exists
@@ -4249,15 +4255,18 @@ def parse_yara_file(content, filename):
             for meta_item in re.finditer(r'(\w+)\s*=\s*"([^"]*)"', meta_content):
                 meta[meta_item.group(1).lower()] = meta_item.group(2)
 
-        # Optional recommended action (block / consent / obfuscate)
+        # Optional recommended action (block / consent / obfuscate) and, for
+        # obfuscation rules, the token format (e.g. "[EMAIL_{n}]")
         severity = meta.get('severity', 'medium').lower()
         action = meta.get('action', 'block').lower()
+        token = meta.get('token', '').strip()
 
         rules.append({
             'name': rule_name,
             'description': meta.get('description', meta.get('purpose', f'Rule from {filename}')),
             'severity': severity if severity in dict(Rule.SEVERITY_CHOICES) else 'medium',
             'action': action if action in dict(Rule.ACTION_CHOICES) else 'block',
+            'obfuscate_token': token if _valid_obfuscate_token(token) else '[{name}_{n}]',
             'yara_rule': rule_body.strip()
         })
 

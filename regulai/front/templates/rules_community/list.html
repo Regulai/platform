@@ -80,7 +80,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Search</label>
                     <input type="text" name="search" class="form-control" placeholder="Search by name or description..." value="{{ search }}">
                 </div>
@@ -104,6 +104,15 @@
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label">Action</label>
+                    <select name="action" class="form-select">
+                        <option value="">All</option>
+                        <option value="block" {% if action_filter == 'block' %}selected{% endif %}>Block</option>
+                        <option value="consent" {% if action_filter == 'consent' %}selected{% endif %}>Consent</option>
+                        <option value="obfuscate" {% if action_filter == 'obfuscate' %}selected{% endif %}>Obfuscate</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All</option>
@@ -111,9 +120,9 @@
                         <option value="not_configured" {% if status_filter == 'not_configured' %}selected{% endif %}>Not Configured</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="ti ti-filter me-1"></i> Filter
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100" title="Filter">
+                        <i class="ti ti-filter"></i>
                     </button>
                 </div>
             </form>
