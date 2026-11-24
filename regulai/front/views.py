@@ -24,6 +24,7 @@ from front.rate_limit import (
 from front.auth_utils import change_user_password, safe_redirect_url
 import yara, io
 import json
+import logging
 import base64
 import hashlib
 import re
@@ -973,7 +974,7 @@ def engine_create(request):
                 'is_edit': False,
             })
 
-        CompanyEngine.objects.create(
+        company_engine = CompanyEngine.objects.create(
             company=company,
             engine=engine,
             name=name,
@@ -990,6 +991,7 @@ def engine_create(request):
         }, request)
 
         messages.success(request, f'Engine "{display_name}" added successfully.')
+        _auto_sync_engine_models(request, company_engine)
         return redirect('front:engines_list')
 
     context = {
@@ -1018,6 +1020,8 @@ def engine_edit(request, pk):
                 'is_edit': True,
             })
 
+        api_key_changed = api_key != company_engine.api_key
+
         company_engine.name = name
         company_engine.api_key = api_key
         company_engine.active = active
@@ -1031,6 +1035,8 @@ def engine_edit(request, pk):
         }, request)
 
         messages.success(request, f'Engine "{company_engine.display_name}" updated successfully.')
+        if api_key_changed:
+            _auto_sync_engine_models(request, company_engine)
         return redirect('front:engines_list')
 
     context = {
@@ -1083,6 +1089,94 @@ def engine_toggle(request, pk):
     return redirect('front:engines_list')
 
 
+# Max time to wait for the provider when listing models during a sync
+MODEL_SYNC_TIMEOUT_SECONDS = 20
+
+
+def sync_engine_models(company_engine):
+    """
+    Fetch the models available with this company engine's API key and
+    upsert them into EngineModel.
+
+    New models are created active. Existing models keep their ``active``
+    flag, so a model an admin disabled is not re-enabled by a sync.
+
+    Returns (total, created, updated). total == 0 means the provider returned
+    no models (unsupported listing or an invalid API key).
+    Raises on unexpected errors.
+    """
+    from front.connectors import get_connector
+
+    engine = company_engine.engine
+    connector = get_connector(
+        connector_type=engine.connector_type,
+        api_key=company_engine.api_key,
+        base_url=engine.base_url
+    )
+    # Do not let a slow/unreachable provider hang the request
+    client = getattr(connector, 'client', None)
+    if client is not None and hasattr(client, 'with_options'):
+        connector.client = client.with_options(timeout=MODEL_SYNC_TIMEOUT_SECONDS, max_retries=1)
+
+    api_models = connector.list_models()
+
+    created_count = 0
+    updated_count = 0
+    for model_info in api_models:
+        fields = {
+            'name': model_info.name,
+            'description': model_info.description,
+            'supports_vision': model_info.supports_vision,
+            'max_tokens': model_info.max_tokens,
+        }
+        engine_model, created = EngineModel.objects.get_or_create(
+            engine=engine,
+            model_id=model_info.model_id,
+            defaults={**fields, 'active': True},
+        )
+        if created:
+            created_count += 1
+        else:
+            EngineModel.objects.filter(pk=engine_model.pk).update(**fields)
+            updated_count += 1
+
+    return len(api_models), created_count, updated_count
+
+
+def _auto_sync_engine_models(request, company_engine):
+    """
+    Sync models right after an API key is added or changed. The engine is
+    already saved: a failed sync only produces a warning, never an error.
+    """
+    engine = company_engine.engine
+    try:
+        total, created, updated = sync_engine_models(company_engine)
+    except Exception as e:
+        logging.warning(f"Automatic model sync failed for engine {company_engine.pk}: {e}")
+        messages.warning(
+            request,
+            f'Models could not be synced automatically from {engine.name}: {e}. '
+            f'Check the API key or use "Sync models" to retry.'
+        )
+        return
+
+    if not total:
+        messages.warning(
+            request,
+            f'No models returned from {engine.name}. Check that the API key is valid, '
+            f'or add the models manually if the provider does not support model listing.'
+        )
+        return
+
+    log_action(request.user, 'engine_sync_models', {
+        'engine_name': engine.name,
+        'models_created': created,
+        'models_updated': updated,
+        'trigger': 'api_key_change',
+    }, request)
+    messages.info(request, f'Synced {total} models from {engine.name} automatically. New: {created}, updated: {updated}.')
+
+
 @admin_required
 def engine_sync_models(request, pk):
     """Sync models from the provider API."""
@@ -1091,42 +1185,11 @@ def engine_sync_models(request, pk):
     engine = company_engine.engine
 
     try:
-        from front.connectors import get_connector
+        total, created_count, updated_count = sync_engine_models(company_engine)
 
-        # Get connector with decrypted API key
-        connector = get_connector(
-            connector_type=engine.connector_type,
-            api_key=company_engine.api_key,
-            base_url=engine.base_url
-        )
-
-        # Fetch models from API
-        api_models = connector.list_models()
-
-        if not api_models:
+        if not total:
             messages.warning(request, f'No models returned from {engine.name} API. The API may not support model listing.')
             return redirect('front:engines_list')
-
-        # Sync models to database
-        created_count = 0
-        updated_count = 0
-
-        for model_info in api_models:
-            engine_model, created = EngineModel.objects.update_or_create(
-                engine=engine,
-                model_id=model_info.model_id,
-                defaults={
-                    'name': model_info.name,
-                    'description': model_info.description,
-                    'supports_vision': model_info.supports_vision,
-                    'max_tokens': model_info.max_tokens,
-                    'active': True,
-                }
-            )
-            if created:
-                created_count += 1
-            else:
-                updated_count += 1
 
         log_action(request.user, 'engine_sync_models', {
             'engine_name': engine.name,
@@ -1134,7 +1197,7 @@ def engine_sync_models(request, pk):
             'models_updated': updated_count,
         }, request)
 
-        messages.success(request, f'Synced {len(api_models)} models from {engine.name}. Created: {created_count}, Updated: {updated_count}.')
+        messages.success(request, f'Synced {total} models from {engine.name}. Created: {created_count}, Updated: {updated_count}.')
 
     except Exception as e:
         messages.error(request, f'Error syncing models: {str(e)}')
