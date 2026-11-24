@@ -65,6 +65,12 @@
             YARA Rules
           </h5>
           <div class="d-flex gap-2">
+            {% csrf_token %}
+            <button type="button" class="btn btn-outline-primary" data-compile-all
+                    title="Compile every rule in this list and flag the invalid ones">
+              <iconify-icon icon="solar:code-scan-bold" class="me-1"></iconify-icon>
+              Compile all
+            </button>
             <a href="{% url 'front:rules_community_list' %}" class="btn btn-outline-success">
               <iconify-icon icon="solar:users-group-rounded-bold" class="me-1"></iconify-icon>
               Community Rules
@@ -125,6 +131,8 @@
         {% endfor %}
         {% endif %}
 
+        <div class="alert d-none" data-compile-summary role="status"></div>
+
         <!-- Rules Table -->
         <div class="table-responsive">
           <table class="table text-nowrap mb-0 align-middle">
@@ -155,7 +163,7 @@
             </thead>
             <tbody>
               {% for rule in rules %}
-              <tr>
+              <tr data-rule-row data-rule-id="{{ rule.pk }}">
                 <td class="border-bottom-0">
                   <a href="{% url 'front:rule_detail' rule.pk %}" class="text-decoration-none">
                     <div class="d-flex align-items-center gap-2">
@@ -184,6 +192,8 @@
                 <td class="border-bottom-0">
                   {% if rule.action == 'consent' %}
                   <span class="badge bg-warning-subtle text-warning rounded-3 fw-semibold">Consent</span>
+                  {% elif rule.action == 'obfuscate' %}
+                  <span class="badge bg-info-subtle text-info rounded-3 fw-semibold">Obfuscate</span>
                   {% else %}
                   <span class="badge bg-danger-subtle text-danger rounded-3 fw-semibold">Block</span>
                   {% endif %}
@@ -194,12 +204,17 @@
                   {% else %}
                   <span class="badge bg-secondary-subtle text-secondary rounded-3 fw-semibold">Inactive</span>
                   {% endif %}
+                  <span class="badge rounded-3 fw-semibold d-none ms-1" data-compile-badge></span>
                 </td>
                 <td class="border-bottom-0">
                   <span class="text-muted">{{ rule.created_at|date:"M d, Y" }}</span>
                 </td>
                 <td class="border-bottom-0 text-end">
                   <div class="d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Compile"
+                            data-compile-row data-compile-url="{% url 'front:rule_compile' rule.pk %}">
+                      <iconify-icon icon="solar:code-scan-bold"></iconify-icon>
+                    </button>
                     <a href="{% url 'front:rule_toggle' rule.pk %}?next={{ request.get_full_path|urlencode }}"
                        class="btn btn-sm {% if rule.active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
                        title="{% if rule.active %}Deactivate{% else %}Activate{% endif %}">
@@ -211,6 +226,13 @@
                     <a href="{% url 'front:rule_delete' rule.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
                       <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
                     </a>
+                  </div>
+                </td>
+              </tr>
+              <tr class="d-none" data-compile-error-for="{{ rule.pk }}">
+                <td colspan="7" class="border-bottom-0 pt-0">
+                  <div class="alert alert-danger small mb-0 text-wrap">
+                    <strong>{{ rule.name }} does not compile:</strong> <code class="text-danger"></code>
                   </div>
                 </td>
               </tr>
@@ -233,4 +255,8 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/yara-compile.js' %}"></script>
 {% endblock %}

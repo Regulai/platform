@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .encrypted_fields import EncryptedCharField
+from .encrypted_fields import EncryptedCharField, EncryptedTextField
 
 
 class Company(models.Model):
@@ -127,6 +127,7 @@ class Rule(models.Model):
     ACTION_CHOICES = [
         ("block", "Block"),
         ("consent", "Consent"),
+        ("obfuscate", "Obfuscate"),
     ]
 
     name = models.CharField(max_length=255)
@@ -135,9 +136,15 @@ class Rule(models.Model):
     rules_group = models.ForeignKey(RulesGroup, on_delete=models.CASCADE, related_name="rules")
     severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default="medium")
     applies_to = models.CharField(max_length=20, choices=APPLIES_TO_CHOICES, default="both")
-    action = models.CharField(max_length=20, choices=ACTION_CHOICES, default="block", help_text="Block stops the message. Consent asks the user for confirmation before sending.")
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, default="block", help_text="Block stops the message. Consent asks for confirmation. Obfuscate masks sensitive data.")
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Obfuscation settings (only used when action="obfuscate")
+    obfuscate_token = models.CharField(
+        max_length=50,
+        default="[{name}_{n}]",
+        help_text="Token format: {name}=rule name, {n}=counter. Example: [EMAIL_1]"
+    )
 
     def __str__(self):
         return f"Rule: {self.name} ({'Active' if self.active else 'Inactive'})"
@@ -149,6 +156,13 @@ class Conversation(models.Model):
     title = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Obfuscation context: maps tokens to original values (encrypted)
+    # Example: {"[EMAIL_1]": "user@example.com", "[DNI_1]": "12345678A"}
+    obfuscation_context = EncryptedTextField(
+        blank=True,
+        null=True,
+        help_text="Encrypted JSON mapping obfuscation tokens to original values"
+    )
 
     class Meta:
         ordering = ['-updated_at']
@@ -164,6 +178,34 @@ class Conversation(models.Model):
         if first_message:
             return first_message.content[:50] + ('...' if len(first_message.content) > 50 else '')
         return 'New Conversation'
+
+    def get_obfuscation_context(self) -> dict:
+        """Get the obfuscation context as a dictionary."""
+        import json
+        if not self.obfuscation_context:
+            return {}
+        try:
+            return json.loads(self.obfuscation_context)
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    def set_obfuscation_context(self, context: dict):
+        """Set the obfuscation context from a dictionary."""
+        import json
+        self.obfuscation_context = json.dumps(context) if context else None
+
+    def add_obfuscation_mapping(self, token: str, original: str):
+        """Add a single token mapping to the context."""
+        context = self.get_obfuscation_context()
+        context[token] = original
+        self.set_obfuscation_context(context)
+
+    def deobfuscate_text(self, text: str) -> str:
+        """Replace all obfuscation tokens with original values."""
+        context = self.get_obfuscation_context()
+        for token, original in context.items():
+            text = text.replace(token, original)
+        return text
 
 
 class Message(models.Model):
@@ -186,7 +228,6 @@ class Message(models.Model):
     response_file = models.FileField(upload_to='chat_responses/', null=True, blank=True)
     # Obfuscation fields
     is_obfuscated = models.BooleanField(default=False)
-    original_content = models.TextField(blank=True, null=True)  # Original text before obfuscation
     obfuscated_entities = models.JSONField(blank=True, null=True)  # List of entity types detected
 
     class Meta:
@@ -328,39 +369,6 @@ class CompanyEngine(models.Model):
     def display_name(self):
         """Returns custom name if set, otherwise the engine name."""
         return self.name if self.name else self.engine.name
-
-
-class ObfuscationConfig(models.Model):
-    """Configuración de ofuscación para una empresa (local o con PasteGuard)."""
-    DETECT_CHOICES = [
-        ("pii", "PII"),
-        ("secrets", "Secrets"),
-        ("both", "PII & Secrets"),
-    ]
-
-    MODE_CHOICES = [
-        ("local", "Local (regex patterns)"),
-        ("api", "External API (PasteGuard)"),
-    ]
-
-    name = models.CharField(max_length=255)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="obfuscation_configs")
-    mode = models.CharField(max_length=10, choices=MODE_CHOICES, default="local", help_text="Use local regex or external API")
-    api_url = models.URLField(blank=True, default="", help_text="Base URL del servicio PasteGuard (solo para modo API)")
-    detect = models.CharField(max_length=20, choices=DETECT_CHOICES, default="both")
-    language = models.CharField(max_length=10, blank=True, default="", help_text="Idioma para detección (solo para modo API)")
-    active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.name} ({self.company.name})"
-
-    @property
-    def is_local(self):
-        return self.mode == "local"
 
 
 class CompanyToolConfig(models.Model):

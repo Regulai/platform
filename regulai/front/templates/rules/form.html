@@ -157,10 +157,26 @@
                         {% if form_data and form_data.action == 'consent' %}selected{% endif %}>
                   Consent
                 </option>
+                <option value="obfuscate" {% if rule and rule.action == 'obfuscate' %}selected{% endif %}
+                        {% if form_data and form_data.action == 'obfuscate' %}selected{% endif %}>
+                  Obfuscate
+                </option>
               </select>
               <div class="form-text">
                 <strong>Block</strong> prevents the message from being sent.
                 <strong>Consent</strong> asks the user for confirmation before sending.
+                <strong>Obfuscate</strong> replaces the matched data with a token before sending it to the AI.
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-4" id="obfuscateTokenGroup">
+              <label for="obfuscate_token" class="form-label fw-semibold">Obfuscation Token</label>
+              <input type="text" class="form-control font-monospace" id="obfuscate_token" name="obfuscate_token" maxlength="50"
+                     value="{% if rule %}{{ rule.obfuscate_token }}{% elif form_data %}{{ form_data.obfuscate_token }}{% else %}[{name}_{n}]{% endif %}"
+                     placeholder="[{name}_{n}]">
+              <div class="form-text">
+                Only used with <strong>Obfuscate</strong>. <code>{name}</code> = rule name, <code>{n}</code> = counter (required).
+                Example: <code>[EMAIL_{n}]</code> &rarr; <code>[EMAIL_1]</code>.
               </div>
             </div>
           </div>
@@ -187,6 +203,30 @@
                 YARA Documentation <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon>
               </a>
             </div>
+          </div>
+
+          <!-- Compile & test (does not save) -->
+          <div class="mb-4 p-3 border rounded" data-yara-tester
+               data-url="{% url 'front:rule_validate' %}" data-source-input="#yara_rule">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+              <h6 class="fw-semibold mb-0">
+                <iconify-icon icon="solar:test-tube-bold" class="text-primary me-1"></iconify-icon>
+                Compile &amp; test
+              </h6>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" data-yara-compile>
+                  <iconify-icon icon="solar:code-scan-bold" class="me-1"></iconify-icon>
+                  Compile
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-yara-test>
+                  <iconify-icon icon="solar:play-bold" class="me-1"></iconify-icon>
+                  Test with sample
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control form-control-sm mb-2" rows="3" data-yara-sample
+                      placeholder="Optional sample text, e.g. &quot;my DNI is 12345678Z&quot;"></textarea>
+            <div data-yara-result></div>
           </div>
 
           <div class="mb-4">
@@ -263,4 +303,17 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/yara-compile.js' %}"></script>
+<script>
+  (function () {
+    const action = document.getElementById('action');
+    const tokenGroup = document.getElementById('obfuscateTokenGroup');
+    function sync() { tokenGroup.classList.toggle('d-none', action.value !== 'obfuscate'); }
+    action.addEventListener('change', sync);
+    sync();
+  })();
+</script>
 {% endblock %}

@@ -132,6 +132,32 @@
       </div>
     </div>
 
+    <!-- Compile & test -->
+    <div class="card mb-4" data-yara-tester data-url="{% url 'front:rule_compile' rule.pk %}">
+      <div class="card-body">
+        {% csrf_token %}
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+          <h5 class="card-title fw-semibold mb-0">
+            <iconify-icon icon="solar:test-tube-bold" class="text-primary me-2"></iconify-icon>
+            Compile &amp; test
+          </h5>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary" data-yara-compile>
+              <iconify-icon icon="solar:code-scan-bold" class="me-1"></iconify-icon>
+              Compile
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-yara-test>
+              <iconify-icon icon="solar:play-bold" class="me-1"></iconify-icon>
+              Test with sample
+            </button>
+          </div>
+        </div>
+        <textarea class="form-control form-control-sm mb-2" rows="3" data-yara-sample
+                  placeholder="Sample text to check the rule against, e.g. &quot;my DNI is 12345678Z&quot;"></textarea>
+        <div data-yara-result></div>
+      </div>
+    </div>
+
     <!-- Recent Alerts -->
     <div class="card">
       <div class="card-body">
@@ -227,6 +253,8 @@
             <span class="fw-semibold">
               {% if rule.action == 'consent' %}
               <span class="badge bg-warning-subtle text-warning">Consent</span>
+              {% elif rule.action == 'obfuscate' %}
+              <span class="badge bg-info-subtle text-info">Obfuscate</span>
               {% else %}
               <span class="badge bg-danger-subtle text-danger">Block</span>
               {% endif %}
@@ -258,6 +286,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/yara-compile.js' %}"></script>
 <script>
 function copyToClipboard() {
   const code = document.getElementById('yaraCode').textContent;
