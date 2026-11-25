@@ -24,6 +24,7 @@ from front.rate_limit import (
 from front.auth_utils import change_user_password, safe_redirect_url
 import yara, io
 import json
+import logging
 import base64
 import hashlib
 import re
@@ -174,7 +175,7 @@ def home_view(request):
 
 @login_rate_limit
 def login_view(request):
-    """Login view with rate limiting (5 attempts per minute per IP)."""
+    """Login view with rate limiting (20 attempts per minute per IP)."""
     if request.user.is_authenticated:
         return redirect('front:home')
 
@@ -973,7 +974,7 @@ def engine_create(request):
                 'is_edit': False,
             })
 
-        CompanyEngine.objects.create(
+        company_engine = CompanyEngine.objects.create(
             company=company,
             engine=engine,
             name=name,
@@ -990,6 +991,7 @@ def engine_create(request):
         }, request)
 
         messages.success(request, f'Engine "{display_name}" added successfully.')
+        _auto_sync_engine_models(request, company_engine)
         return redirect('front:engines_list')
 
     context = {
@@ -1018,6 +1020,8 @@ def engine_edit(request, pk):
                 'is_edit': True,
             })
 
+        api_key_changed = api_key != company_engine.api_key
+
         company_engine.name = name
         company_engine.api_key = api_key
         company_engine.active = active
@@ -1031,6 +1035,8 @@ def engine_edit(request, pk):
         }, request)
 
         messages.success(request, f'Engine "{company_engine.display_name}" updated successfully.')
+        if api_key_changed:
+            _auto_sync_engine_models(request, company_engine)
         return redirect('front:engines_list')
 
     context = {
@@ -1083,6 +1089,94 @@ def engine_toggle(request, pk):
     return redirect('front:engines_list')
 
 
+# Max time to wait for the provider when listing models during a sync
+MODEL_SYNC_TIMEOUT_SECONDS = 20
+
+
+def sync_engine_models(company_engine):
+    """
+    Fetch the models available with this company engine's API key and
+    upsert them into EngineModel.
+
+    New models are created active. Existing models keep their ``active``
+    flag, so a model an admin disabled is not re-enabled by a sync.
+
+    Returns (total, created, updated). total == 0 means the provider returned
+    no models (unsupported listing or an invalid API key).
+    Raises on unexpected errors.
+    """
+    from front.connectors import get_connector
+
+    engine = company_engine.engine
+    connector = get_connector(
+        connector_type=engine.connector_type,
+        api_key=company_engine.api_key,
+        base_url=engine.base_url
+    )
+    # Do not let a slow/unreachable provider hang the request
+    client = getattr(connector, 'client', None)
+    if client is not None and hasattr(client, 'with_options'):
+        connector.client = client.with_options(timeout=MODEL_SYNC_TIMEOUT_SECONDS, max_retries=1)
+
+    api_models = connector.list_models()
+
+    created_count = 0
+    updated_count = 0
+    for model_info in api_models:
+        fields = {
+            'name': model_info.name,
+            'description': model_info.description,
+            'supports_vision': model_info.supports_vision,
+            'max_tokens': model_info.max_tokens,
+        }
+        engine_model, created = EngineModel.objects.get_or_create(
+            engine=engine,
+            model_id=model_info.model_id,
+            defaults={**fields, 'active': True},
+        )
+        if created:
+            created_count += 1
+        else:
+            EngineModel.objects.filter(pk=engine_model.pk).update(**fields)
+            updated_count += 1
+
+    return len(api_models), created_count, updated_count
+
+
+def _auto_sync_engine_models(request, company_engine):
+    """
+    Sync models right after an API key is added or changed. The engine is
+    already saved: a failed sync only produces a warning, never an error.
+    """
+    engine = company_engine.engine
+    try:
+        total, created, updated = sync_engine_models(company_engine)
+    except Exception as e:
+        logging.warning(f"Automatic model sync failed for engine {company_engine.pk}: {e}")
+        messages.warning(
+            request,
+            f'Models could not be synced automatically from {engine.name}: {e}. '
+            f'Check the API key or use "Sync models" to retry.'
+        )
+        return
+
+    if not total:
+        messages.warning(
+            request,
+            f'No models returned from {engine.name}. Check that the API key is valid, '
+            f'or add the models manually if the provider does not support model listing.'
+        )
+        return
+
+    log_action(request.user, 'engine_sync_models', {
+        'engine_name': engine.name,
+        'models_created': created,
+        'models_updated': updated,
+        'trigger': 'api_key_change',
+    }, request)
+    messages.info(request, f'Synced {total} models from {engine.name} automatically. New: {created}, updated: {updated}.')
+
+
 @admin_required
 def engine_sync_models(request, pk):
     """Sync models from the provider API."""
@@ -1091,42 +1185,11 @@ def engine_sync_models(request, pk):
     engine = company_engine.engine
 
     try:
-        from front.connectors import get_connector
+        total, created_count, updated_count = sync_engine_models(company_engine)
 
-        # Get connector with decrypted API key
-        connector = get_connector(
-            connector_type=engine.connector_type,
-            api_key=company_engine.api_key,
-            base_url=engine.base_url
-        )
-
-        # Fetch models from API
-        api_models = connector.list_models()
-
-        if not api_models:
+        if not total:
             messages.warning(request, f'No models returned from {engine.name} API. The API may not support model listing.')
             return redirect('front:engines_list')
-
-        # Sync models to database
-        created_count = 0
-        updated_count = 0
-
-        for model_info in api_models:
-            engine_model, created = EngineModel.objects.update_or_create(
-                engine=engine,
-                model_id=model_info.model_id,
-                defaults={
-                    'name': model_info.name,
-                    'description': model_info.description,
-                    'supports_vision': model_info.supports_vision,
-                    'max_tokens': model_info.max_tokens,
-                    'active': True,
-                }
-            )
-            if created:
-                created_count += 1
-            else:
-                updated_count += 1
 
         log_action(request.user, 'engine_sync_models', {
             'engine_name': engine.name,
@@ -1134,7 +1197,7 @@ def engine_sync_models(request, pk):
             'models_updated': updated_count,
         }, request)
 
-        messages.success(request, f'Synced {len(api_models)} models from {engine.name}. Created: {created_count}, Updated: {updated_count}.')
+        messages.success(request, f'Synced {total} models from {engine.name}. Created: {created_count}, Updated: {updated_count}.')
 
     except Exception as e:
         messages.error(request, f'Error syncing models: {str(e)}')
@@ -1763,6 +1826,13 @@ def chat_view(request, conversation_id=None):
     chat_messages = []
     if conversation:
         chat_messages = list(conversation.messages.all())
+        # Only the masked text is stored; rebuild the original for display
+        # from the conversation's (encrypted) token map.
+        if any(m.is_obfuscated for m in chat_messages):
+            obf_context = conversation.get_obfuscation_context()
+            for m in chat_messages:
+                if m.is_obfuscated:
+                    m.original_content = deobfuscate(m.content, obf_context)
 
     return render(request, "chat/chat.html", {
         "conversation": conversation,
@@ -2981,7 +3051,7 @@ def _chat_send_message_stream_impl(request, conversation_id=None):
 
         try:
             # First, send metadata
-            yield f"data: {json.dumps({'type': 'start', 'conversation_id': conversation.id, 'user_message': {'id': user_message.id, 'content': display_content, 'file_name': file_name, 'file_size': file_size}})}\n\n"
+            yield f"data: {json.dumps({'type': 'start', 'conversation_id': conversation.id, 'user_message': {'id': user_message.id, 'content': display_content, 'file_name': file_name, 'file_size': file_size, 'is_obfuscated': bool(obfuscation_context), 'obfuscated_entities': obfuscated_entity_types}})}\n\n"
 
             # Build messages history for context using ChatMessage objects
             chat_messages = []
@@ -3176,8 +3246,13 @@ Always use these tools when the user explicitly asks for a file to be created or
             # Update conversation timestamp
             conversation.save()
 
-            # Send completion event with message ID and file info
-            yield f"data: {json.dumps({'type': 'done', 'message_id': assistant_message.id, 'file_name': generated_file_name or assistant_message.file_name, 'file_size': generated_file_size or assistant_message.file_size, 'file_url': file_url})}\n\n"
+            # Send completion event with message ID and file info. With
+            # obfuscation, also send the restored text: the fallback stream
+            # emits the AI's raw tokens (e.g. [IP_1]) as they arrive.
+            done_event = {'type': 'done', 'message_id': assistant_message.id, 'file_name': generated_file_name or assistant_message.file_name, 'file_size': generated_file_size or assistant_message.file_size, 'file_url': file_url}
+            if obfuscation_context:
+                done_event['content'] = assistant_message.content
+            yield f"data: {json.dumps(done_event)}\n\n"
 
         except Exception as e:
             error_str = str(e).lower()
@@ -3903,6 +3978,7 @@ def rules_community_list(request):
     severity_filter = request.GET.get('severity')
     applies_to_filter = request.GET.get('applies_to')
     status_filter = request.GET.get('status')  # configured/not_configured
+    action_filter = request.GET.get('action')  # block/consent/obfuscate
 
     if search:
         community_rules = [r for r in community_rules if search.lower() in r.name.lower() or (r.description and search.lower() in r.description.lower())]
@@ -3912,6 +3988,9 @@ def rules_community_list(request):
 
     if applies_to_filter:
         community_rules = [r for r in community_rules if r.applies_to == applies_to_filter]
+
+    if action_filter:
+        community_rules = [r for r in community_rules if r.action == action_filter]
 
     if status_filter == 'configured':
         community_rules = [r for r in community_rules if r.is_configured]
@@ -3945,6 +4024,7 @@ def rules_community_list(request):
         'severity_filter': severity_filter,
         'applies_to_filter': applies_to_filter,
         'status_filter': status_filter,
+        'action_filter': action_filter,
     }
     return render(request, 'rules_community/list.html', context)
 
@@ -3993,6 +4073,8 @@ def rule_community_configure(request, pk):
         rules_group=company_group,
         severity=community_rule.severity,
         applies_to=community_rule.applies_to,
+        action=community_rule.action,
+        obfuscate_token=community_rule.obfuscate_token,
         active=False  # Inactive by default, user must activate
     )
 
@@ -4039,6 +4121,8 @@ def rules_community_sync(request):
     Syncs community rules from the GitHub repository.
     Only admins can sync rules. Rules are stored in a global RulesGroup (company=null, user=null).
     """
+    from front.yara_utils import check_source
+
     GITHUB_REPO = "Regulai/regulai-rules"
     GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/contents"
     GITHUB_RAW_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main"
@@ -4084,6 +4168,20 @@ def rules_community_sync(request):
                 parsed_rules = parse_yara_file(file_content, file_name)
 
                 for rule_data in parsed_rules:
+                    # Never import a rule that does not compile
+                    compile_error = check_source(rule_data['yara_rule'])
+                    if compile_error:
+                        errors.append(f"Skipped {rule_data['name']} ({file_name}): invalid YARA: {compile_error}")
+                        continue
+
+                    fields = {
+                        'yara_rule': rule_data['yara_rule'],
+                        'description': rule_data.get('description', ''),
+                        'severity': rule_data.get('severity', 'medium'),
+                        'action': rule_data.get('action', 'block'),
+                        'obfuscate_token': rule_data.get('obfuscate_token', '[{name}_{n}]'),
+                    }
+
                     # Check if rule already exists
                     existing_rule = Rule.objects.filter(
                         rules_group=community_group,
@@ -4092,10 +4190,9 @@ def rules_community_sync(request):
 
                     if existing_rule:
                         # Update if content changed
-                        if existing_rule.yara_rule != rule_data['yara_rule']:
-                            existing_rule.yara_rule = rule_data['yara_rule']
-                            existing_rule.description = rule_data.get('description', '')
-                            existing_rule.severity = rule_data.get('severity', 'medium')
+                        if any(getattr(existing_rule, k) != v for k, v in fields.items()):
+                            for k, v in fields.items():
+                                setattr(existing_rule, k, v)
                             existing_rule.save()
                             rules_updated += 1
                         else:
@@ -4104,12 +4201,10 @@ def rules_community_sync(request):
                         # Create new rule
                         Rule.objects.create(
                             name=rule_data['name'],
-                            description=rule_data.get('description', ''),
-                            yara_rule=rule_data['yara_rule'],
                             rules_group=community_group,
-                            severity=rule_data.get('severity', 'medium'),
                             applies_to='both',
-                            active=True  # Community rules are active by default
+                            active=True,  # Community rules are active by default
+                            **fields
                         )
                         rules_added += 1
 
@@ -4172,10 +4267,18 @@ def parse_yara_file(content, filename):
             for meta_item in re.finditer(r'(\w+)\s*=\s*"([^"]*)"', meta_content):
                 meta[meta_item.group(1).lower()] = meta_item.group(2)
 
+        # Optional recommended action (block / consent / obfuscate) and, for
+        # obfuscation rules, the token format (e.g. "[EMAIL_{n}]")
+        severity = meta.get('severity', 'medium').lower()
+        action = meta.get('action', 'block').lower()
+        token = meta.get('token', '').strip()
+
         rules.append({
             'name': rule_name,
             'description': meta.get('description', meta.get('purpose', f'Rule from {filename}')),
-            'severity': meta.get('severity', 'medium'),
+            'severity': severity if severity in dict(Rule.SEVERITY_CHOICES) else 'medium',
+            'action': action if action in dict(Rule.ACTION_CHOICES) else 'block',
+            'obfuscate_token': token if _valid_obfuscate_token(token) else '[{name}_{n}]',
             'yara_rule': rule_body.strip()
         })
 

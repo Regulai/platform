@@ -246,3 +246,20 @@ class RuleFormObfuscateTests(TestCase):
                 self.rule.refresh_from_db()
                 self.assertEqual(self.rule.action, 'obfuscate')
                 self.assertEqual(self.rule.obfuscate_token, '[DNI_{n}]')
+
+
+class ChatShowsObfuscationTests(SeededRulesTestCase):
+    def test_conversation_page_shows_original_and_masked_text(self):
+        from .models import Message
+        conversation = Conversation.objects.create(user=self.user)
+        conversation.set_obfuscation_context({'[IP_1]': '8.8.8.8'})
+        conversation.save()
+        Message.objects.create(conversation=conversation, role='user', content='mi ip es [IP_1]',
+                               is_obfuscated=True, obfuscated_entities=['IP'])
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('front:chat_conversation', args=[conversation.id]))
+
+        self.assertContains(response, '<div class="content-original">mi ip es 8.8.8.8</div>', html=True)
+        self.assertContains(response, 'mi ip es [IP_1]')
+        self.assertContains(response, 'Sent to AI')
