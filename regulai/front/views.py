@@ -1826,6 +1826,13 @@ def chat_view(request, conversation_id=None):
     chat_messages = []
     if conversation:
         chat_messages = list(conversation.messages.all())
+        # Only the masked text is stored; rebuild the original for display
+        # from the conversation's (encrypted) token map.
+        if any(m.is_obfuscated for m in chat_messages):
+            obf_context = conversation.get_obfuscation_context()
+            for m in chat_messages:
+                if m.is_obfuscated:
+                    m.original_content = deobfuscate(m.content, obf_context)
 
     return render(request, "chat/chat.html", {
         "conversation": conversation,
@@ -3044,7 +3051,7 @@ def _chat_send_message_stream_impl(request, conversation_id=None):
 
         try:
             # First, send metadata
-            yield f"data: {json.dumps({'type': 'start', 'conversation_id': conversation.id, 'user_message': {'id': user_message.id, 'content': display_content, 'file_name': file_name, 'file_size': file_size}})}\n\n"
+            yield f"data: {json.dumps({'type': 'start', 'conversation_id': conversation.id, 'user_message': {'id': user_message.id, 'content': display_content, 'file_name': file_name, 'file_size': file_size, 'is_obfuscated': bool(obfuscation_context), 'obfuscated_entities': obfuscated_entity_types}})}\n\n"
 
             # Build messages history for context using ChatMessage objects
             chat_messages = []
@@ -3239,8 +3246,13 @@ Always use these tools when the user explicitly asks for a file to be created or
             # Update conversation timestamp
             conversation.save()
 
-            # Send completion event with message ID and file info
-            yield f"data: {json.dumps({'type': 'done', 'message_id': assistant_message.id, 'file_name': generated_file_name or assistant_message.file_name, 'file_size': generated_file_size or assistant_message.file_size, 'file_url': file_url})}\n\n"
+            # Send completion event with message ID and file info. With
+            # obfuscation, also send the restored text: the fallback stream
+            # emits the AI's raw tokens (e.g. [IP_1]) as they arrive.
+            done_event = {'type': 'done', 'message_id': assistant_message.id, 'file_name': generated_file_name or assistant_message.file_name, 'file_size': generated_file_size or assistant_message.file_size, 'file_url': file_url}
+            if obfuscation_context:
+                done_event['content'] = assistant_message.content
+            yield f"data: {json.dumps(done_event)}\n\n"
 
         except Exception as e:
             error_str = str(e).lower()
